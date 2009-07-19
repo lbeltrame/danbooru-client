@@ -43,17 +43,24 @@ class MainWindow(KXmlGuiWindow):
         self.start_index = 0
         self.firstrun = True
         self.cache = KPixmapCache("danbooru")
+        self.cache.discard()
         self.get_api()
         self.temp.clicked.connect(self.get_data)
     
     def get_api(self):
         api_url = "http://konachan.net/post/index.json?limit=5"
-        job = KIO.storedGet(KUrl(api_url))
-        self.connect(job, SIGNAL("finished(KJob*)"), self.process_api)
+        tempfile = KTemporaryFile()
+        if tempfile.open():
+            job = KIO.file_copy(KUrl(api_url), KUrl(tempfile.fileName()), -1,
+                                KIO.Overwrite)
+            job.ui().setWindow(self)
+            if KIO.NetAccess.synchronousRun(job, self):
+                self.process_api(job)
 
     def process_api(self, job):
-        data = job.data()
-        values = json.loads(str(data))
+        data = job.destUrl()
+        test = open(data.path())
+        values = json.load(test)
         for item in values:
             url = item["preview_url"]
             self.urls.append(url)
@@ -66,9 +73,15 @@ class MainWindow(KXmlGuiWindow):
             pixmap = QPixmap()
 
             if not self.cache.find(name, pixmap):
-                arfa = KIO.storedGet(url, KIO.NoReload, KIO.DefaultFlags)
-                # Won't work using new-style signal overloads
-                self.connect(arfa, SIGNAL("finished(KJob*)"), self.dataishere)
+                tempfile = KTemporaryFile()
+                if tempfile.open():
+                    job = KIO.file_copy(KUrl(url), KUrl(tempfile.fileName()),
+                                        -1, KIO.Overwrite)
+                    job.ui().setWindow(self)
+                    if KIO.NetAccess.synchronousRun(job, self):
+                        self.process_data(job)
+                        KIO.NetAccess.removeTempFile(tempfile.fileName())
+
             else:
                 self.setCentralWidget(self.area)
                 label = QLabel()
@@ -76,13 +89,12 @@ class MainWindow(KXmlGuiWindow):
                 self.layout.addWidget(label, 0, self.start_index)
                 self.start_index += 1
                 self.area.setLayout(self.layout)
-        self.get_api()
 
-    def dataishere(self, job):
+    def process_data(self, job):
 
         img = QImage()
-        data = job.data()
-        img.loadFromData(data)
+        dest = job.destUrl()
+        img.load(dest.path())
 
         if not img.isNull():
             label = QLabel()
@@ -91,8 +103,8 @@ class MainWindow(KXmlGuiWindow):
             self.layout.addWidget(label, 0, self.start_index)
             self.start_index += 1
 
-            name = job.url().fileName()
-            
+            name = job.srcUrl().fileName()
+                       
             if not self.cache.find(name, pixmap):
                 self.cache.insert(name, pixmap)
 
@@ -101,7 +113,7 @@ class MainWindow(KXmlGuiWindow):
             self.area.setLayout(self.layout)
             self.firstrun =False
 
-        time.sleep(2)
+        time.sleep(1)
 
 KCmdLineArgs.init(sys.argv, about_data)
 app = KApplication()
