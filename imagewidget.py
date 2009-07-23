@@ -14,7 +14,7 @@ class ThumbnailView(QWidget):
         #FIXME: Pass a dictionary of parameters, much better
         super(ThumbnailView, self).__init__(parent)
         
-        self.api_url = api_url
+        self.api_url = KUrl(api_url)
         self.urls = list()
         self.cache = cache
         self.column_index = 0
@@ -24,7 +24,9 @@ class ThumbnailView(QWidget):
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
 
-    def get_api(self):
+    def api_call(self):
+
+        #FIXME: Move to separate module
         tempfile = KTemporaryFile()
         if tempfile.open():
             flags = KIO.JobFlags(KIO.Overwrite | KIO.HideProgressInfo)
@@ -55,7 +57,10 @@ class ThumbnailView(QWidget):
     def create_image_label(self, image=None, pixmap=None):
         
         label = QLabel()
-        pixmap = QPixmap.fromImage(image) if not pixmap else pixmap
+        try:
+            pixmap = QPixmap.fromImage(image) if not pixmap else pixmap
+        except TypeError:
+            pixmap = QPixmap()
         
         if pixmap.isNull():
             return
@@ -82,7 +87,6 @@ class ThumbnailView(QWidget):
                         self.process_thumbnails(job)
                         KIO.NetAccess.removeTempFile(tempfile.fileName())
             else:
-                self.setCentralWidget(self.area)
                 label = create_image_label(pixmap=pixmap)
                 if label is not None:
                     self.insert_items(label)
