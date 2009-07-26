@@ -48,20 +48,11 @@ class MainWindow(KXmlGuiWindow):
         
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
-        #api_init = api.Danbooru("http://konachan.com/")
-        #posts = api_init.get_post_list()
-        #urls = api_init.get_thumbnail_urls(posts)
-
-        self.temp = KPushButton("Start operation")
-        self.setCentralWidget(self.temp)
+        self.config = KGlobal.config()
+        self.welcome = QLabel("Welcome to Danbooru Client!")
+        self.welcome.setAlignment(Qt.AlignCenter)
+        self.setCentralWidget(self.welcome)
         self.setup_actions()
-
-        #self.view = imagewidget.ThumbnailView(urls, self.cache)
-        #self.temp.clicked.connect(self.start)
-
-    #def start(self):
-        #self.setCentralWidget(self.view)
-        #self.view.retrieve_thumbnails()
 
     def setup_actions(self):
 
@@ -74,8 +65,13 @@ class MainWindow(KXmlGuiWindow):
 
         self.actionCollection().addAction("connect", connect_action)
         KStandardAction.quit (app.quit, self.actionCollection())
+        KStandardAction.preferences(self.prefs_test, self.actionCollection())
         self.setupGUI(QSize(300,200), KXmlGuiWindow.Default,
                       os.path.join(sys.path [0], "danbooruui.rc"))
+
+    def prefs_test(self):
+        print "Config button clicked"
+
     
 KCmdLineArgs.init(sys.argv, about_data)
 app = KApplication()
