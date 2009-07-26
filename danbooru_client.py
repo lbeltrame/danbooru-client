@@ -48,18 +48,34 @@ class MainWindow(KXmlGuiWindow):
         
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
-        api_init = api.Danbooru("http://konachan.com/")
-        posts = api_init.get_post_list()
-        urls = api_init.get_thumbnail_urls(posts)
+        #api_init = api.Danbooru("http://konachan.com/")
+        #posts = api_init.get_post_list()
+        #urls = api_init.get_thumbnail_urls(posts)
 
         self.temp = KPushButton("Start operation")
         self.setCentralWidget(self.temp)
-        self.view = imagewidget.ThumbnailView(urls, self.cache)
-        self.temp.clicked.connect(self.start)
+        self.setup_actions()
 
-    def start(self):
-        self.setCentralWidget(self.view)
-        self.view.retrieve_thumbnails()
+        #self.view = imagewidget.ThumbnailView(urls, self.cache)
+        #self.temp.clicked.connect(self.start)
+
+    #def start(self):
+        #self.setCentralWidget(self.view)
+        #self.view.retrieve_thumbnails()
+
+    def setup_actions(self):
+
+        connect_action = KAction(KIcon("document-open-remote"),
+                                 i18n("Connect"), self)
+        connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
+        connect_active = KAction.ShortcutTypes(KAction.ActiveShortcut)
+        connect_action.setShortcut(QKeySequence.Open,
+                                   connect_default | connect_active)
+
+        self.actionCollection().addAction("connect", connect_action)
+        KStandardAction.quit (app.quit, self.actionCollection())
+        self.setupGUI(QSize(300,200), KXmlGuiWindow.Default,
+                      os.path.join(sys.path [0], "danbooruui.rc"))
     
 KCmdLineArgs.init(sys.argv, about_data)
 app = KApplication()
