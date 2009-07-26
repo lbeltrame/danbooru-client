@@ -13,10 +13,11 @@ from PyKDE4.kdeui import *
 from PyKDE4.kio import KIO
 
 import imagewidget
+import api
 
 app_name="DanbooruRetrieve"
 catalog = ""
-program_name = ki18n("helloworld")
+program_name = ki18n("Danbooru Client")
 version = "1.0"
 description = ki18n("A client for Danbooru sites.")
 license = KAboutData.License_GPL
@@ -33,20 +34,19 @@ class MainWindow(KXmlGuiWindow):
     def __init__(self):
         
         KXmlGuiWindow.__init__(self)
-        api_url =  "http://konachan.net/post/index.json?limit=5"
         self.cache = KPixmapCache("danbooru")
-        
+        api_init = api.Danbooru("http://konachan.com/")
+        posts = api_init.get_post_list()
+        urls = api_init.get_thumbnail_urls(posts)
+
         self.temp = KPushButton("Start operation")
         self.setCentralWidget(self.temp)
-        self.view = imagewidget.ThumbnailView(api_url, self.cache)
+        self.view = imagewidget.ThumbnailView(urls, self.cache)
         self.temp.clicked.connect(self.start)
 
     def start(self):
         self.setCentralWidget(self.view)
-        self.view.api_call()
-        self.view.get_preview_urls()
         self.view.retrieve_thumbnails()
-        self.view.process_thumbnails()
     
 KCmdLineArgs.init(sys.argv, about_data)
 app = KApplication()
