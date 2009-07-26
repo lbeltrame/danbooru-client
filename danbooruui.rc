@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
+<gui name="KAction" version="1.2">
+  <ToolBar name="mainToolBar" >
+    <text>Main Toolbar</text>
+      <Action name="connect" />
+      <ActionList name="dynamicActionlist" />
+  </ToolBar>
+  <MenuBar>
+    <Menu name="file" >
+        <text>&amp;File</text>
+        <Action name="connect" />
+    </Menu>
+  </MenuBar>
+</gui>
