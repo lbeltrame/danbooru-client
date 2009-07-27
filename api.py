@@ -17,9 +17,11 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import json
-import urllib
+
+from PyQt4.QtCore import QString
 
 from PyKDE4.kdecore import KUrl
+from PyKDE4.kio import KIO
 
 "Module that provides a wrapper for Danbooru API calls."
 
@@ -44,9 +46,11 @@ class Danbooru(object):
         request_url = ''.join((self.url, self.POST_URL, "?",
                                     limit_parameter))
         data = None
-        print request_url
-        api_response = urllib.urlopen(request_url)
-        data = json.load(api_response)
+        tempfile = QString()
+        if KIO.NetAccess.download(KUrl(request_url), tempfile):
+            api_response = open(tempfile)
+            data = json.load(api_response)
+            KIO.NetAccess.removeTempFile(tempfile)
                 
         return data
     
