@@ -40,6 +40,10 @@ class Danbooru(object):
         self.url = api_url
         self.parent = parent
 
+        check_job = KIO.stat(KUrl(api_url), KIO.HideProgressInfo)
+        if not KIO.NetAccess.synchronousRun(check_job, None):
+            print "There was an error retrieving the API url!"
+
     def get_post_list(self, limit=5, tags=None):
         
         limit_parameter = "limit=%d" % limit
@@ -47,7 +51,7 @@ class Danbooru(object):
                                     limit_parameter))
         data = None
         tempfile = QString()
-        if KIO.NetAccess.download(KUrl(request_url), tempfile):
+        if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
             api_response = open(tempfile)
             data = json.load(api_response)
             KIO.NetAccess.removeTempFile(tempfile)
