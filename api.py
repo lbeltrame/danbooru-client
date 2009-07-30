@@ -19,8 +19,9 @@
 import json
 
 from PyQt4.QtCore import QString
+from PyQt4.QtGui import QPixmap
 
-from PyKDE4.kdecore import KUrl
+from PyKDE4.kdecore import KUrl, KTemporaryFile
 from PyKDE4.kio import KIO
 
 "Module that provides a wrapper for Danbooru API calls."
@@ -32,15 +33,15 @@ class Danbooru(object):
     POST_URL = "post/index.json"
     TAG_URL = "tag/index.json"
 
-    def __init__(self, api_url, parent=None):
+    def __init__(self, api_url, cache=None):
         
         if not api_url.endswith("/"):
             api_url = api_url + "/"
 
         self.url = api_url
-        self.parent = parent
+        self.cache = cache
 
-        check_job = KIO.stat(KUrl(api_url), KIO.HideProgressInfo)
+        check_job = KIO.stat(KUrl(self.url), KIO.HideProgressInfo)
         if not KIO.NetAccess.synchronousRun(check_job, None):
             print "There was an error retrieving the API url!"
 
@@ -55,6 +56,9 @@ class Danbooru(object):
             api_response = open(tempfile)
             data = json.load(api_response)
             KIO.NetAccess.removeTempFile(tempfile)
+        else:
+            pass
+            #FIXME: Process errors
                 
         return data
     
@@ -74,5 +78,23 @@ class Danbooru(object):
 
         return picture_url
         
+    def retrieve_thumbnail(self, url):
+        
+        name = url.fileName()
+        pixmap = QPixmap()
 
+        if not self.cache.find(name, pixmap):
+            tempfile = KTemporaryFile()
+
+            if tempfile.open():
+                flags = KIO.JobFlags(KIO.Overwrite | KIO.HideProgressInfo)
+                job = KIO.file_copy(KUrl(url), KUrl(tempfile.fileName()),
+                                    None, flags)
+                
+                if KIO.NetAccess.synchronousRun(job, self):
+                    pixmap = QPixmap.load(job.destUrl().path())
+                    KIO.NetAccess.removeTempFile(tempfile.fileName())
+                    return pixmap, name
+        else:
+            return pixmap, name
 
