@@ -23,20 +23,20 @@ from PyQt4.QtGui import *
 
 from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
-from PyKDE4.kio import KIO
+
+#TODO: Switch to model/view
 
 class ThumbnailView(QWidget):
 
-    def __init__(self, urls, cache, parent=None):
+    def __init__(self,api_data, parent=None):
 
         #FIXME: Pass a dictionary of parameters, much better
         super(ThumbnailView, self).__init__(parent)
         
-        self.urls = urls
-        self.cache = cache
         self.column_index = 0
         self.max_row_items = 3
         self.row_index = 0
+        self.api_data = api_data
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
@@ -49,59 +49,30 @@ class ThumbnailView(QWidget):
         self.layout.addWidget(widget, self.row_index, self.column_index)
         self.column_index += 1
 
-    def create_image_label(self, image=None, pixmap=None):
+    def create_image_label(self, pixmap=None):
         
         label = QLabel()
-        try:
-            pixmap = QPixmap.fromImage(image) if not pixmap else pixmap
-        except TypeError:
-            pixmap = QPixmap()
+
+        pixmap = QPixmap() if not pixmap else pixmap
         
         if pixmap.isNull():
             return
         
         label.setPixmap(pixmap)
         
-        return label, pixmap
+        return label
           
-    def retrieve_thumbnails(self):
+    def display_thumbnails(self, urls):
         
-        for url in self.urls:
-            name = url.fileName()
-            pixmap = QPixmap()
-
-            if not self.cache.find(name, pixmap):
-                tempfile = KTemporaryFile()
-
-                if tempfile.open():
-                    flags = KIO.JobFlags(KIO.Overwrite | KIO.HideProgressInfo)
-                    job = KIO.file_copy(KUrl(url), KUrl(tempfile.fileName()),
-                                        -1, flags)
-                    job.ui().setWindow(self)
-                    
-                    if KIO.NetAccess.synchronousRun(job, self):
-                        self.process_thumbnails(job)
-                        KIO.NetAccess.removeTempFile(tempfile.fileName())
-            else:
-                label, pixmap = self.create_image_label(pixmap=pixmap)
-                if label is not None:
-                    self.insert_items(label)
-
-    def process_thumbnails(self, job):
-
-        img = QImage()
-        dest = job.destUrl()
-        img.load(dest.path())
-
-        if not img.isNull():
-
-            label, pixmap = self.create_image_label(image=img)
+        for url in urls:
             
-            if label is not None:
+            pixmap, name = self.api_data.get_thumbnail(url)
+            label = self.create_image_label(pixmap)
+            if label:
                 self.insert_items(label)
-                name = job.srcUrl().fileName()
-                      
-                if not self.cache.find(name, pixmap):
-                    self.cache.insert(name, pixmap)
-
-        time.sleep(1) #TODO: Make configurable
+            else:
+                continue
+            
+            if not self.cache.find(name, pixmap):
+                self.cache.insert(name, pixmap)
+            time.sleep(1)
