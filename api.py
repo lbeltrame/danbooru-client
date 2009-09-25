@@ -17,9 +17,10 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import json
+import httplib
+from urlparse import urlparse
 
 from PyQt4.QtCore import QString
-
 from PyKDE4.kdecore import KUrl
 from PyKDE4.kio import KIO
 
@@ -31,48 +32,93 @@ class Danbooru(object):
 
     POST_URL = "post/index.json"
     TAG_URL = "tag/index.json"
+    POOL_URL = "pool/index.json"
+    ARTIST_URL = "pool/index.json"
 
-    def __init__(self, api_url, parent=None):
+    def __init__(self, api_url=None):
         
-        if not api_url.endswith("/"):
-            api_url = api_url + "/"
+        if api_url is not None:
+            ok = KIO.NetAccess.exists(KUrl(api_url),
+                                       KIO.NetAccess.DestinationSide, None)
+            if not ok:
+                return
+        else:
+            return
 
         self.url = api_url
-        self.parent = parent
+        self.data = None
 
-        check_job = KIO.stat(KUrl(api_url), KIO.HideProgressInfo)
-        if not KIO.NetAccess.synchronousRun(check_job, None):
-            print "There was an error retrieving the API url!"
+    def process_tags(tags):
+
+        "Method that validates and processes tags."
+
+        pass
 
     def get_post_list(self, limit=5, tags=None):
+
+        """Method to get posts with specific tags and limits. There is a hardcoded
+        limit of 100 posts in Danbooru, so limits > 100 will be ignored.."""
         
+        if limit > 100:
+            limit = 100
+
         limit_parameter = "limit=%d" % limit
         request_url = ''.join((self.url, self.POST_URL, "?",
                                     limit_parameter))
+        if tags:
+            tags = "+".join(tags)
+            request_url="&".join((request_url,tags))
+
         data = None
         tempfile = QString()
         if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
             api_response = open(tempfile)
-            data = json.load(api_response)
+            self.data = json.load(api_response)
             KIO.NetAccess.removeTempFile(tempfile)
-                
-        return data
-    
-    def get_thumbnail_urls(self, json_data):
+        
+        return True
+
+    def get_thumbnail_urls(self):
+
+        if self.data is None:
+            return
 
         urls = list()
-        for item in json_data:
+        for item in self.data:
             preview_url = KUrl(item["preview_url"])
             urls.append(preview_url)
 
         return urls
 
-    def get_picture_url(self, picture_index, json_data):
+    def get_picture_url(self, picture_index):
+
+        if self.data is None:
+            return
         
-        picture_data = json_data[picture_index]
+        picture_data = self.data[picture_index]
         picture_url = KUrl(picture_data["file_url"])
 
         return picture_url
         
+    def get_picture(self, picture_url):
+        pass
 
 
+def http_exists(url):
+
+    """Check whether a given URL exists. Returns True if found, False if
+    otherwise. Adapted from http://code.activestate.com/recipes/286225/"""
+
+    host, path = urlparse.urlsplit(url)[1:3]
+    try:
+        connection = httplib.HTTPConnection(host)  ## Make HTTPConnection Object
+        connection.request("HEAD", path)
+        responseOb = connection.getresponse()      ## Grab HTTPResponse Object
+
+        if responseOb.status == 200:
+            return True
+        else:
+            return False
+
+    except Exception, e:
+        return False
