@@ -17,8 +17,6 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import json
-import httplib
-from urlparse import urlparse
 
 from PyQt4.QtCore import QString
 from PyKDE4.kdecore import KUrl
@@ -35,11 +33,11 @@ class Danbooru(object):
     POOL_URL = "pool/index.json"
     ARTIST_URL = "pool/index.json"
 
-    def __init__(self, api_url=None):
+    def __init__(self, api_url):
         
         if api_url is not None:
             ok = KIO.NetAccess.exists(KUrl(api_url),
-                                       KIO.NetAccess.DestinationSide, None)
+                                      KIO.NetAccess.DestinationSide, None)
             if not ok:
                 return
         else:
@@ -82,7 +80,7 @@ class Danbooru(object):
 
         if self.data is None:
             return
-
+    
         urls = list()
         for item in self.data:
             preview_url = KUrl(item["preview_url"])
@@ -104,21 +102,3 @@ class Danbooru(object):
         pass
 
 
-def http_exists(url):
-
-    """Check whether a given URL exists. Returns True if found, False if
-    otherwise. Adapted from http://code.activestate.com/recipes/286225/"""
-
-    host, path = urlparse.urlsplit(url)[1:3]
-    try:
-        connection = httplib.HTTPConnection(host)  ## Make HTTPConnection Object
-        connection.request("HEAD", path)
-        responseOb = connection.getresponse()      ## Grab HTTPResponse Object
-
-        if responseOb.status == 200:
-            return True
-        else:
-            return False
-
-    except Exception, e:
-        return False
