@@ -1,3 +1,12 @@
+2009-09-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py: Add a generic function to download images. Also, add stubs for most
+  of the API calls.
+
+  * TODO: Add TODO
+
+  * ChangeLog: Add automatically generated ChangeLog
+
 2009-09-25  Luca Beltrame <einar@heavensinferno.net>
 
   * api.py: More error checking and URLs for the various API bits
