@@ -19,10 +19,12 @@
 import json
 import urlparse
 
-from PyQt4.QtCore import QString
+from PyQt4.QtCore import *
 from PyQt4.QtGui import QImage
-from PyKDE4.kdecore import KUrl, KTemporaryFile
+from PyKDE4.kdecore import *
 from PyKDE4.kio import KIO
+
+import hashes
 
 "Module that provides a wrapper for Danbooru API calls."
 
@@ -35,11 +37,11 @@ class Danbooru(object):
     _POOL_URL = "pool/index.json"
     _ARTIST_URL = "pool/index.json"
 
-    def __init__(self, api_url):
-        
+    def __init__(self, api_url, login=None, password=None):
+
         if api_url is not None:
             ok = KIO.NetAccess.exists(KUrl(api_url),
-                                      KIO.NetAccess.DestinationSide, None)
+                                      KIO.NetAccess.SourceSide, None)
             if not ok:
                 return
         else:
@@ -47,6 +49,8 @@ class Danbooru(object):
 
         self.url = api_url
         self.data = None
+        self.__login = login if login else None
+        self.__pwhash = hashes.generate_hash(password) if password else None
 
     def process_tags(tags):
 
@@ -66,18 +70,27 @@ class Danbooru(object):
         limit_parameter = "limit=%d" % limit
         if tags:
             tags = "+".join(tags)
+            tags = "tags="+tags
         else:
             tags = ""
-        parameters = "?"+"&".join((tags, limit_parameter))
+        parameters = "&".join((tags, limit_parameter))
+        parameters = parameters.lstrip("&")
+        parameters = "?" + parameters
         request_url = urlparse.urljoin(self.url, self._POST_URL)
-
-        request_url = request_url.rstrip("&") # Remove last &
+        request_url = urlparse.urljoin(request_url, parameters)
 
         tempfile = QString()
+        
+        #FIXME: It's broken with Danbooru 1.13.x
+
         if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
             api_response = open(tempfile)
             self.data = json.load(api_response)
             KIO.NetAccess.removeTempFile(tempfile)
+
+            if "sucess" in self.data[0]:
+                if not self.data[0]["success"]:
+                    return False
         else:
             return False
         
@@ -133,14 +146,12 @@ class Danbooru(object):
             else:
                 flags = KIO.JobFlags(KIO.Overwrite)
 
-            job = KIO.file_copy(KUrl(image_url), KUrl(tempfile.fileName()),
-                                         None, flags)
+        job = KIO.file_copy(KUrl(image_url), KUrl(tempfile.fileName()),
+                                         -1, flags)
         img = QImage()
 
-        if KIO.NetAccess.synchronousRun(job, self):
+        if KIO.NetAccess.synchronousRun(job, None):
             destination = job.destUrl()
             img.load(destination.path())
-        
-        KIO.NetAccess.removeTempFile(tempfile.fileName())
-
+       
         return img
