@@ -24,6 +24,7 @@ from PyQt4.QtGui import *
 
 from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
+from PyKDE4.kio import KIO
 
 import imagewidget
 import api

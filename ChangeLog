@@ -1,5 +1,15 @@
 2009-09-26  Luca Beltrame <einar@heavensinferno.net>
 
+  * hashes.py: Add the hash calculation module
+
+  * testapi.py: Proper unit tests for the functions implemented so far.
+
+  * api.py: Some methods cleanup - thank goodness for unit tests!
+
+  * testapi.py: Stub for unit tests for the API.
+
+  * ChangeLog: ChangeLog updated
+
   * api.py: Add a generic function to download images. Also, add stubs for most
   of the API calls.
 
