@@ -161,7 +161,7 @@ def setup_kapplication():
 
 def nepomuk_running():
 
-    """Function to check whether Nepomuk is running or not via DBus. Returns False
+    """Function to check whether Nepomuk is running or. Returns False
     if Nepomuk is not running, and True otherwise."""
 
     result = Nepomuk.ResourceManager.instance().init()
@@ -181,6 +181,12 @@ def main():
     options.add("+target", ki18n("File or directory to tag"))
     options.add("r").add("recursive", ki18n("Scan a directory recursively"))
 
+    # We're a command line program! No use for KDE or Qt options.
+
+    KCmdLineArgs.addStdCmdLineOptions(KCmdLineArgs.StdCmdLineArgs(
+        KCmdLineArgs.CmdLineArgNone)
+    )
+
     KCmdLineArgs.addCmdLineOptions(options)
 
     setup_kapplication()
@@ -189,12 +195,12 @@ def main():
     args = KCmdLineArgs.parsedArgs()
 
     if not nepomuk_running():
-        print "Nepomuk service not running."
+        print "Nepomuk service not running. Please check your installation."
         sys.exit(-1)
 
     if args.count() == 0:
-        print "Not enough arguments."
-        sys.exit(-1)
+        KCmdLineArgs.enable_i18n()
+        KCmdLineArgs.usageError(i18n("Not enough arguments."))
 
     target = args.arg(0)
 
