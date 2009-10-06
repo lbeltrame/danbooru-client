@@ -38,7 +38,9 @@ from PyKDE4.kdeui import *
 # Regexp to filter out the board name and post ID from the filename
 BOARD_REGEX = re.compile("(.*[0-9]+)\s(.*)(.jpe?g|.gif|.png|.tif)")
 # Tags we don't want in, because they're uninformative
-TAGS_BLACKLIST = ["sample_resized", "tagme", "duplicate", "jpeg_artifacts"]
+TAGS_BLACKLIST = ["hentai","sample_resized", "tagme", "duplicate",
+                  "jpeg_artifacts", "ass", "breasts", "pantsu", "loli",
+                 "erect_nipples"]
 
 def tag_directory(path,recursive=False):
 
@@ -52,7 +54,6 @@ def tag_directory(path,recursive=False):
             directory = basedir.next()
             contents = QDir(directory)
             contents.setFilter(QDir.Files)
-            contents.nameFilters(["*.jpeg","*.jpg","*.png","*.tif","*.gif"])
             files = contents.entryInfoList()
 
             for filename in files:
@@ -60,7 +61,6 @@ def tag_directory(path,recursive=False):
     else:
         contents = QDir(path)
         contents.setFilter(QDir.Files)
-        contents.nameFilters(["*.jpeg","*.jpg","*.png","*.tif","*.gif"])
         files = contents.entryInfoList()
 
         for filename in files:
@@ -142,14 +142,14 @@ def setup_kapplication():
 
     "Function to set up KAboutData."
 
-    app_name="Danbooru2nepomuk"
+    app_name="danbooru2nepomuk"
     catalog = ""
-    program_name = ki18n("Danbooru2nepomuk")
-    version = "1.0"
+    program_name = ki18n("danbooru2nepomuk")
+    version = "0.1"
     description = ki18n("A tagger for files downloaded from Danbooru.")
     license = KAboutData.License_GPL
     copyright = ki18n("(C) 2009 Luca Beltrame")
-    text = ki18n("Test")
+    text = ki18n("An automatic Nepomuk tagger for Danbooru-downloaded images.")
     home_page = "http://www.dennogumi.org"
     bug_email = "einar@heavensinferno.net"
 
@@ -164,14 +164,12 @@ def nepomuk_running():
     """Function to check whether Nepomuk is running or not via DBus. Returns False
     if Nepomuk is not running, and True otherwise."""
 
-    bus = dbus.SessionBus()
+    result = Nepomuk.ResourceManager.instance().init()
 
-    try:
-        query = bus.get_object("org.kde.NepomukServer", "/nepomukserver")
-    except dbus.DBusException:
+    if result == 0:
+        return True
+    else:
         return False
-
-    return query.isNepomukEnabled()
 
 def main():
 
@@ -181,7 +179,7 @@ def main():
 
     options = KCmdLineOptions()
     options.add("+target", ki18n("File or directory to tag"))
-    options.add("r").add("recursive", ki18n("Scan a  directory recursively"))
+    options.add("r").add("recursive", ki18n("Scan a directory recursively"))
 
     KCmdLineArgs.addCmdLineOptions(options)
 
