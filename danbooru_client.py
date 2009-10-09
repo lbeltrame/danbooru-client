@@ -35,7 +35,7 @@ version = "1.0"
 description = ki18n("A client for Danbooru sites.")
 license = KAboutData.License_GPL
 copyright = ki18n("(C) 2009 Luca Beltrame")
-text = ki18n("Test")
+text = ki18n("Some descriptive text goes here.")
 home_page = "http://www.dennogumi.org"
 bug_email = "einar@heavensinferno.net"
 
