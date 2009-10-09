@@ -1,0 +1,92 @@
+2009-10-06  Luca Beltrame <einar@heavensinferno.net>
+
+  * preferences.py: Add skeleton for configuration dialog. UI file needs to be
+  done still.
+
+  * danbooru2nepomuk.py: Simpler code.
+
+  * danbooru2nepomuk.py: Simpler method to know whether Nepomuk is active or
+  not.
+
+2009-10-02  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru2nepomuk.py: Add a command line tagger. It will also be used to tag
+  the downloaded files.
+
+2009-09-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * test_api.py, testapi.py: Renames
+
+  * ChangeLog, danbooru_client.py: Don't forget some changes
+
+  * hashes.py: Add the hash calculation module
+
+  * testapi.py: Proper unit tests for the functions implemented so far.
+
+  * api.py: Some methods cleanup - thank goodness for unit tests!
+
+  * testapi.py: Stub for unit tests for the API.
+
+  * ChangeLog: ChangeLog updated
+
+  * api.py: Add a generic function to download images. Also, add stubs for most
+  of the API calls.
+
+  * TODO: Add TODO
+
+  * ChangeLog: Add automatically generated ChangeLog
+
+2009-09-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py: More error checking and URLs for the various API bits
+
+2009-07-30  Luca Beltrame <einar@heavensinferno.net>
+
+  * imagewidget.py: Move the download bits out of the image widget API
+
+  * api.py: Move the downloading mechanics to the API. The GUI should only
+  display, not perform lower level operations.
+
+2009-07-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py: Check also that the supplied URL exists.
+
+  * api.py: Re-add KIO support using the proper way (I should read API docs
+  better next time!). Thanks to Pino Toscano (pinotree) for the hint.
+
+2009-07-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru_client.py: Add a KStandardAction for preferences and make a simple
+  test. Start of KConfig usage, but I wonder if I should use KConfigXT, however
+  there are no real examples using PyKDE.
+
+  * danbooru_client.py: Support for KActions, with a connect action that does
+  nothing at the moment.
+
+  * danbooruui.rc: Add XML file for KActions support.
+
+  * api.py, danbooru_client.py, imagewidget.py: Add license information to the
+  files
+
+  * .gitignore: Remove unneded files
+
+  * danbooru_client.py, kioslave.py: Split up things. Made the API part almost
+  KDE independent (thinking about KUrls..). Now it's time to spice up the
+  application.
+
+2009-07-23  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py, imagewidget.py, kioslave.py: Various changes in the files, more
+  tests being done. Moved the API to a separte module
+
+2009-07-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * imagewidget.py: Add a proper widget file. Also, adjust KIO flags so they're
+  hidden.
+
+2009-07-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * kioslave.py: Port everything to synchronous download. I don't want to
+  overload the services.
+
+  * kioslave.py: Put this in so that next changes will be reverted if needed

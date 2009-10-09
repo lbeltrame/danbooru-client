@@ -17,84 +17,146 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import json
+import urlparse
+import time
 
-from PyQt4.QtCore import QString
+from PyQt4.QtCore import *
 from PyQt4.QtGui import QPixmap
-
-from PyKDE4.kdecore import KUrl, KTemporaryFile
+from PyKDE4.kdecore import *
 from PyKDE4.kio import KIO
+
+import hashes
 
 "Module that provides a wrapper for Danbooru API calls."
 
 class Danbooru(object):
 
-    "Class to provide a Python wrapper to the Danbooru API."
+    "Class to provide a PyKDE4 wrapper to the Danbooru API."
 
-    POST_URL = "post/index.json"
-    TAG_URL = "tag/index.json"
+    _POST_URL = "post/index.json"
+    _TAG_URL = "tag/index.json"
+    _POOL_URL = "pool/index.json"
+    _ARTIST_URL = "pool/index.json"
 
-    def __init__(self, api_url, cache=None):
-        
-        if not api_url.endswith("/"):
-            api_url = api_url + "/"
+    def __init__(self, api_url, login=None, password=None):
+
+        if api_url is not None:
+            ok = KIO.NetAccess.exists(KUrl(api_url),
+                                      KIO.NetAccess.SourceSide, None)
+            if not ok:
+                return
+        else:
+            return
 
         self.url = api_url
-        self.cache = cache
+        self.data = None
+        self.__login = login if login else None
+        self.__pwhash = hashes.generate_hash(password) if password else None
 
-        check_job = KIO.stat(KUrl(self.url), KIO.HideProgressInfo)
-        if not KIO.NetAccess.synchronousRun(check_job, None):
-            print "There was an error retrieving the API url!"
+    def process_tags(tags):
+
+        "Method that validates and processes tags."
+
+        pass
 
     def get_post_list(self, limit=5, tags=None):
-        
+
+        """Method to get posts with specific tags and limits. There is a hardcoded
+        limit of 100 posts in Danbooru, so limits > 100 will be ignored.
+        If present, tags must be supplied as a list."""
+
+        if limit > 100:
+            limit = 100
+
+        #FIXME:Hackish! Needs a programmatic construction
         limit_parameter = "limit=%d" % limit
-        request_url = ''.join((self.url, self.POST_URL, "?",
-                                    limit_parameter))
-        data = None
+        if tags:
+            tags = "+".join(tags)
+            tags = "tags="+tags
+        else:
+            tags = ""
+        parameters = "&".join((tags, limit_parameter))
+        parameters = parameters.lstrip("&")
+        parameters = "?" + parameters
+        request_url = urlparse.urljoin(self.url, self._POST_URL)
+        request_url = urlparse.urljoin(request_url, parameters)
+
         tempfile = QString()
+
+        #FIXME: It's broken with Danbooru 1.13.x
+
         if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
             api_response = open(tempfile)
-            data = json.load(api_response)
+            self.data = json.load(api_response)
             KIO.NetAccess.removeTempFile(tempfile)
+
+            if "sucess" in self.data[0]:
+                if not self.data[0]["success"]:
+                    return False
         else:
-            pass
-            #FIXME: Process errors
-                
-        return data
-    
-    def get_thumbnail_urls(self, json_data):
+            return False
+
+        return True
+
+    def get_tag_list(self):
+        pass
+
+    def get_pool_list(self):
+        pass
+
+    def get_artist_list(self):
+        pass
+
+    def get_thumbnail_urls(self):
+
+        "Gets thumbnail URLs from the current data."
+
+        if self.data is None:
+            return
 
         urls = list()
-        for item in json_data:
+        for item in self.data:
             preview_url = KUrl(item["preview_url"])
             urls.append(preview_url)
 
         return urls
 
-    def get_picture_url(self, picture_index, json_data):
-        
-        picture_data = json_data[picture_index]
+    def get_picture_url(self, picture_index):
+
+        "Retrieves an URL for a full picture."
+
+        if self.data is None:
+            return
+
+        picture_data = self.data[picture_index]
         picture_url = KUrl(picture_data["file_url"])
 
         return picture_url
-        
-    def retrieve_thumbnail(self, url):
-        
-        name = url.fileName()
-        pixmap = QPixmap()
 
-        if not self.cache.find(name, pixmap):
-            tempfile = KTemporaryFile()
+    def get_image(self, image_url, verbose=False):
 
-            if tempfile.open():
+        """Retrieves a picture (full or thumbnail) for a specific URL.
+        Returns a QImage. If for any reason the picture isn't downloaded,
+        returns a null QImage. Set verbose to true to view download progress."""
+
+        tempfile = KTemporaryFile()
+
+        if tempfile.open():
+
+            if not verbose:
                 flags = KIO.JobFlags(KIO.Overwrite | KIO.HideProgressInfo)
-                job = KIO.file_copy(KUrl(url), KUrl(tempfile.fileName()),
-                                    None, flags)
-                
-                if KIO.NetAccess.synchronousRun(job, self):
-                    pixmap = QPixmap.load(job.destUrl().path())
-                    KIO.NetAccess.removeTempFile(tempfile.fileName())
-                    return pixmap, name
-        else:
-            return pixmap, name
+            else:
+                flags = KIO.JobFlags(KIO.Overwrite)
 
+        job = KIO.file_copy(KUrl(image_url), KUrl(tempfile.fileName()),
+                                         -1, flags)
+        img = QPixmap()
+
+        if KIO.NetAccess.synchronousRun(job, None):
+            print "Getting!"
+            destination = job.destUrl()
+            name = image_url.fileName()
+            img.load(destination.path())
+            time.sleep(2)
+
+        return img, name
