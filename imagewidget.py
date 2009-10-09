@@ -28,18 +28,25 @@ from PyKDE4.kdeui import *
 
 class ThumbnailView(QWidget):
 
-    def __init__(self,api_data, parent=None):
+    def __init__(self,api_data, cache=None, parent=None):
 
-        #FIXME: Pass a dictionary of parameters, much better
+        #FIXME: Use the configured values
         super(ThumbnailView, self).__init__(parent)
-        
+
         self.column_index = 0
         self.max_row_items = 3
         self.row_index = 0
         self.api_data = api_data
+        self.cache = cache
+        self.parent = parent
+        # self.setFixedSize(100,100)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+                                       QSizePolicy.Expanding))
 
         self.layout = QGridLayout(self)
+        self.layout.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.setLayout(self.layout)
+        self.layout.setSizeConstraint(QLayout.SetDefaultConstraint)
 
     def insert_items(self, widget):
 
@@ -50,29 +57,40 @@ class ThumbnailView(QWidget):
         self.column_index += 1
 
     def create_image_label(self, pixmap=None):
-        
-        label = QLabel()
+
+        label = KUrlLabel()
 
         pixmap = QPixmap() if not pixmap else pixmap
-        
+
         if pixmap.isNull():
             return
-        
+
         label.setPixmap(pixmap)
-        
+        label.leftClickedUrl.connect(self.retrieve_url)
+
         return label
-          
+
     def display_thumbnails(self, urls):
-        
+
         for url in urls:
-            
-            pixmap, name = self.api_data.get_thumbnail(url)
+
+            pixmap, name = self.api_data.get_image(url)
             label = self.create_image_label(pixmap)
             if label:
                 self.insert_items(label)
             else:
                 continue
-            
+
             if not self.cache.find(name, pixmap):
                 self.cache.insert(name, pixmap)
             time.sleep(1)
+
+    def retrieve_url(self, url):
+        print "aza"
+        pass
+
+    def sizeHint(self):
+            return QSize(400,400)
+
+    def minimumSizeHint(self):
+            return QSize(200, 200)

@@ -45,7 +45,7 @@ app = KApplication()
 
 class TestDanbooruAPI(unittest.TestCase):
 
-    URL = "http://moe.imouto.org"
+    URL = "http://konachan.com"
 
     def setUp(self):
 
@@ -78,7 +78,7 @@ class TestDanbooruAPI(unittest.TestCase):
         self.assertTrue(check)
         picture = self.api.get_image(url, verbose=True)
         self.assertFalse(picture.isNull())
-        
+
 def main():
 
     suite = unittest.TestLoader().loadTestsFromTestCase(TestDanbooruAPI)

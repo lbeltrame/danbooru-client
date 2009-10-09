@@ -1,4 +1,23 @@
+2009-10-06  Luca Beltrame <einar@heavensinferno.net>
+
+  * preferences.py: Add skeleton for configuration dialog. UI file needs to be
+  done still.
+
+  * danbooru2nepomuk.py: Simpler code.
+
+  * danbooru2nepomuk.py: Simpler method to know whether Nepomuk is active or
+  not.
+
+2009-10-02  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru2nepomuk.py: Add a command line tagger. It will also be used to tag
+  the downloaded files.
+
 2009-09-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * test_api.py, testapi.py: Renames
+
+  * ChangeLog, danbooru_client.py: Don't forget some changes
 
   * hashes.py: Add the hash calculation module
 

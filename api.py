@@ -18,9 +18,10 @@
 
 import json
 import urlparse
+import time
 
 from PyQt4.QtCore import *
-from PyQt4.QtGui import QImage
+from PyQt4.QtGui import QPixmap
 from PyKDE4.kdecore import *
 from PyKDE4.kio import KIO
 
@@ -63,10 +64,11 @@ class Danbooru(object):
         """Method to get posts with specific tags and limits. There is a hardcoded
         limit of 100 posts in Danbooru, so limits > 100 will be ignored.
         If present, tags must be supplied as a list."""
-        
+
         if limit > 100:
             limit = 100
 
+        #FIXME:Hackish! Needs a programmatic construction
         limit_parameter = "limit=%d" % limit
         if tags:
             tags = "+".join(tags)
@@ -80,7 +82,7 @@ class Danbooru(object):
         request_url = urlparse.urljoin(request_url, parameters)
 
         tempfile = QString()
-        
+
         #FIXME: It's broken with Danbooru 1.13.x
 
         if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
@@ -93,7 +95,7 @@ class Danbooru(object):
                     return False
         else:
             return False
-        
+
         return True
 
     def get_tag_list(self):
@@ -111,7 +113,7 @@ class Danbooru(object):
 
         if self.data is None:
             return
-    
+
         urls = list()
         for item in self.data:
             preview_url = KUrl(item["preview_url"])
@@ -125,12 +127,12 @@ class Danbooru(object):
 
         if self.data is None:
             return
-        
+
         picture_data = self.data[picture_index]
         picture_url = KUrl(picture_data["file_url"])
 
         return picture_url
-        
+
     def get_image(self, image_url, verbose=False):
 
         """Retrieves a picture (full or thumbnail) for a specific URL.
@@ -148,10 +150,13 @@ class Danbooru(object):
 
         job = KIO.file_copy(KUrl(image_url), KUrl(tempfile.fileName()),
                                          -1, flags)
-        img = QImage()
+        img = QPixmap()
 
         if KIO.NetAccess.synchronousRun(job, None):
+            print "Getting!"
             destination = job.destUrl()
+            name = image_url.fileName()
             img.load(destination.path())
-       
-        return img
+            time.sleep(2)
+
+        return img, name

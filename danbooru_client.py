@@ -46,7 +46,7 @@ about_data = KAboutData(app_name, catalog, program_name, version, description,
 class MainWindow(KXmlGuiWindow):
 
     def __init__(self):
-        
+
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
         self.config = KGlobal.config()
@@ -67,13 +67,40 @@ class MainWindow(KXmlGuiWindow):
         self.actionCollection().addAction("connect", connect_action)
         KStandardAction.quit (app.quit, self.actionCollection())
         KStandardAction.preferences(self.prefs_test, self.actionCollection())
+
+        connect_action.triggered.connect(self.connect)
+
         self.setupGUI(QSize(300,200), KXmlGuiWindow.Default,
                       os.path.join(sys.path [0], "danbooruui.rc"))
 
     def prefs_test(self):
         print "Config button clicked"
 
-    
+    def connect(self, ok):
+
+        #izzo = KUrlLabel()
+        #img = QPixmap()
+        #img.load("/home/lb/Immagini/einar_avatar.jpg")
+        #izzo.setPixmap(img)
+        #self.setCentralWidget(izzo)
+        #izzo.leftClickedUrl.connect(self.test)
+        self.api = api.Danbooru("http://moe.imouto.org")
+        area = QScrollArea(self)
+        arf = imagewidget.ThumbnailView(self.api, cache=self.cache, parent=area)
+        area.setFrameStyle(QFrame.NoFrame)
+        area.setWidget(arf)
+        arf.setVisible(True)
+        self.setCentralWidget(area)
+
+        posts = self.api.get_post_list(limit=9, tags=["landscape"])
+        urls = self.api.get_thumbnail_urls()
+        arf.display_thumbnails(urls)
+
+
+    def test(self):
+        print "Toppato!"
+
+
 KCmdLineArgs.init(sys.argv, about_data)
 app = KApplication()
 mw = MainWindow()
