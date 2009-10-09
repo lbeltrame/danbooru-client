@@ -78,18 +78,12 @@ class MainWindow(KXmlGuiWindow):
 
     def connect(self, ok):
 
-        #izzo = KUrlLabel()
-        #img = QPixmap()
-        #img.load("/home/lb/Immagini/einar_avatar.jpg")
-        #izzo.setPixmap(img)
-        #self.setCentralWidget(izzo)
-        #izzo.leftClickedUrl.connect(self.test)
         self.api = api.Danbooru("http://moe.imouto.org")
         self.thumbnail = imagewidget.ThumbnailView(self.api, cache=self.cache)
-        #area.setFrameStyle(QFrame.NoFrame)
         
         self.area = QScrollArea()
         self.setCentralWidget(self.area)
+        self.area.setFrameStyle(QFrame.NoFrame)
         self.area.setWidget(self.thumbnail)
         self.area.setWidgetResizable(True)
 

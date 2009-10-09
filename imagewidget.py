@@ -58,7 +58,6 @@ class ThumbnailView(QWidget):
         self.layout.addWidget(widget, self.row_index, self.column_index)
         self.column_index += 1
         self.adjustSize()
-        #self.resize(self.layout.sizeHint())
 
     def create_image_label(self, pixmap=None):
 
