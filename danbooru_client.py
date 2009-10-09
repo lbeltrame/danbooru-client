@@ -85,16 +85,16 @@ class MainWindow(KXmlGuiWindow):
         #self.setCentralWidget(izzo)
         #izzo.leftClickedUrl.connect(self.test)
         self.api = api.Danbooru("http://moe.imouto.org")
-        area = QScrollArea(self)
-        arf = imagewidget.ThumbnailView(self.api, cache=self.cache, parent=area)
-        area.setFrameStyle(QFrame.NoFrame)
-        area.setWidget(arf)
-        arf.setVisible(True)
-        self.setCentralWidget(area)
+        self.thumbnail = imagewidget.ThumbnailView(self.api, cache=self.cache)
+        #area.setFrameStyle(QFrame.NoFrame)
+        
+        self.area = QScrollArea()
+        self.setCentralWidget(self.area)
+        self.area.setWidget(self.thumbnail)
 
         posts = self.api.get_post_list(limit=9, tags=["landscape"])
         urls = self.api.get_thumbnail_urls()
-        arf.display_thumbnails(urls)
+        self.thumbnail.display_thumbnails(urls)
 
 
     def test(self):

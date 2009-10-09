@@ -151,11 +151,11 @@ class Danbooru(object):
         job = KIO.file_copy(KUrl(image_url), KUrl(tempfile.fileName()),
                                          -1, flags)
         img = QPixmap()
+        name = image_url.fileName()
 
         if KIO.NetAccess.synchronousRun(job, None):
             print "Getting!"
             destination = job.destUrl()
-            name = image_url.fileName()
             img.load(destination.path())
             time.sleep(2)
 

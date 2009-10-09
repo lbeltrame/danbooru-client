@@ -40,8 +40,10 @@ class ThumbnailView(QWidget):
         self.cache = cache
         self.parent = parent
         # self.setFixedSize(100,100)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
-                                       QSizePolicy.Expanding))
+        #self.setMinimumHeight(300)
+        #self.setMinimumWidth(300)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,
+                                       QSizePolicy.MinimumExpanding))
 
         self.layout = QGridLayout(self)
         self.layout.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -55,6 +57,8 @@ class ThumbnailView(QWidget):
             self.column_index = 0
         self.layout.addWidget(widget, self.row_index, self.column_index)
         self.column_index += 1
+        self.adjustSize()
+        self.resize(self.layout.sizeHint())
 
     def create_image_label(self, pixmap=None):
 
@@ -89,8 +93,8 @@ class ThumbnailView(QWidget):
         print "aza"
         pass
 
-    def sizeHint(self):
-            return QSize(400,400)
+    #def sizeHint(self):
+        #        return QSize(400,400)
 
-    def minimumSizeHint(self):
-            return QSize(200, 200)
+    #def minimumSizeHint(self):
+        #        return QSize(200, 200)
