@@ -91,6 +91,7 @@ class MainWindow(KXmlGuiWindow):
         self.area = QScrollArea()
         self.setCentralWidget(self.area)
         self.area.setWidget(self.thumbnail)
+        self.area.setWidgetResizable(True)
 
         posts = self.api.get_post_list(limit=9, tags=["landscape"])
         urls = self.api.get_thumbnail_urls()
