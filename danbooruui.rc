@@ -4,12 +4,14 @@
   <ToolBar name="mainToolBar" >
     <text>Main Toolbar</text>
       <Action name="connect" />
+      <Action name="fetch" />
       <ActionList name="dynamicActionlist" />
   </ToolBar>
   <MenuBar>
     <Menu name="file" >
         <text>&amp;File</text>
         <Action name="connect" />
+	<Action name="fetch" />
     </Menu>
   </MenuBar>
 </gui>
