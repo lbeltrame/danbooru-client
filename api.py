@@ -155,8 +155,8 @@ class Danbooru(object):
         img = QPixmap()
         name = image_url.fileName()
 
+        # To prevent server overloads, we can't really use async jobs
         if KIO.NetAccess.synchronousRun(job, None):
-            print "Getting!"
             destination = job.destUrl()
             img.load(destination.path())
             time.sleep(2)
