@@ -40,20 +40,22 @@ class Danbooru(object):
 
     def __init__(self, api_url, login=None, password=None):
 
-        if api_url is not None:
-            ok = KIO.NetAccess.exists(KUrl(api_url),
-                                      KIO.NetAccess.SourceSide, None)
-            if not ok:
-                return
-        else:
-            return
+        result = self.validate_url(api_url)
+
+        if not result:
+            raise IOError, "The given URL does not exist."
 
         self.url = api_url
         self.data = None
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
 
-    def process_tags(tags):
+    def validate_url(self, url):
+        ok = KIO.NetAccess.exists(KUrl(url), True, None)
+        print "Result: ", ok
+        return ok
+
+    def process_tags(selftags):
 
         "Method that validates and processes tags."
 
