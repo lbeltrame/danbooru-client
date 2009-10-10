@@ -77,7 +77,10 @@ class ConnectDialog(KDialog):
             return
         KDialog.accept(self)
 
-    def danbooru(self):
+    def danbooru_api(self):
+
+        if self.danbooru is None:
+            return
 
         return self.danbooru
 
