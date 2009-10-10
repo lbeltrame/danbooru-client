@@ -76,7 +76,7 @@ class TestDanbooruAPI(unittest.TestCase):
         url = self.api.get_picture_url(0)
         check = KIO.NetAccess.exists(url, KIO.NetAccess.SourceSide, None)
         self.assertTrue(check)
-        picture = self.api.get_image(url, verbose=True)
+        picture, name = self.api.get_image(url, verbose=True)
         self.assertFalse(picture.isNull())
 
 def main():
