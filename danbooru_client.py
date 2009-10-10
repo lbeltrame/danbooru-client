@@ -24,9 +24,9 @@ from PyQt4.QtGui import *
 
 from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
-from PyKDE4.kio import KIO
 
 import imagewidget
+import connect_dialog
 import api
 
 app_name="DanbooruRetrieve"
@@ -49,26 +49,41 @@ class MainWindow(KXmlGuiWindow):
 
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
-        self.config = KGlobal.config()
         self.welcome = QLabel("Welcome to Danbooru Client!")
         self.welcome.setAlignment(Qt.AlignCenter)
         self.setCentralWidget(self.welcome)
+        self.setup_config()
         self.setup_actions()
+
+    def setup_config(self):
+        #FIXME: Temporary, to test things, before moving to KConfigXT
+        self.config = KGlobal.config()
+        self.general_config = KConfigGroup(self.config, "General")
+        url_list = self.general_group.readEntry("lastVisited",QStringList())
+        self.url_history = url_list.toStringList()
 
     def setup_actions(self):
 
         connect_action = KAction(KIcon("document-open-remote"),
                                  i18n("Connect"), self)
+        fetch_action = KAction(KIcon("download"), i18n("Fetch"), self)
+
         connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
         connect_active = KAction.ShortcutTypes(KAction.ActiveShortcut)
+
         connect_action.setShortcut(QKeySequence.Open,
                                    connect_default | connect_active)
+        fetch_action.setShortcut(QKeySequence.Find,
+                                 connect_default | connect_active)
 
         self.actionCollection().addAction("connect", connect_action)
+        self.actionCollection().addAction("fetch", fetch_action)
+
         KStandardAction.quit (app.quit, self.actionCollection())
         KStandardAction.preferences(self.prefs_test, self.actionCollection())
 
         connect_action.triggered.connect(self.connect)
+        fetch_action.triggered.connect(self.fetch)
 
         self.setupGUI(QSize(300,200), KXmlGuiWindow.Default,
                       os.path.join(sys.path [0], "danbooruui.rc"))
@@ -78,9 +93,23 @@ class MainWindow(KXmlGuiWindow):
 
     def connect(self, ok):
 
+        dialog = connect_dialog.ConnectDialog(self.url_history, self)
+
+        if dialog.exec_():
+            self.api = dialog.danbooru
+            print type(dialog.url_history())
+            self.general_config.writeEntry("lastVisited", dialog.url_history())
+            self.general_config.config().sync()
+            self.statusBar().showMessage("Connected to %s" % self.api.url,  3000)
+
+    def fetch(self, ok):
+
+        if not self.api:
+            return
+
         self.api = api.Danbooru("http://moe.imouto.org")
         self.thumbnail = imagewidget.ThumbnailView(self.api, cache=self.cache)
-        
+
         self.area = QScrollArea()
         self.setCentralWidget(self.area)
         self.area.setFrameStyle(QFrame.NoFrame)
