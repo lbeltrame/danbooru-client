@@ -4,7 +4,8 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, version 2.
+#   it under the terms of the GNU General Public License, under 
+#   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,7 +28,6 @@ from PyKDE4.kdeui import *
 
 import imagewidget
 import connect_dialog
-import api
 
 app_name="DanbooruRetrieve"
 catalog = ""
@@ -59,7 +59,7 @@ class MainWindow(KXmlGuiWindow):
         #FIXME: Temporary, to test things, before moving to KConfigXT
         self.config = KGlobal.config()
         self.general_config = KConfigGroup(self.config, "General")
-        url_list = self.general_group.readEntry("lastVisited",QStringList())
+        url_list = self.general_config.readEntry("lastVisited",QStringList())
         self.url_history = url_list.toStringList()
 
     def setup_actions(self):
@@ -96,8 +96,7 @@ class MainWindow(KXmlGuiWindow):
         dialog = connect_dialog.ConnectDialog(self.url_history, self)
 
         if dialog.exec_():
-            self.api = dialog.danbooru
-            print type(dialog.url_history())
+            self.api = dialog.danbooru_api()
             self.general_config.writeEntry("lastVisited", dialog.url_history())
             self.general_config.config().sync()
             self.statusBar().showMessage("Connected to %s" % self.api.url,  3000)
@@ -107,7 +106,7 @@ class MainWindow(KXmlGuiWindow):
         if not self.api:
             return
 
-        self.api = api.Danbooru("http://moe.imouto.org")
+        #TODO Dialog here
         self.thumbnail = imagewidget.ThumbnailView(self.api, cache=self.cache)
 
         self.area = QScrollArea()
@@ -119,10 +118,6 @@ class MainWindow(KXmlGuiWindow):
         posts = self.api.get_post_list(limit=9, tags=["landscape"])
         urls = self.api.get_thumbnail_urls()
         self.thumbnail.display_thumbnails(urls)
-
-
-    def test(self):
-        print "Toppato!"
 
 
 KCmdLineArgs.init(sys.argv, about_data)
