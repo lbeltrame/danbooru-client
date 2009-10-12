@@ -17,6 +17,8 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+from __future__ import division
+
 import sys
 import os
 
@@ -27,21 +29,8 @@ from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
 
 import imagewidget
+import fetchdialog
 import connect_dialog
-
-app_name="DanbooruRetrieve"
-catalog = ""
-program_name = ki18n("Danbooru Client")
-version = "1.0"
-description = ki18n("A client for Danbooru sites.")
-license = KAboutData.License_GPL
-copyright = ki18n("(C) 2009 Luca Beltrame")
-text = ki18n("Some descriptive text goes here.")
-home_page = "http://www.dennogumi.org"
-bug_email = "einar@heavensinferno.net"
-
-about_data = KAboutData(app_name, catalog, program_name, version, description,
-                        license, copyright, text, home_page, bug_email)
 
 class MainWindow(KXmlGuiWindow):
 
@@ -55,7 +44,11 @@ class MainWindow(KXmlGuiWindow):
         self.setup_config()
         self.setup_actions()
 
+        self.progress = None
+        self.__step = 0
+
     def setup_config(self):
+
         #FIXME: Temporary, to test things, before moving to KConfigXT
         self.config = KGlobal.config()
         self.general_config = KConfigGroup(self.config, "General")
@@ -79,7 +72,7 @@ class MainWindow(KXmlGuiWindow):
         self.actionCollection().addAction("connect", connect_action)
         self.actionCollection().addAction("fetch", fetch_action)
 
-        KStandardAction.quit (app.quit, self.actionCollection())
+        KStandardAction.quit (self.close, self.actionCollection())
         KStandardAction.preferences(self.prefs_test, self.actionCollection())
 
         connect_action.triggered.connect(self.connect)
@@ -101,27 +94,97 @@ class MainWindow(KXmlGuiWindow):
             self.general_config.config().sync()
             self.statusBar().showMessage("Connected to %s" % self.api.url,  3000)
 
+    def setup_area(self):
+
+        self.thumbnailview = imagewidget.ThumbnailView(self.api,
+                                                       cache=self.cache)
+
+        self.area = QScrollArea()
+        self.setCentralWidget(self.area)
+        self.area.setFrameStyle(QFrame.NoFrame)
+        self.area.setBackgroundRole(QPalette.Dark)
+        self.area.setWidget(self.thumbnailview)
+        self.area.setWidgetResizable(True)
+
+        self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
+
+    def update_progress(self):
+
+        if self.progress is None:
+            return
+
+        self.__step += 1
+
+        self.progress.progressBar().setValue(self.__step)
+
+    def retrieve(self, tags, limit):
+
+        posts = self.api.get_post_list(limit=limit, tags=tags)
+
+        if not posts:
+            return
+
+        urls = self.api.get_thumbnail_urls()
+
+        max_steps = len(urls)
+
+        self.progress = KProgressDialog(self, "Retrieving", "Retrieving images...")
+        self.progress.adjustSize()
+        self.progress.setAutoClose(True)
+        self.progress.setAllowCancel(False)
+        # self.progress.setAutoReset(True)
+        self.progress.progressBar().setMaximum(max_steps)
+
+        self.thumbnailview.display_thumbnails(urls)
+
+        # Reset the counter in case of subsequent fetches
+        self.__step = 0
+
+    def clear(self):
+
+        blank = QWidget()
+        self.setCentralWidget(blank)
+
     def fetch(self, ok):
 
         if not self.api:
             return
 
-        #TODO Dialog here
-        self.thumbnail = imagewidget.ThumbnailView(self.api, cache=self.cache)
+        self.clear()
 
-        self.area = QScrollArea()
-        self.setCentralWidget(self.area)
-        self.area.setFrameStyle(QFrame.NoFrame)
-        self.area.setWidget(self.thumbnail)
-        self.area.setWidgetResizable(True)
+        dialog = fetchdialog.FetchDialog(self)
 
-        posts = self.api.get_post_list(limit=9, tags=["landscape"])
-        urls = self.api.get_thumbnail_urls()
-        self.thumbnail.display_thumbnails(urls)
+        if dialog.exec_():
+            tags = dialog.tags()
+            limit = dialog.limit()
 
+            self.setup_area()
+            self.retrieve(tags, limit)
 
-KCmdLineArgs.init(sys.argv, about_data)
-app = KApplication()
-mw = MainWindow()
-mw.show()
-app.exec_()
+        else:
+            return
+
+def main():
+
+    app_name="DanbooruRetrieve"
+    catalog = ""
+    program_name = ki18n("Danbooru Client")
+    version = "1.0"
+    description = ki18n("A client for Danbooru sites.")
+    license = KAboutData.License_GPL
+    copyright = ki18n("(C) 2009 Luca Beltrame")
+    text = ki18n("Some descriptive text goes here.")
+    home_page = "http://www.dennogumi.org"
+    bug_email = "einar@heavensinferno.net"
+
+    about_data = KAboutData(app_name, catalog, program_name, version, description,
+                        license, copyright, text, home_page, bug_email)
+
+    KCmdLineArgs.init(sys.argv, about_data)
+    app = KApplication()
+    mw = MainWindow()
+    mw.show()
+    app.exec_()
+
+if __name__ == '__main__':
+    main()
