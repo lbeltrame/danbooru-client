@@ -67,6 +67,8 @@ class ConnectDialog(KDialog):
         self.setMainWidget(self.connect_widget)
         self.setButtons(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel))
         self.setCaption("Enter a Danbooru URL")
+        self.adjustSize()
+
         if history is not None:
             self.connect_widget.urlBox.setHistoryItems(history, True)
 
@@ -104,7 +106,7 @@ class ConnectDialog(KDialog):
             self.urlBox.lineEdit().setText("Please enter a valid Danbooru URL.")
             return
         try:
-            danbooru = api.Danbooru(url, login=login, password=password)
+            danbooru = api.Danbooru(unicode(url), login=login, password=password)
         except IOError, error:
             return
         else:
