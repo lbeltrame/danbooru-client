@@ -55,7 +55,7 @@ class Danbooru(object):
         print "Result: ", ok
         return ok
 
-    def process_tags(selftags):
+    def process_tags(self, tags):
 
         "Method that validates and processes tags."
 
@@ -142,7 +142,6 @@ class Danbooru(object):
         returns a null QImage. Set verbose to true to view download progress."""
 
         tempfile = KTemporaryFile()
-
         if tempfile.open():
 
             if not verbose:
