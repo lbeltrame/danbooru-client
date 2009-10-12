@@ -1,3 +1,59 @@
+2009-10-12  Luca Beltrame <einar@heavensinferno.net>
+
+  * fetchdialog.py, ui/fetchdialog.ui, ui_fetchdialog.py: Dialog for fetching
+  posts.
+
+  * danbooru_client.py: Connect, progress and fetch dialogs. Also, a reset()
+  method to reset the central widget in case of multiple fetches.
+
+  * imagewidget.py: Get rid of cruft and bad layouting code.
+
+  * connect_dialog.py: QString does not equal to str() at least in Python 2.x
+
+  * api.py: Add a way to associate the full image URL with the thumbnail. Unit
+  tests need huge updates!
+
+2009-10-10  Luca Beltrame <einar@heavensinferno.net>
+
+  * connect_dialog.py: Stupid naming issue fixed
+
+  * api.py: Document why we use a sync call instead of async
+
+  * danbooru_client.py: License change and some fixes
+
+  * test_api.py: Updated unit tests for the API class.
+
+  * ui_connectdialog.py: uic-compiled file for connection dialog
+
+  * ui/connectdialog.ui: Raw UI file for connection dialog
+
+  * danbooruui.rc: Support for the fetch action
+
+  * api.py: Fixes and error reporting. Will need to migrate from
+  NetAccess.exists to custom code because it doesn't work reliably with HTTP
+  addresses.
+
+  * connect_dialog.py: First implementation of a connect dialog
+
+  * danbooru_client.py: Lots of changes. Config saving, and implementation of
+  the first actions
+
+2009-10-09  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru_client.py, imagewidget.py: Less cruft
+
+  * danbooru_client.py, imagewidget.py: Proper layouting was just a setter
+  away...
+
+  * api.py, danbooru_client.py, imagewidget.py: Layouting that works, still
+  ugly but it's a start.
+
+  * danbooru_client.py: Merge
+
+  * ChangeLog, api.py, danbooru_client.py, imagewidget.py, test_api.py: First
+  start of a proper visualization. However, QScrollArea doesn't work. Need to
+  investigate.
+
 2009-10-06  Luca Beltrame <einar@heavensinferno.net>
 
   * preferences.py: Add skeleton for configuration dialog. UI file needs to be
