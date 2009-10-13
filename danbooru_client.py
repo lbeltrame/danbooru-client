@@ -45,6 +45,7 @@ class MainWindow(KXmlGuiWindow):
         self.setup_actions()
 
         self.progress = None
+        self.thumbnailview = None
         self.__step = 0
 
     def setup_config(self):
@@ -75,7 +76,7 @@ class MainWindow(KXmlGuiWindow):
         KStandardAction.quit (self.close, self.actionCollection())
         KStandardAction.preferences(self.prefs_test, self.actionCollection())
 
-        connect_action.triggered.connect(self.connect)
+        connect_action.triggered.connect(self.connect_danbooru)
         fetch_action.triggered.connect(self.fetch)
 
         self.setupGUI(QSize(300,200), KXmlGuiWindow.Default,
@@ -84,7 +85,7 @@ class MainWindow(KXmlGuiWindow):
     def prefs_test(self):
         print "Config button clicked"
 
-    def connect(self, ok):
+    def connect_danbooru(self, ok):
 
         dialog = connect_dialog.ConnectDialog(self.url_history, self)
 
@@ -98,14 +99,7 @@ class MainWindow(KXmlGuiWindow):
 
         self.thumbnailview = imagewidget.ThumbnailView(self.api,
                                                        cache=self.cache)
-
-        self.area = QScrollArea()
-        self.setCentralWidget(self.area)
-        self.area.setFrameStyle(QFrame.NoFrame)
-        self.area.setBackgroundRole(QPalette.Dark)
-        self.area.setWidget(self.thumbnailview)
-        self.area.setWidgetResizable(True)
-
+        self.setCentralWidget(self.thumbnailview)
         self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
 
     def update_progress(self):
@@ -113,9 +107,8 @@ class MainWindow(KXmlGuiWindow):
         if self.progress is None:
             return
 
-        self.__step += 1
-
         self.progress.progressBar().setValue(self.__step)
+        self.__step += 1
 
     def retrieve(self, tags, limit):
 
@@ -132,7 +125,6 @@ class MainWindow(KXmlGuiWindow):
         self.progress.adjustSize()
         self.progress.setAutoClose(True)
         self.progress.setAllowCancel(False)
-        # self.progress.setAutoReset(True)
         self.progress.progressBar().setMaximum(max_steps)
 
         self.thumbnailview.display_thumbnails(urls)
@@ -142,8 +134,10 @@ class MainWindow(KXmlGuiWindow):
 
     def clear(self):
 
-        blank = QWidget()
-        self.setCentralWidget(blank)
+        if self.thumbnailview is None:
+            return
+
+        self.thumbnailview.clear()
 
     def fetch(self, ok):
 
