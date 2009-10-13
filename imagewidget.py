@@ -18,7 +18,6 @@
 
 import time
 
-import sip
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -27,39 +26,30 @@ from PyKDE4.kdeui import *
 
 #TODO: Switch to model/view
 
-class ThumbnailView(QWidget):
+class ThumbnailView(QTableWidget):
 
     thumbnailDownloaded = pyqtSignal() # To notify changes
 
-    def __init__(self,api_data, cache=None, parent=None):
+    def __init__(self, api_data, cache=None, columns=3, parent=None):
+        super(ThumbnailViewNG, self).__init__(parent)
 
-        #FIXME: Use the configured values
-        super(ThumbnailView, self).__init__(parent)
+        self.setColumnCount(columns)
+        self.verticalHeader().hide()
+        self.horizontalHeader().hide()
+        self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
+        self.verticalHeader().setResizeMode(QHeaderView.ResizeToContents)
+        self.setShowGrid(False)
 
-        self.column_index = 0
-        self.max_row_items = 3
-        self.row_index = 0
+        self.__max_columns = columns
+        self.__column_index = 0
+        self.__max_row_items = 3
+        self.__row_index = 0
+
         self.api_data = api_data
         self.cache = cache
-        self.parent = parent
-        self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,
-                                       QSizePolicy.MinimumExpanding))
 
-        self.grid_layout = QGridLayout(self)
-        self.grid_layout.setSizeConstraint(QLayout.SetDefaultConstraint)
-        self.setLayout(self.grid_layout)
-        self.grid_layout.setSizeConstraint(QLayout.SetDefaultConstraint)
-
-    def insert_items(self, widget):
-
-        if self.column_index >= self.max_row_items:
-            self.row_index += 1
-            self.column_index = 0
-        self.grid_layout.addWidget(widget, self.row_index, self.column_index)
-        self.column_index += 1
-        self.adjustSize()
-
-        self.thumbnailDownloaded.emit()
+    def retrieve_url(self, url):
+        print "Click logitech click"
 
     def create_image_label(self, pixmap=None, index=0):
 
@@ -77,7 +67,34 @@ class ThumbnailView(QWidget):
 
         return label
 
+    def insert_items(self, imagelabel):
+
+        if self.__column_index >= self.__max_columns:
+            self.__row_index += 1
+            self.__column_index = 0
+
+        #FIXME: Ugly hack, but works
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        layout.addWidget(imagelabel)
+        layout.addSpacing(6)
+        widget.setLayout(layout)
+
+        self.setCellWidget(self.__row_index, self.__column_index, widget)
+        self.__column_index += 1
+        self.resizeRowsToContents()
+        self.resizeColumnsToContents()
+
+        self.thumbnailDownloaded.emit()
+
+    def setup_rows(self, item_no):
+
+        result = item_no // self.__max_columns
+        self.setRowCount(result+1)
+
     def display_thumbnails(self, urls):
+
+        self.setup_rows(len(urls))
 
         # This works because the list keep stuff in order
         for index, url in enumerate(urls):
@@ -93,13 +110,4 @@ class ThumbnailView(QWidget):
                 self.cache.insert(name, pixmap)
             time.sleep(1)
 
-    def retrieve_url(self, url):
-        print "Clicked", url
-
-    def has_items(self):
-        pass
-
-    def reset(self):
-
-        pass
 
