@@ -117,7 +117,7 @@ class MainWindow(KXmlGuiWindow):
         if not posts:
             return
 
-        urls = self.api.get_thumbnail_urls()
+        urls = [item.thumbnail_url for item in self.api.data]
 
         max_steps = len(urls)
 
@@ -127,7 +127,7 @@ class MainWindow(KXmlGuiWindow):
         self.progress.setAllowCancel(False)
         self.progress.progressBar().setMaximum(max_steps)
 
-        self.thumbnailview.display_thumbnails(urls)
+        self.thumbnailview.display_thumbnails()
 
         # Reset the counter in case of subsequent fetches
         self.__step = 0
