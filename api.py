@@ -52,7 +52,6 @@ class Danbooru(object):
 
     def validate_url(self, url):
         ok = KIO.NetAccess.exists(KUrl(url), True, None)
-        print "Result: ", ok
         return ok
 
     def process_tags(self, tags):
@@ -89,12 +88,15 @@ class Danbooru(object):
 
         if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
             api_response = open(tempfile)
-            self.data = json.load(api_response)
-            KIO.NetAccess.removeTempFile(tempfile)
+            data = json.load(api_response)
 
-            if "sucess" in self.data[0]:
-                if not self.data[0]["success"]:
+            if "sucess" in data[0]:
+                if not data[0]["success"]:
                     return False
+
+            KIO.NetAccess.removeTempFile(tempfile)
+            self.data = [DanbooruItem(item) for item in data]
+
         else:
             return False
 
@@ -109,31 +111,21 @@ class Danbooru(object):
     def get_artist_list(self):
         pass
 
-    def get_thumbnail_urls(self):
+    def post_info(self, post_index):
 
-        "Gets thumbnail URLs from the current data."
-
-        if self.data is None:
-            return
-
-        urls = list()
-        for item in self.data:
-            preview_url = KUrl(item["preview_url"])
-            urls.append(preview_url)
-
-        return urls
-
-    def get_picture_url(self, picture_index):
-
-        "Retrieves an URL for a full picture."
+        """Returns information such as size, tags, and the like for a
+        given post."""
 
         if self.data is None:
             return
 
-        picture_data = self.data[picture_index]
-        picture_url = KUrl(picture_data["file_url"])
+        data = self.data[post_index]
 
-        return picture_url
+        height = data["height"]
+        width = data["width"]
+        size = data["file_size"]
+
+        return (height, width, size)
 
     def get_image(self, image_url, verbose=False):
 
@@ -152,7 +144,7 @@ class Danbooru(object):
         job = KIO.file_copy(KUrl(image_url), KUrl(tempfile.fileName()),
                                          -1, flags)
         img = QPixmap()
-        name = image_url.fileName()
+        name = KUrl(image_url).fileName()
 
         # To prevent server overloads, we can't really use async jobs
         if KIO.NetAccess.synchronousRun(job, None):
@@ -161,3 +153,57 @@ class Danbooru(object):
             time.sleep(2)
 
         return img, name
+
+
+class DanbooruItem(object):
+
+    """docstring for DanbooruItem"""
+
+    def __init__(self, json_data):
+
+        self.__data = json_data
+
+    def __getattr__(self, name):
+
+        if name not in self.__data:
+            return None
+        else:
+            return getattr(self, name)
+
+    @property
+    def thumbnail_url(self):
+        return self.__data["preview_url"]
+
+    @property
+    def full_url(self):
+        print self.__data.keys()
+        return self.__data["file_url"]
+
+    @property
+    def size(self):
+        return self.__data["file_size"]
+
+    @property
+    def tags(self):
+
+        tags = self.__data["tags"]
+        tags = tags.split(" ")
+        return tags
+
+    @property
+    def width(self):
+        return self.__data["width"]
+
+    @property
+    def height(self):
+        return self.__data["height"]
+
+    @property
+    def post_id(self):
+        return self.__data["id"]
+
+    @property
+    def source(self):
+        return self.__data["source"]
+
+
