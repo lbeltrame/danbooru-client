@@ -1,4 +1,22 @@
+2009-10-16  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru_client.py: Adapt to the new API module
+
+  * imagewidget.py: Drop KUrlLabel, use a QTableWidget with a custom sizing
+  delegate
+
+  * api.py: API module overhauled. Now posts are loaded in a specific class
+  that keeps track of the various bits, which in turn leads to simpler code.
+
+2009-10-14  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru_client.py: Adapt to the changes in imagewidget.py
+
+  * imagewidget.py: Major rework using QTableWidget
+
 2009-10-12  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: Changelog update
 
   * fetchdialog.py, ui/fetchdialog.ui, ui_fetchdialog.py: Dialog for fetching
   posts.
