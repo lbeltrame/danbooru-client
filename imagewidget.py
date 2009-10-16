@@ -26,12 +26,59 @@ from PyKDE4.kdeui import *
 
 #TODO: Switch to model/view
 
+class TestDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent=None):
+        super(TestDelegate, self).__init__(parent)
+
+    def sizeHint(self, option, index):
+
+        variant = index.model().data(index)
+
+        if variant.isNull():
+            return QStyledItemDelegate.sizeHint(self, option, index)
+
+        icon = QIcon(variant)
+
+        if icon.isNull():
+            return QStyledItemDelegate.sizeHint(self, option, index)
+
+        size = icon.actualSize(QSize(1024, 1024))
+
+        return QSize(size.width()+3, size.height()+3)
+
+class ThumbnailViewItem(QTableWidgetItem):
+
+    def __init__(self, image=None, url=None, data=None):
+
+        super(ThumbnailViewItem, self).__init__()
+        self.url = url
+
+        if image is not None:
+            self.image = QIcon(image)
+
+        self.setIcon(self.image)
+
+        # Avoid empty lists as well
+        if data:
+            height = data.height
+            width = data.width
+            size = data.size / float (1024000)
+
+        height = "Height: %d pixels" % height
+        width = "Width: %d pixels" % width
+        size = "Size: %d Mb" % size
+
+        text = "\n".join((height, width, size))
+        self.setToolTip(text)
+
+
 class ThumbnailView(QTableWidget):
 
     thumbnailDownloaded = pyqtSignal() # To notify changes
 
     def __init__(self, api_data, cache=None, columns=3, parent=None):
-        super(ThumbnailViewNG, self).__init__(parent)
+        super(ThumbnailView, self).__init__(parent)
 
         self.setColumnCount(columns)
         self.verticalHeader().hide()
@@ -39,6 +86,9 @@ class ThumbnailView(QTableWidget):
         self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.verticalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.setShowGrid(False)
+        #self.setItemPrototype(ThumbnailViewItem)
+        self.setIconSize(QSize(1024, 1024))
+        #self.setItemDelegate(TestDelegate(self))
 
         self.__max_columns = columns
         self.__column_index = 0
@@ -48,39 +98,34 @@ class ThumbnailView(QTableWidget):
         self.api_data = api_data
         self.cache = cache
 
-    def retrieve_url(self, url):
+        self.itemClicked.connect(self.retrieve_url)
+
+    def retrieve_url(self, item):
         print "Click logitech click"
+        print item.url
 
-    def create_image_label(self, pixmap=None, index=0):
-
-        label = KUrlLabel()
+    def create_image_item(self, pixmap=None, item=None):
 
         pixmap = QPixmap() if not pixmap else pixmap
 
         if pixmap.isNull():
             return
 
-        label.setPixmap(pixmap)
-        full_img_url = self.api_data.get_picture_url(index)
-        label.setUrl(full_img_url.toString())
-        label.leftClickedUrl.connect(self.retrieve_url)
+        if item is None:
+            return
 
-        return label
+        full_img_url = item.full_url
+        item = ThumbnailViewItem(image=pixmap, url=full_img_url,
+                                 data=item)
+        return item
 
-    def insert_items(self, imagelabel):
+    def insert_items(self, thumbnail_item):
 
         if self.__column_index >= self.__max_columns:
             self.__row_index += 1
             self.__column_index = 0
 
-        #FIXME: Ugly hack, but works
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.addWidget(imagelabel)
-        layout.addSpacing(6)
-        widget.setLayout(layout)
-
-        self.setCellWidget(self.__row_index, self.__column_index, widget)
+        self.setItem(self.__row_index, self.__column_index, thumbnail_item)
         self.__column_index += 1
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
@@ -92,17 +137,17 @@ class ThumbnailView(QTableWidget):
         result = item_no // self.__max_columns
         self.setRowCount(result+1)
 
-    def display_thumbnails(self, urls):
+    def display_thumbnails(self):
 
-        self.setup_rows(len(urls))
+        self.setup_rows(len(self.api_data.data))
 
         # This works because the list keep stuff in order
-        for index, url in enumerate(urls):
+        for index, item in enumerate(self.api_data.data):
 
-            pixmap, name = self.api_data.get_image(url)
-            label = self.create_image_label(pixmap, index)
-            if label:
-                self.insert_items(label)
+            pixmap, name = self.api_data.get_image(item.thumbnail_url)
+            item = self.create_image_item(pixmap, item)
+            if item:
+                self.insert_items(item)
             else:
                 continue
 
