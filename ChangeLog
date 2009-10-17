@@ -1,4 +1,15 @@
+2009-10-17  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py: Verbose -=
+
+  * danbooru_client.py: Fix the progress bar update
+
+  * imagewidget.py: Change table item *again*, this time to something that
+  should works, and includes also some nice textual labels.
+
 2009-10-16  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChngeLog updated.
 
   * danbooru_client.py: Adapt to the new API module
 
