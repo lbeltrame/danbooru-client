@@ -26,51 +26,53 @@ from PyKDE4.kdeui import *
 
 #TODO: Switch to model/view
 
-class TestDelegate(QStyledItemDelegate):
-
-    def __init__(self, parent=None):
-        super(TestDelegate, self).__init__(parent)
-
-    def sizeHint(self, option, index):
-
-        variant = index.model().data(index)
-
-        if variant.isNull():
-            return QStyledItemDelegate.sizeHint(self, option, index)
-
-        icon = QIcon(variant)
-
-        if icon.isNull():
-            return QStyledItemDelegate.sizeHint(self, option, index)
-
-        size = icon.actualSize(QSize(1024, 1024))
-
-        return QSize(size.width()+3, size.height()+3)
-
-class ThumbnailViewItem(QTableWidgetItem):
+class ThumbnailViewItem(QWidget):
 
     def __init__(self, image=None, url=None, data=None):
 
         super(ThumbnailViewItem, self).__init__()
-        self.url = url
+
+        self.label = KUrlLabel()
+
+        self.data = data
+        label_text = self.label_text()
+        self.label.setUrl(url)
 
         if image is not None:
-            self.image = QIcon(image)
+            self.label.setPixmap(image)
 
-        self.setIcon(self.image)
+        self.label.setUseTips(True)
+        self.label.setTipText(KUrl(self.data.full_url).fileName())
 
-        # Avoid empty lists as well
-        if data:
-            height = data.height
-            width = data.width
-            size = data.size / float (1024000)
+        self.__text_label = QLabel()
 
-        height = "Height: %d pixels" % height
-        width = "Width: %d pixels" % width
-        size = "Size: %d Mb" % size
+        self.layout = QVBoxLayout(self)
+        self.layout.addStretch()
+        self.layout.addWidget(self.label)
 
-        text = "\n".join((height, width, size))
-        self.setToolTip(text)
+        if label_text is not None:
+            self.__text_label.setText(label_text)
+            # self.layout.addStretch()
+            self.layout.addWidget(self.__text_label)
+
+        self.layout.setSpacing(6) # Ugly hack!
+
+    def label_text(self):
+
+        if self.data is not None:
+            height = self.data.height
+            width = self.data.width
+            size = self.data.size / float (1024000)
+
+            height = "Height: %d pixels" % height
+            width = "Width: %d pixels" % width
+            size = "Size: %1.2f Mb" % size
+
+            text = "\n".join((height, width, size))
+        else:
+            text = None
+
+        return text
 
 
 class ThumbnailView(QTableWidget):
@@ -78,6 +80,7 @@ class ThumbnailView(QTableWidget):
     thumbnailDownloaded = pyqtSignal() # To notify changes
 
     def __init__(self, api_data, cache=None, columns=3, parent=None):
+
         super(ThumbnailView, self).__init__(parent)
 
         self.setColumnCount(columns)
@@ -86,9 +89,7 @@ class ThumbnailView(QTableWidget):
         self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.verticalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.setShowGrid(False)
-        #self.setItemPrototype(ThumbnailViewItem)
         self.setIconSize(QSize(1024, 1024))
-        #self.setItemDelegate(TestDelegate(self))
 
         self.__max_columns = columns
         self.__column_index = 0
@@ -102,7 +103,7 @@ class ThumbnailView(QTableWidget):
 
     def retrieve_url(self, item):
         print "Click logitech click"
-        print item.url
+        print item
 
     def create_image_item(self, pixmap=None, item=None):
 
@@ -125,10 +126,11 @@ class ThumbnailView(QTableWidget):
             self.__row_index += 1
             self.__column_index = 0
 
-        self.setItem(self.__row_index, self.__column_index, thumbnail_item)
+        self.setCellWidget(self.__row_index, self.__column_index, thumbnail_item)
         self.__column_index += 1
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
+        thumbnail_item.label.leftClickedUrl.connect(self.retrieve_url)
 
         self.thumbnailDownloaded.emit()
 
