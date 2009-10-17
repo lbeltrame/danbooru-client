@@ -176,7 +176,6 @@ class DanbooruItem(object):
 
     @property
     def full_url(self):
-        print self.__data.keys()
         return self.__data["file_url"]
 
     @property
@@ -185,7 +184,6 @@ class DanbooruItem(object):
 
     @property
     def tags(self):
-
         tags = self.__data["tags"]
         tags = tags.split(" ")
         return tags
