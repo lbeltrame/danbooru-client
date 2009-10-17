@@ -55,17 +55,17 @@ class TestDanbooruAPI(unittest.TestCase):
 
         "Post list retrieval"
 
-        data = self.api.get_post_list(limit=1)
-        self.assertTrue(data)
+        ok = self.api.get_post_list(limit=1)
+        self.assertTrue(ok)
+        self.assertEqual(len(self.api.data), 1)
 
     def testGetThumbnailUrls(self):
 
         "Thumbnail list retrieval"
 
         self.api.get_post_list(limit=1)
-        urls = self.api.get_thumbnail_urls()
-        self.assertEqual(len(urls), 1)
-        check = KIO.NetAccess.exists(urls[0], KIO.NetAccess.SourceSide, None)
+        url = self.api.data[0].thumbnail_url
+        check = self.api.validate_url(url)
         self.assertTrue(check)
 
     def testGetPicture(self):
@@ -73,8 +73,8 @@ class TestDanbooruAPI(unittest.TestCase):
         "Image URL and image retrieval"
 
         self.api.get_post_list(limit=1)
-        url = self.api.get_picture_url(0)
-        check = KIO.NetAccess.exists(url, KIO.NetAccess.SourceSide, None)
+        url = self.api.data[0].full_url
+        check = self.api.validate_url(url)
         self.assertTrue(check)
         picture, name = self.api.get_image(url, verbose=True)
         self.assertFalse(picture.isNull())
