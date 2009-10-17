@@ -143,8 +143,7 @@ class ThumbnailView(QTableWidget):
 
         self.setup_rows(len(self.api_data.data))
 
-        # This works because the list keep stuff in order
-        for index, item in enumerate(self.api_data.data):
+        for item in self.api_data.data:
 
             pixmap, name = self.api_data.get_image(item.thumbnail_url)
             item = self.create_image_item(pixmap, item)
@@ -156,5 +155,4 @@ class ThumbnailView(QTableWidget):
             if not self.cache.find(name, pixmap):
                 self.cache.insert(name, pixmap)
             time.sleep(1)
-
 
