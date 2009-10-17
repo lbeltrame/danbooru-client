@@ -1,5 +1,23 @@
 2009-10-17  Luca Beltrame <einar@heavensinferno.net>
 
+  * api.py: Implementation of a wait parameter to have a configured wait (not
+  less than 2 seconds) for each download query. Also, some docstrings have been
+  updated.
+
+  * imagewidget.py: No need for two timeouts
+
+  * imagewidget.py: No more enumerations, not needed
+
+  * test_api.py: Unused stuff -=
+
+  * api.py: Better check for the existence of an URL (KIO doesn't support that)
+  and also create URLs in a decent way (i.e. not by mindlessly mashing
+  strings!)
+
+  * test_api.py: Unit tests working again, yay!
+
+  * ChangeLog: ChangeLog updated.
+
   * api.py: Verbose -=
 
   * danbooru_client.py: Fix the progress bar update
