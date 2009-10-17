@@ -46,6 +46,7 @@ class MainWindow(KXmlGuiWindow):
 
         self.progress = None
         self.thumbnailview = None
+        self.api = None
         self.__step = 0
 
     def setup_config(self):
@@ -107,8 +108,8 @@ class MainWindow(KXmlGuiWindow):
         if self.progress is None:
             return
 
-        self.progress.progressBar().setValue(self.__step)
         self.__step += 1
+        self.progress.progressBar().setValue(self.__step)
 
     def retrieve(self, tags, limit):
 
