@@ -21,7 +21,6 @@ import unittest
 
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import *
-from PyKDE4.kio import KIO
 
 import api
 
