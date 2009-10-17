@@ -154,5 +154,3 @@ class ThumbnailView(QTableWidget):
 
             if not self.cache.find(name, pixmap):
                 self.cache.insert(name, pixmap)
-            time.sleep(1)
-
