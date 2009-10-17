@@ -18,6 +18,8 @@
 
 import json
 import urlparse
+import urllib
+import httplib
 import time
 
 from PyQt4.QtCore import *
@@ -27,11 +29,12 @@ from PyKDE4.kio import KIO
 
 import hashes
 
-"Module that provides a wrapper for Danbooru API calls."
+"""Module that provides a wrapper for Danbooru API calls. Items are stored as
+DanbooruItems, which enable easy extraction of information using attributes."""
 
 class Danbooru(object):
 
-    "Class to provide a PyKDE4 wrapper to the Danbooru API."
+    "Class which provides a PyKDE4 wrapper to the Danbooru API."
 
     _POST_URL = "post/index.json"
     _TAG_URL = "tag/index.json"
@@ -50,8 +53,32 @@ class Danbooru(object):
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
 
+    def __http_exists(self, url):
+
+        """Check whether a given URL exists. Returns True if found, False if
+        otherwise. Adapted from http://code.activestate.com/recipes/286225/"""
+
+        host, path = urlparse.urlsplit(url)[1:3]
+        try:
+            ## Make HTTPConnection Object
+            connection = httplib.HTTPConnection(host)
+            connection.request("HEAD", path)
+            ## Grab HTTPResponse Object
+            responseOb = connection.getresponse()
+
+            if responseOb.status == 200:
+                return True
+            else:
+                return False
+
+        except httplib.HTTPException, e:
+            return False
+
     def validate_url(self, url):
-        ok = KIO.NetAccess.exists(KUrl(url), True, None)
+
+        "Validates the input URL and returns the result (True/False)"
+
+        ok = self.__http_exists(url)
         return ok
 
     def process_tags(self, tags):
@@ -64,24 +91,27 @@ class Danbooru(object):
 
         """Method to get posts with specific tags and limits. There is a hardcoded
         limit of 100 posts in Danbooru, so limits > 100 will be ignored.
-        If present, tags must be supplied as a list."""
+        If present, tags must be supplied as a list. Data are stored as a list
+        of DanbooruItems."""
 
         if limit > 100:
             limit = 100
 
-        #FIXME:Hackish! Needs a programmatic construction
         limit_parameter = "limit=%d" % limit
         if tags:
             tags = "+".join(tags)
-            tags = "tags="+tags
         else:
             tags = ""
-        parameters = "&".join((tags, limit_parameter))
-        parameters = parameters.lstrip("&")
-        parameters = "?" + parameters
-        request_url = urlparse.urljoin(self.url, self._POST_URL)
-        request_url = urlparse.urljoin(request_url, parameters)
 
+        parameters = dict(tags=tags, limit=limit)
+        url_parameters = urllib.urlencode(parameters)
+        # Danbooru doesn't want HTML-encoded pluses
+        url_parameters = urllib.unquote(url_parameters)
+
+        url_parameters = "?" + url_parameters
+        request_url = urlparse.urljoin(self.url, self._POST_URL)
+        request_url = urlparse.urljoin(request_url, url_parameters)
+        print request_url
         tempfile = QString()
 
         #FIXME: It's broken with Danbooru 1.13.x
@@ -110,22 +140,6 @@ class Danbooru(object):
 
     def get_artist_list(self):
         pass
-
-    def post_info(self, post_index):
-
-        """Returns information such as size, tags, and the like for a
-        given post."""
-
-        if self.data is None:
-            return
-
-        data = self.data[post_index]
-
-        height = data["height"]
-        width = data["width"]
-        size = data["file_size"]
-
-        return (height, width, size)
 
     def get_image(self, image_url, verbose=False):
 
@@ -157,7 +171,8 @@ class Danbooru(object):
 
 class DanbooruItem(object):
 
-    """docstring for DanbooruItem"""
+    """Class to store information about a Danbooru item retrieved via the REST
+    API. The various JSON-encoded fields can be accessed through properties."""
 
     def __init__(self, json_data):
 
@@ -168,40 +183,64 @@ class DanbooruItem(object):
         if name not in self.__data:
             return None
         else:
-            return getattr(self, name)
+            return self.__data[name]
 
     @property
     def thumbnail_url(self):
+
+        "URL of the thumbnail"
+
         return self.__data["preview_url"]
 
     @property
     def full_url(self):
+
+        "URL of the full image"
+
         return self.__data["file_url"]
 
     @property
     def size(self):
+
+        "Size of the full image"
+
         return self.__data["file_size"]
 
     @property
     def tags(self):
+
+        "Tags associated to the post. Returned as list."
+
         tags = self.__data["tags"]
         tags = tags.split(" ")
         return tags
 
     @property
     def width(self):
+
+        "Width of the full image"
+
         return self.__data["width"]
 
     @property
     def height(self):
+
+        "Height of the full image"
+
         return self.__data["height"]
 
     @property
     def post_id(self):
+
+        "Danbooru unique post ID"
+
         return self.__data["id"]
 
     @property
     def source(self):
+
+        "Original source for the image, if applicable."
+
         return self.__data["source"]
 
 
