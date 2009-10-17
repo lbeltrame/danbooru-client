@@ -111,7 +111,7 @@ class Danbooru(object):
         url_parameters = "?" + url_parameters
         request_url = urlparse.urljoin(self.url, self._POST_URL)
         request_url = urlparse.urljoin(request_url, url_parameters)
-        print request_url
+
         tempfile = QString()
 
         #FIXME: It's broken with Danbooru 1.13.x
@@ -133,19 +133,34 @@ class Danbooru(object):
         return True
 
     def get_tag_list(self):
+
+        "Method to retrieve a list of tags."
+
         pass
 
     def get_pool_list(self):
+
+        "Method to retrieve a list of pool IDs."
+
         pass
 
     def get_artist_list(self):
+
+        "Method to retrieve a list of artists."
+
         pass
 
-    def get_image(self, image_url, verbose=False):
+    def get_image(self, image_url, verbose=False, wait=2):
 
         """Retrieves a picture (full or thumbnail) for a specific URL.
         Returns a QImage. If for any reason the picture isn't downloaded,
-        returns a null QImage. Set verbose to true to view download progress."""
+        returns a null QImage. Set verbose to True to view the download
+        progress. To avoid overloading the server, set the wait parameter to
+        X in order to have the retrieval pause every X seconds."""
+
+        # Not less than two seconds. We want to play nice.
+        if wait < 2:
+            wait = 2
 
         tempfile = KTemporaryFile()
         if tempfile.open():
@@ -164,7 +179,7 @@ class Danbooru(object):
         if KIO.NetAccess.synchronousRun(job, None):
             destination = job.destUrl()
             img.load(destination.path())
-            time.sleep(2)
+            time.sleep(wait)
 
         return img, name
 
