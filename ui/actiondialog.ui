@@ -7,14 +7,24 @@
     <x>0</x>
     <y>0</y>
     <width>178</width>
-    <height>52</height>
+    <height>71</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="pictureLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <widget class="QLabel" name="actionSelectLabel">
      <property name="text">
       <string>Actions </string>
@@ -24,7 +34,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="2" column="1">
     <widget class="KComboBox" name="actionSelectComboBox">
      <item>
       <property name="text">
@@ -36,6 +46,16 @@
        <string>Download image</string>
       </property>
      </item>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="captionLabel">
+     <property name="text">
+      <string>Selected image</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
     </widget>
    </item>
   </layout>

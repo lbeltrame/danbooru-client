@@ -27,13 +27,16 @@ from ui_actiondialog import Ui_ActionDialog
 
 class ActionWidget(QWidget, Ui_ActionDialog):
 
-    def __init__(self, url=None, parent=None):
+    def __init__(self, url=None, pixmap=None, parent=None):
 
         super(ActionWidget, self).__init__(parent)
         self.setupUi(self)
 
         self.actions = ["view", "download"]
         self.fname = KUrl(url).fileName()
+
+        if not pixmap.isNull():
+            self.pictureLabel.setPixmap(pixmap)
 
     def action(self):
 
@@ -42,12 +45,12 @@ class ActionWidget(QWidget, Ui_ActionDialog):
 
 class ActionDialog(KDialog):
 
-    def __init__(self, url, parent=None):
+    def __init__(self, url, pixmap=None, parent=None):
 
         super(ActionDialog, self).__init__(parent)
 
         self.url = url
-        self.actionwidget = ActionWidget(self.url, self)
+        self.actionwidget = ActionWidget(self.url, pixmap, self)
         self.setMainWidget(self.actionwidget)
         self.setCaption("Download or display image")
 

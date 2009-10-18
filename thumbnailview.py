@@ -105,7 +105,13 @@ class ThumbnailView(QTableWidget):
 
     def retrieve_url(self, item):
 
-        dialog = actiondialog.ActionDialog(item, self)
+        row = self.currentRow()
+        column = self.currentColumn()
+
+        widget = self.cellWidget(row, column)
+        pixmap = widget.label.pixmap()
+
+        dialog = actiondialog.ActionDialog(item, pixmap=pixmap, parent=self)
 
         if not dialog.exec_():
             return
