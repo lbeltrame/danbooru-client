@@ -17,8 +17,11 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from PyKDE4.kdecore import *
-from PyKDE4.kdeui import *
+from PyQt4.QtCore import QStringList
+from PyQt4.QtGui import QWidget
+from PyKDE4.kdecore import KUrl
+from PyKDE4.kdeui import KDialog, KMessageBox
+from PyKDE4.kio import KIO, KRun, KFileDialog
 
 from ui_actiondialog import Ui_ActionDialog
 
@@ -26,22 +29,62 @@ class ActionWidget(QWidget, Ui_ActionDialog):
 
     def __init__(self, url=None, parent=None):
 
-        super(ActionDialog, self).__init__(parent)
+        super(ActionWidget, self).__init__(parent)
+        self.setupUi(self)
 
         self.actions = ["view", "download"]
-
         self.fname = KUrl(url).fileName()
-        self.url = url
         self.nameLabel.setText(self.fname)
 
-        self.setupUi(self)
+    def action(self):
+
+        index = self.actionSelectComboBox.currentIndex()
+        return self.actions[index]
 
 class ActionDialog(KDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, url, parent=None):
 
         super(ActionDialog, self).__init__(parent)
-        self.setMainWidget(ActionWidget)
 
+        self.url = url
+        self.actionwidget = ActionWidget(self.url, self)
+        self.setMainWidget(self.actionwidget)
+        self.setCaption("Download or display image")
 
+        self.__actions = dict(view=self.view, download=self.download)
+
+    def accept(self):
+
+        action = self.actionwidget.action()
+        self.__actions[action]()
+
+        KDialog.accept(self)
+
+    def view(self):
+
+        # Garbage collection ensues if we don't keep a reference around
+        self.display = KRun(KUrl(self.url), self, 0, False, True, '')
+        if self.display.hasError():
+            KMessageBox.error(self,
+                             "An error occurred while downloading the image.",
+                             "Download error")
+            self.reject(self)
+
+    def download(self):
+
+        start_name = KUrl(self.url).fileName()
+        start_url = KUrl("kfiledialog:///danbooru/%s" % unicode(start_name))
+        mimetype_job = KIO.mimetype(KUrl(self.url), KIO.HideProgressInfo)
+
+        if KIO.NetAccess.synchronousRun(mimetype_job, self):
+            mimetype = mimetype_job.mimetype()
+
+        mime_filter = QStringList(mimetype)
+        caption = "Save image file"
+        filename = KFileDialog.getSaveFileName(start_url, mimetype, self,
+                                               caption)
+        if not filename:
+            return
+        pass
 
