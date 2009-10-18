@@ -1,4 +1,9 @@
-- Display data in the main window
+- Display data in the main window - DONE
 - Switch to model/view to enable the donwload of the pictures on click
-- Figure out how to associate IDs  to pictures
-- Finish API backend
+- Figure out how to associate IDs to pictures - DONE
+- Finish API backend 
+- Multi-get downloads
+- Rubber band selection
+- Contextual menus
+- Checkboxes for selection
+- Pass a pixmap to the action dialog so it can be shown - doable?
