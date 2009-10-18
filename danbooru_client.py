@@ -27,10 +27,11 @@ from PyQt4.QtGui import *
 
 from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
+from PyKDE4.kparts import *
 
-import imagewidget
+import thumbnailview
 import fetchdialog
-import connect_dialog
+import connectdialog
 
 class MainWindow(KXmlGuiWindow):
 
@@ -88,7 +89,7 @@ class MainWindow(KXmlGuiWindow):
 
     def connect_danbooru(self, ok):
 
-        dialog = connect_dialog.ConnectDialog(self.url_history, self)
+        dialog = connectdialog.ConnectDialog(self.url_history, self)
 
         if dialog.exec_():
             self.api = dialog.danbooru_api()
@@ -98,7 +99,7 @@ class MainWindow(KXmlGuiWindow):
 
     def setup_area(self):
 
-        self.thumbnailview = imagewidget.ThumbnailView(self.api,
+        self.thumbnailview = thumbnailview.ThumbnailView(self.api,
                                                        cache=self.cache)
         self.setCentralWidget(self.thumbnailview)
         self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
@@ -155,7 +156,6 @@ class MainWindow(KXmlGuiWindow):
 
             self.setup_area()
             self.retrieve(tags, limit)
-
         else:
             return
 
