@@ -1,4 +1,27 @@
+2009-10-18  Luca Beltrame <einar@heavensinferno.net>
+
+  * TODO: TODO updated
+
+  * thumbnailview.py: No more silly output
+
+  * danbooru2nepomuk.py: Fix for file names
+
+  * actiondialog.py: Fully working saving and downloading
+
+  * thumbnailview.py: Add the logic to save/view the images.
+
+  * actiondialog.py: Displaying and saving images works mostly now
+
+  * actiondialog.py: Skeleton for a new dialog
+
+  * danbooru_client.py, thumbnailview.py: Various renames
+
 2009-10-17  Luca Beltrame <einar@heavensinferno.net>
+
+  * connect_dialog.py, connectdialog.py, imagewidget.py, thumbnailview.py:
+  Better naming
+
+  * ChangeLog: ChangeLog updated
 
   * api.py: Implementation of a wait parameter to have a configured wait (not
   less than 2 seconds) for each download query. Also, some docstrings have been
