@@ -29,7 +29,6 @@ subsequently tagged. To recurse through subdirectories, use the -r option."""
 import sys
 import re
 
-import dbus
 from PyQt4.QtCore import *
 from PyKDE4.kdecore import *
 from PyKDE4.nepomuk import *
@@ -92,9 +91,10 @@ def extract_tags(filename):
     """Function to extract tags from a Danbooru file name. Returns a list of tags
     found."""
 
-    filename = filename.fileName() # strip the path
+    # filename = filename.fileName() # strip the path
 
     filename = unicode(filename)
+    print filename
     match = BOARD_REGEX.match(filename)
     if match:
         # Get only the tag part
