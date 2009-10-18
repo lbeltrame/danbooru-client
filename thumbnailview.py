@@ -24,6 +24,8 @@ from PyQt4.QtGui import *
 from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
 
+import actiondialog
+
 #TODO: Switch to model/view
 
 class ThumbnailViewItem(QWidget):
@@ -104,6 +106,10 @@ class ThumbnailView(QTableWidget):
     def retrieve_url(self, item):
         print "Click logitech click"
         print item
+
+        dialog = actiondialog.ActionDialog(item, self)
+        if dialog.exec_():
+            pass
 
     def create_image_item(self, pixmap=None, item=None):
 
