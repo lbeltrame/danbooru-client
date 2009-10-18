@@ -66,11 +66,11 @@ class ThumbnailViewItem(QWidget):
             width = self.data.width
             size = self.data.size / float (1024000)
 
-            height = "Height: %d pixels" % height
             width = "Width: %d pixels" % width
             size = "Size: %1.2f Mb" % size
+            height = "Height: %d pixels" % height
 
-            text = "\n".join((height, width, size))
+            text = "\n".join((width, height, size))
         else:
             text = None
 
@@ -104,12 +104,11 @@ class ThumbnailView(QTableWidget):
         self.itemClicked.connect(self.retrieve_url)
 
     def retrieve_url(self, item):
-        print "Click logitech click"
-        print item
 
         dialog = actiondialog.ActionDialog(item, self)
-        if dialog.exec_():
-            pass
+
+        if not dialog.exec_():
+            return
 
     def create_image_item(self, pixmap=None, item=None):
 
