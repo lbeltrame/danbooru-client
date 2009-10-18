@@ -17,11 +17,11 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from PyQt4.QtCore import QStringList
+from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QWidget
 from PyKDE4.kdecore import KUrl
 from PyKDE4.kdeui import KDialog, KMessageBox
-from PyKDE4.kio import KIO, KRun, KFileDialog
+from PyKDE4.kio import KIO, KRun, KFileDialog, KFile
 
 from ui_actiondialog import Ui_ActionDialog
 
@@ -34,7 +34,6 @@ class ActionWidget(QWidget, Ui_ActionDialog):
 
         self.actions = ["view", "download"]
         self.fname = KUrl(url).fileName()
-        self.nameLabel.setText(self.fname)
 
     def action(self):
 
@@ -80,11 +79,28 @@ class ActionDialog(KDialog):
         if KIO.NetAccess.synchronousRun(mimetype_job, self):
             mimetype = mimetype_job.mimetype()
 
-        mime_filter = QStringList(mimetype)
         caption = "Save image file"
-        filename = KFileDialog.getSaveFileName(start_url, mimetype, self,
-                                               caption)
-        if not filename:
-            return
-        pass
+
+        # Build the save dialog
+        save_dialog = KFileDialog(start_url, mimetype, self)
+        save_dialog.setOperationMode(KFileDialog.Saving)
+        modes = KFile.Modes(KFile.File | KFile.LocalOnly)
+
+        save_dialog.setMode(modes)
+        save_dialog.setConfirmOverwrite(True)
+        save_dialog.setInlinePreviewShown(True)
+        save_dialog.setCaption(caption)
+
+        if save_dialog.exec_():
+
+            filename = save_dialog.selectedUrl()
+
+            if not filename:
+                return
+
+            ok = KIO.NetAccess.download(KUrl(self.url), filename.toLocalFile(),
+                                        self)
+            if not ok:
+                KMessageBox.error(self, KIO.NetAccess.lastErrorString())
+                return
 
