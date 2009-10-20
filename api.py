@@ -58,6 +58,8 @@ class Danbooru(object):
         """Check whether a given URL exists. Returns True if found, False if
         otherwise. Adapted from http://code.activestate.com/recipes/286225/"""
 
+        valid_responses = [200, 301, 302]
+
         host, path = urlparse.urlsplit(url)[1:3]
         try:
             ## Make HTTPConnection Object
@@ -65,8 +67,8 @@ class Danbooru(object):
             connection.request("HEAD", path)
             ## Grab HTTPResponse Object
             responseOb = connection.getresponse()
-
-            if responseOb.status == 200:
+            # Some Danbooru boards report 302 instead of 200
+            if responseOb.status in valid_responses:
                 return True
             else:
                 return False
@@ -111,20 +113,19 @@ class Danbooru(object):
         url_parameters = "?" + url_parameters
         request_url = urlparse.urljoin(self.url, self._POST_URL)
         request_url = urlparse.urljoin(request_url, url_parameters)
-
         tempfile = QString()
-
-        #FIXME: It's broken with Danbooru 1.13.x
 
         if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
             api_response = open(tempfile)
-            data = json.load(api_response)
+            try:
+                data = json.load(api_response)
 
-            if "sucess" in data[0]:
-                if not data[0]["success"]:
-                    return False
+                if "sucess" in data[0]:
+                    if not data[0]["success"]:
+                        return False
+            finally:
+                KIO.NetAccess.removeTempFile(tempfile)
 
-            KIO.NetAccess.removeTempFile(tempfile)
             self.data = [DanbooruItem(item) for item in data]
 
         else:
