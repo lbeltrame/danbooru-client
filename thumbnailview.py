@@ -81,10 +81,9 @@ class ThumbnailView(QTableWidget):
 
     thumbnailDownloaded = pyqtSignal() # To notify changes
 
-    def __init__(self, api_data, cache=None, columns=3, parent=None):
+    def __init__(self, api_data, cache=None, columns=5, parent=None):
 
         super(ThumbnailView, self).__init__(parent)
-
         self.setColumnCount(columns)
         self.verticalHeader().hide()
         self.horizontalHeader().hide()
