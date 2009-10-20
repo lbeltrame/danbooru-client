@@ -27,6 +27,8 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyKDE4.kdeui import *
 
+from ui_generalpage import Ui_GeneralPage
+
 class Preferences(KConfigSkeleton):
 
     """Class to handle preferences."""
@@ -35,13 +37,54 @@ class Preferences(KConfigSkeleton):
         KConfigSkeleton.__init__(self, *args)
 
         self.setCurrentGroup("General")
-        self._last_visited_name = QString()
-        self._last_visited = self.addItemString("lastVisited",
-                                                self._last_visited_name, "")
+
+        self._danbooru_boards_list = QStringList()
+        predefined_urls =QStringList(["http://moe.imouto.org",
+                                 "http://konachan.com",
+                                 "http://konachan.net"])
+        self._danbooru_boards = self.addItemStringList("danbooruUrls",
+                                                       self._danbooru_boards_list,
+                                                       predefined_urls)
+
         self._max_retrieve = self.addItemInt("thumbnailMaxRetrieve", 100, 100)
         self._tag_blacklist_values = QStringList()
         self._tag_blacklist = self.addItemStringList("tagBlacklist",
                                                      self._tag_blacklist_values)
+
         #TODO: Should user/passwords for the API be stored here?
         self.readConfig()
 
+    @property
+    def boards_list(self):
+        return self._danbooru_boards.value()
+
+    @property
+    def thumbnail_no(self):
+        return self._max_retrieve.value()
+
+class PreferencesDialog(KConfigDialog):
+
+    def __init__(self, parent=None, name=None, preferences=None):
+        super(PreferencesDialog, self).__init__(parent, name, preferences)
+
+        self.setButtons(KDialog.ButtonCode(KDialog.Ok |KDialog.Apply |
+                                            KDialog.Cancel))
+
+        self.general_page = GeneralPage(self, preferences)
+        self.general_page_item = self.addPage(self.general_page, 'General')
+        self.general_page_item.setIcon(KIcon("preferences-web-browser-shortcuts"))
+
+class GeneralPage(QWidget, Ui_GeneralPage):
+
+    def __init__(self, parent=None, preferences=None):
+        super(GeneralPage, self).__init__(parent)
+        self.setupUi(self)
+
+        self.kcfg_danbooruUrls.insertStringList(preferences.boards_list)
+        self.kcfg_thumbnailMaxRetrieve.setValue(preferences.thumbnail_no)
+
+        regex =(r"(http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?")
+        regex = QRegExp(regex)
+
+        self._validator = QRegExpValidator(regex, self)
+        self.kcfg_danbooruUrls.lineEdit().setValidator(self._validator)
