@@ -29,6 +29,7 @@ from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
 from PyKDE4.kparts import *
 
+import preferences
 import thumbnailview
 import fetchdialog
 import connectdialog
@@ -39,10 +40,12 @@ class MainWindow(KXmlGuiWindow):
 
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
-        self.welcome = QLabel("Welcome to Danbooru Client!")
+        self.welcome = QLabel(i18n("Welcome to Danbooru Client!"))
         self.welcome.setAlignment(Qt.AlignCenter)
         self.setCentralWidget(self.welcome)
-        self.setup_config()
+        self.preferences = preferences.Preferences()
+
+        self.read_config()
         self.setup_actions()
 
         self.progress = None
@@ -50,19 +53,19 @@ class MainWindow(KXmlGuiWindow):
         self.api = None
         self.__step = 0
 
-    def setup_config(self):
+    def read_config(self):
 
-        #FIXME: Temporary, to test things, before moving to KConfigXT
-        self.config = KGlobal.config()
-        self.general_config = KConfigGroup(self.config, "General")
-        url_list = self.general_config.readEntry("lastVisited",QStringList())
-        self.url_history = url_list.toStringList()
+        self.url_list = self.preferences.boards_list
+        self.max_retrieve = self.preferences.thumbnail_no
 
     def setup_actions(self):
 
         connect_action = KAction(KIcon("document-open-remote"),
                                  i18n("Connect"), self)
         fetch_action = KAction(KIcon("download"), i18n("Fetch"), self)
+        clean_action = KAction(KIcon("trash-empty"),
+                               i18n("Clear thumbnail cache"),
+                               self)
 
         connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
         connect_active = KAction.ShortcutTypes(KAction.ActiveShortcut)
@@ -74,28 +77,50 @@ class MainWindow(KXmlGuiWindow):
 
         self.actionCollection().addAction("connect", connect_action)
         self.actionCollection().addAction("fetch", fetch_action)
+        self.actionCollection().addAction("clean", clean_action)
 
         KStandardAction.quit (self.close, self.actionCollection())
-        KStandardAction.preferences(self.prefs_test, self.actionCollection())
+        KStandardAction.preferences(self.show_preferences,
+                                    self.actionCollection())
 
         connect_action.triggered.connect(self.connect_danbooru)
         fetch_action.triggered.connect(self.fetch)
+        clean_action.triggered.connect(self.clean_cache)
 
-        self.setupGUI(QSize(300,200), KXmlGuiWindow.Default,
-                      os.path.join(sys.path [0], "danbooruui.rc"))
+        setupGUI_args = [
+            QSize(500, 400), self.StandardWindowOption(
+                self.ToolBar | self.Keys | self.Create | self.Save | self.StatusBar)
+        ]
 
-    def prefs_test(self):
-        print "Config button clicked"
+        #Check first in standard locations
+
+        rc_file = KStandardDirs.locate("appdata", "danbooruui.rc")
+        if rc_file.isEmpty():
+            setupGUI_args.append(os.path.join(sys.path [0],
+                                                   "danbooruui.rc"))
+        else:
+            setupGUI_args.append(rc_file)
+
+        self.setupGUI(*setupGUI_args)
+
+    def show_preferences(self):
+
+        if KConfigDialog.showDialog("Preferences dialog"):
+            return
+        else:
+            dialog = preferences.PreferencesDialog(self, "Preferences dialog",
+                                                   self.preferences)
+            dialog.show()
+            dialog.settingsChanged.connect(self.read_config)
 
     def connect_danbooru(self, ok):
 
-        dialog = connectdialog.ConnectDialog(self.url_history, self)
+        dialog = connectdialog.ConnectDialog(self.url_list, self)
 
         if dialog.exec_():
             self.api = dialog.danbooru_api()
-            self.general_config.writeEntry("lastVisited", dialog.url_history())
-            self.general_config.config().sync()
-            self.statusBar().showMessage("Connected to %s" % self.api.url,  3000)
+            self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
+                                         3000)
 
     def setup_area(self):
 
@@ -114,16 +139,31 @@ class MainWindow(KXmlGuiWindow):
 
     def retrieve(self, tags, limit):
 
-        posts = self.api.get_post_list(limit=limit, tags=tags)
+        # Catch errors gracefully
+        try:
+            posts = self.api.get_post_list(limit=limit, tags=tags)
+        except ValueError, error:
+            first_line = "Could not download information from the specified board."
+            second_line = "This means connection problems, or that the board"
+            third_line = "has a broken API."
+            error_line = "Returned error: %s" % error
+            message = '\n'.join((first_line, second_line, third_line,
+                                 error_line))
+            KMessageBox.error(self, i18n(message),
+                              i18n("Error retrieving posts"))
+            return
 
         if not posts:
+            self.satusBar().setMessage(i18n("No posts found."), 3000)
             return
 
         urls = [item.thumbnail_url for item in self.api.data]
 
         max_steps = len(urls)
 
-        self.progress = KProgressDialog(self, "Retrieving", "Retrieving images...")
+        self.progress = KProgressDialog(self, i18n("Retrieving"),
+                                        i18n("Retrieving images..."))
+        self.progress.setMinimumDuration(1000)
         self.progress.adjustSize()
         self.progress.setAutoClose(True)
         self.progress.setAllowCancel(False)
@@ -141,6 +181,11 @@ class MainWindow(KXmlGuiWindow):
 
         self.thumbnailview.clear()
 
+    def clean_cache(self):
+
+        self.cache.discard()
+        self.statusBar().showMessage(i18n("Thumbnail cache cleared."))
+
     def fetch(self, ok):
 
         if not self.api:
@@ -148,7 +193,7 @@ class MainWindow(KXmlGuiWindow):
 
         self.clear()
 
-        dialog = fetchdialog.FetchDialog(self)
+        dialog = fetchdialog.FetchDialog(self.max_retrieve, self)
 
         if dialog.exec_():
             tags = dialog.tags()
@@ -161,19 +206,21 @@ class MainWindow(KXmlGuiWindow):
 
 def main():
 
-    app_name="DanbooruRetrieve"
+    app_name="danbooru_client"
     catalog = ""
     program_name = ki18n("Danbooru Client")
     version = "1.0"
     description = ki18n("A client for Danbooru sites.")
     license = KAboutData.License_GPL
     copyright = ki18n("(C) 2009 Luca Beltrame")
-    text = ki18n("Some descriptive text goes here.")
+    text = ki18n("Danbooru Client is a program to access Danbooru image boards.")
     home_page = "http://www.dennogumi.org"
     bug_email = "einar@heavensinferno.net"
 
     about_data = KAboutData(app_name, catalog, program_name, version, description,
                         license, copyright, text, home_page, bug_email)
+
+    about_data.setProgramIconName("internet-web-browser")
 
     KCmdLineArgs.init(sys.argv, about_data)
     app = KApplication()
