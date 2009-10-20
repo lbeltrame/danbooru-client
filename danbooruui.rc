@@ -12,6 +12,7 @@
         <text>&amp;File</text>
         <Action name="connect" />
 	<Action name="fetch" />
+	<Action name="clean" />
     </Menu>
   </MenuBar>
 </gui>
