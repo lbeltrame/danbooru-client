@@ -28,16 +28,18 @@ from  ui_connectdialog import Ui_connectForm
 
 class ConnectWidget(QWidget, Ui_connectForm):
 
-    def __init__(self, danbooru=None, parent=None):
+    def __init__(self, urls=None, parent=None):
 
         super(ConnectWidget, self).__init__(parent)
-        self._history = None
         self.setupUi(self)
+        self.danbooruUrlComboBox.setFocus()
 
-        self.urlBox.returnPressed.connect(self.add_history)
+        if urls is not None:
+            for index, item in enumerate(urls):
+                self.danbooruUrlComboBox.insertUrl(index, KUrl(item))
 
     def url(self):
-        return self.urlBox.lineEdit().text()
+        return self.danbooruUrlComboBox.currentText()
 
     def username(self):
         return self.userLineEdit.text()
@@ -45,32 +47,19 @@ class ConnectWidget(QWidget, Ui_connectForm):
     def password(self):
         return self.passwdLineEdit.text()
 
-    def history(self):
-        return self.urlBox.historyItems()
-
-    def add_history(self):
-
-        if self.url().isEmpty():
-            return
-
-        self.urlBox.addToHistory(self.url())
-
 class ConnectDialog(KDialog):
 
-    def __init__(self, history=None, parent=None):
+    def __init__(self, urls=None, parent=None):
 
         super(ConnectDialog, self).__init__(parent)
 
         self.danbooru = None
 
-        self.connect_widget = ConnectWidget(self)
+        self.connect_widget = ConnectWidget(urls, self)
         self.setMainWidget(self.connect_widget)
         self.setButtons(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel))
         self.setCaption("Enter a Danbooru URL")
         self.adjustSize()
-
-        if history is not None:
-            self.connect_widget.urlBox.setHistoryItems(history, True)
 
     def accept(self):
 
@@ -102,9 +91,6 @@ class ConnectDialog(KDialog):
         if url.isEmpty():
             return
 
-        if not url.startsWith("http://"):
-            self.urlBox.lineEdit().setText("Please enter a valid Danbooru URL.")
-            return
         try:
             danbooru = api.Danbooru(unicode(url), login=login, password=password)
         except IOError, error:
