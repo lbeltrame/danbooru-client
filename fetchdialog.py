@@ -26,20 +26,22 @@ from ui_fetchdialog import Ui_FetchDialog
 
 class FetchWidget(QWidget, Ui_FetchDialog):
 
-    def __init__(self, parent =None):
+    def __init__(self, limit, parent =None):
         super(FetchWidget, self).__init__(parent)
+
         self.setupUi(self)
+        self.postSpinBox.setValue(limit)
 
     #FIXME: Validators, etc.
 
 class FetchDialog(KDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, default_limit, parent=None):
         super(FetchDialog, self).__init__(parent)
 
         self.__tags = None
         self.__limit = None
-        self.fetchwidget = FetchWidget(self)
+        self.fetchwidget = FetchWidget(default_limit, self)
 
         self.setMainWidget(self.fetchwidget)
 
