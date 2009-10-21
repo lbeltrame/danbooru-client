@@ -1,4 +1,53 @@
+2009-10-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * TODO: More TODO updates
+
+  * ui/danboorupage.ui, ui/generalpage_new.ui, ui/nepomukpage.ui: New UI files
+  for settings
+
+  * ui/generalpage.ui: Wrong
+
+2009-10-21  Luca Beltrame <einar@heavensinferno.net>
+
+  * TODO: TODO updated
+
+  * fetchdialog.py: Validation for tag line edit
+
+  * .gitignore, fetchdialog.py, ui/connectdialog.ui, ui_connectdialog.py: Final
+  changes in UI
+
+2009-10-20  Luca Beltrame <einar@heavensinferno.net>
+
+  * fetchdialog.py: Add the proper parameters in the initializer so we can get
+  the max post limit
+
+  * TODO: Update TODO
+
+  * ui/generalpage.ui, ui_generalpage.py: UI files for the general
+  configuration page
+
+  * danbooruui.rc: New cleanup action
+
+  * api.py: Add proper error handling so that the tempfile is removed in case
+  of an error.
+
+  * connectdialog.py: Adapt to the new UI file changes
+
+  * thumbnailview.py: More colums, for a start
+
+  * preferences.py: Complete preferences implementation
+
+  * danbooru_client.py: Move to KConfigXT, and properly i18n() strings for the
+  future.
+
 2009-10-18  Luca Beltrame <einar@heavensinferno.net>
+
+  * actiondialog.py, thumbnailview.py, ui/actiondialog.ui, ui_actiondialog.py:
+  Rework of the action dialog, now it shows pixmaps!
+
+  * ui/actiondialog.ui, ui_actiondialog.py: UI files for action dialog
+
+  * ChangeLog: ChangeLog updated
 
   * TODO: TODO updated
 
