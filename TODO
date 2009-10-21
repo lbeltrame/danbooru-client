@@ -8,3 +8,6 @@
 - Checkboxes for selection
 - Pass a pixmap to the action dialog so it can be shown - doable? - DONE
 - Configuration with KConfigXT - DONE
+- Support for pools listing and retrieving - will need some API changes
+- Implement proper Danbooru error handling
+- (far future) Support for other Danbooru functions such as posts and wiki
