@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>95</height>
+    <width>406</width>
+    <height>108</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,54 +17,54 @@
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::ExpandingFieldsGrow</enum>
    </property>
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="urlLabel">
      <property name="text">
       <string>Danbooru URL</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="KHistoryComboBox" name="urlBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="autoCompletion">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="userLabel">
      <property name="text">
       <string>Username</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="2" column="1">
     <widget class="KLineEdit" name="userLineEdit">
      <property name="clickMessage">
       <string>Danbooru username (optional)</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="passwordLabel">
      <property name="text">
       <string>Password</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="KLineEdit" name="passwdLineEdit">
      <property name="clickMessage">
       <string>Danbooru password (optional)</string>
      </property>
      <property name="passwordMode">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="KComboBox" name="danbooruUrlComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="editable">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -80,11 +80,6 @@
    <class>KComboBox</class>
    <extends>QComboBox</extends>
    <header>kcombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KHistoryComboBox</class>
-   <extends>KComboBox</extends>
-   <header>khistorycombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

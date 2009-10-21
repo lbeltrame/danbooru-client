@@ -31,6 +31,7 @@ class FetchWidget(QWidget, Ui_FetchDialog):
 
         self.setupUi(self)
         self.postSpinBox.setValue(limit)
+        regexp = QRegExp("[A-Za-Z],\s")
 
     #FIXME: Validators, etc.
 
