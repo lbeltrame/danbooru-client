@@ -17,7 +17,7 @@ class Ui_GeneralPage(object):
         self.kcfg_danbooruUrls = KEditListBox(GeneralPage)
         self.kcfg_danbooruUrls.setFlat(True)
         self.kcfg_danbooruUrls.setCheckable(False)
-        self.kcfg_danbooruUrls.setButtons(QtGui.KEditListBox.Add|QtGui.KEditListBox.Remove)
+        self.kcfg_danbooruUrls.setButtons(kdeui.KEditListBox.Add|kdeui.KEditListBox.Remove)
         self.kcfg_danbooruUrls.setObjectName("kcfg_danbooruUrls")
         self.verticalLayout.addWidget(self.kcfg_danbooruUrls)
         self.groupBox = QtGui.QGroupBox(GeneralPage)
