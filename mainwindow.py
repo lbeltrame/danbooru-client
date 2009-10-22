@@ -17,6 +17,12 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+'''
+File: mainwindow.py
+Author: Luca Beltrame
+Description: Main window module of the Danbooru client application
+'''
+
 from __future__ import division
 
 import sys
@@ -204,29 +210,4 @@ class MainWindow(KXmlGuiWindow):
         else:
             return
 
-def main():
 
-    app_name="danbooru_client"
-    catalog = ""
-    program_name = ki18n("Danbooru Client")
-    version = "1.0"
-    description = ki18n("A client for Danbooru sites.")
-    license = KAboutData.License_GPL
-    copyright = ki18n("(C) 2009 Luca Beltrame")
-    text = ki18n("Danbooru Client is a program to access Danbooru image boards.")
-    home_page = "http://www.dennogumi.org"
-    bug_email = "einar@heavensinferno.net"
-
-    about_data = KAboutData(app_name, catalog, program_name, version, description,
-                        license, copyright, text, home_page, bug_email)
-
-    about_data.setProgramIconName("internet-web-browser")
-
-    KCmdLineArgs.init(sys.argv, about_data)
-    app = KApplication()
-    mw = MainWindow()
-    mw.show()
-    app.exec_()
-
-if __name__ == '__main__':
-    main()
