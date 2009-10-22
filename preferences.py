@@ -39,7 +39,7 @@ class Preferences(KConfigSkeleton):
         self.setCurrentGroup("General")
 
         self._danbooru_boards_list = QStringList()
-        predefined_urls =QStringList(["http://moe.imouto.org",
+        predefined_urls = QStringList(["http://moe.imouto.org",
                                  "http://konachan.com",
                                  "http://konachan.net"])
         self._danbooru_boards = self.addItemStringList("danbooruUrls",
@@ -47,9 +47,15 @@ class Preferences(KConfigSkeleton):
                                                        predefined_urls)
 
         self._max_retrieve = self.addItemInt("thumbnailMaxRetrieve", 100, 100)
+
         self._tag_blacklist_values = QStringList()
+        predefined_blacklist = QStringList(["tagme", "jpeg_artifacts", "scan",
+                                            "fixme", "crease"])
         self._tag_blacklist = self.addItemStringList("tagBlacklist",
-                                                     self._tag_blacklist_values)
+                                                     self._tag_blacklist_values,
+                                                     predefined_blacklist)
+
+        self._column_number = self.addItemInt("columnNumber", 3, 3)
 
         #TODO: Should user/passwords for the API be stored here?
         self.readConfig()
@@ -61,6 +67,14 @@ class Preferences(KConfigSkeleton):
     @property
     def thumbnail_no(self):
         return self._max_retrieve.value()
+
+    @property
+    def column_no(self):
+        return self._column_number.value()
+
+    @property
+    def tag_blacklist(self):
+        return self;_tag_blacklist.value()
 
 class PreferencesDialog(KConfigDialog):
 
@@ -77,6 +91,7 @@ class PreferencesDialog(KConfigDialog):
 class GeneralPage(QWidget, Ui_GeneralPage):
 
     def __init__(self, parent=None, preferences=None):
+
         super(GeneralPage, self).__init__(parent)
         self.setupUi(self)
 
