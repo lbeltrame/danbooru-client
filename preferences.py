@@ -48,6 +48,8 @@ class Preferences(KConfigSkeleton):
 
         self._max_retrieve = self.addItemInt("thumbnailMaxRetrieve", 100, 100)
 
+        self._nepomuk_enabled = self.addItemBool("nepomukEnabled", False, False)
+
         self._tag_blacklist_values = QStringList()
         predefined_blacklist = QStringList(["tagme", "jpeg_artifacts", "scan",
                                             "fixme", "crease"])
@@ -71,6 +73,10 @@ class Preferences(KConfigSkeleton):
     @property
     def column_no(self):
         return self._column_number.value()
+
+    @property
+    def nepomuk_enabled(self):
+        return self._nepomuk_enabled.value()
 
     @property
     def tag_blacklist(self):
