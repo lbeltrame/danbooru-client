@@ -44,6 +44,7 @@ class ThumbnailViewItem(QWidget):
             self.label.setPixmap(image)
 
         self.label.setUseTips(True)
+        self.label.setAlignment(Qt.AlignCenter)
         self.label.setTipText(KUrl(self.data.full_url).fileName())
 
         self.__text_label = QLabel()
