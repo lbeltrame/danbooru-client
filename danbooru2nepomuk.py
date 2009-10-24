@@ -86,7 +86,7 @@ def all_tags():
 
     return named_tags
 
-def extract_tags(filename):
+def extract_tags(filename, blacklist=TAGS_BLACKLIST):
 
     """Function to extract tags from a Danbooru file name. Returns a list of tags
     found."""
@@ -94,7 +94,6 @@ def extract_tags(filename):
     # filename = filename.fileName() # strip the path
 
     filename = unicode(filename)
-    print filename
     match = BOARD_REGEX.match(filename)
     if match:
         # Get only the tag part
@@ -105,7 +104,7 @@ def extract_tags(filename):
         return
 
     data = data.split()
-    data = [item for item in data if item not in TAGS_BLACKLIST]
+    data = [item for item in data if item not in blacklist]
 
     return data
 
