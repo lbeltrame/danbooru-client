@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>DanbooruPage</class>
+ <widget class="QWidget" name="DanbooruPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    <item>
     <widget class="KEditListBox" name="kcfg_danbooruUrls">
      <property name="title">
-      <string>Danbooru URLs</string>
+      <string/>
      </property>
      <property name="flat">
       <bool>true</bool>
