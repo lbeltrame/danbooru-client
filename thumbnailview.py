@@ -18,11 +18,12 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QSize, pyqtSignal, Qt
+from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
+                         QHeaderView, QPixmap)
 
-from PyKDE4.kdecore import *
-from PyKDE4.kdeui import *
+from PyKDE4.kdecore import KUrl
+from PyKDE4.kdeui import KUrlLabel
 
 import actiondialog
 
@@ -82,7 +83,7 @@ class ThumbnailView(QTableWidget):
 
     thumbnailDownloaded = pyqtSignal() # To notify changes
 
-    def __init__(self, api_data, cache=None, columns=5, parent=None):
+    def __init__(self, api_data, preferences, cache=None, columns=5, parent=None):
 
         super(ThumbnailView, self).__init__(parent)
         self.setColumnCount(columns)
@@ -111,7 +112,8 @@ class ThumbnailView(QTableWidget):
         widget = self.cellWidget(row, column)
         pixmap = widget.label.pixmap()
 
-        dialog = actiondialog.ActionDialog(item, pixmap=pixmap, parent=self)
+        dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
+                                           preferences=preferences, parent=self)
 
         if not dialog.exec_():
             return
