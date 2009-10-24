@@ -17,10 +17,11 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyKDE4.kdecore import *
-from PyKDE4.kdeui import *
+import re
+
+from PyQt4.QtCore import QRegExp
+from PyQt4.QtGui import QWidget, QRegExpValidator
+from PyKDE4.kdeui import KDialog
 
 from ui.ui_fetchdialog import Ui_FetchDialog
 
@@ -63,6 +64,8 @@ class FetchDialog(KDialog):
         self.__tags = unicode(self.__tags)
         self.__tags = self.__tags.split(",")
         self.__tags = self.strip_tags(self.__tags)
+        # Tags don't have spaces
+        self.__tags =  [re.sub("\s","_", item) for item in self.__tags]
 
         self.__limit = self.fetchwidget.postSpinBox.value()
         KDialog.accept(self)
