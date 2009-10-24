@@ -22,7 +22,7 @@ from PyQt4.QtGui import *
 from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
 
-from ui_fetchdialog import Ui_FetchDialog
+from ui.ui_fetchdialog import Ui_FetchDialog
 
 class FetchWidget(QWidget, Ui_FetchDialog):
 

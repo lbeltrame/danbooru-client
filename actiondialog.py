@@ -29,7 +29,7 @@ from PyKDE4.kdeui import KDialog, KMessageBox
 from PyKDE4.kio import KIO, KRun, KFileDialog, KFile
 
 import danbooru2nepomuk
-from ui_actiondialog import Ui_ActionDialog
+from ui.ui_actiondialog import Ui_ActionDialog
 
 class ActionWidget(QWidget, Ui_ActionDialog):
 

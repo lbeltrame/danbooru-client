@@ -28,9 +28,9 @@ from PyQt4.QtGui import QWidget, QRegExpValidator
 from PyKDE4.kdeui import KConfigSkeleton, KConfigDialog, KIcon, KDialog
 from PyKDE4.kdecore import i18n
 
-from ui_generalpage import Ui_GeneralPage
-from ui_nepomukpage import Ui_NepomukPage
-from ui_danboorupage import Ui_DanbooruPage
+from ui.ui_generalpage import Ui_GeneralPage
+from ui.ui_nepomukpage import Ui_NepomukPage
+from ui.ui_danboorupage import Ui_DanbooruPage
 
 class Preferences(KConfigSkeleton):
 
@@ -90,6 +90,7 @@ class Preferences(KConfigSkeleton):
     @property
     def tag_blacklist(self):
         return self._tag_blacklist.value()
+
 
 class PreferencesDialog(KConfigDialog):
 

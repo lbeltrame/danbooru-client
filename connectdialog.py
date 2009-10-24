@@ -28,7 +28,7 @@ from PyKDE4.kdecore import KUrl
 from PyKDE4.kdeui import KDialog
 
 import api
-from  ui_connectdialog import Ui_connectForm
+from  ui.ui_connectdialog import Ui_connectForm
 
 class ConnectWidget(QWidget, Ui_connectForm):
 
