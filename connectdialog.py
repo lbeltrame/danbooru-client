@@ -17,11 +17,15 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+'''
+File: connectdialog.py
+Author: Luca Beltrame
+Description: File to handle connections to Danbooru sites.
+'''
 
-from PyKDE4.kdecore import *
-from PyKDE4.kdeui import *
+from PyQt4.QtGui import QWidget
+from PyKDE4.kdecore import KUrl
+from PyKDE4.kdeui import KDialog
 
 import api
 from  ui_connectdialog import Ui_connectForm
