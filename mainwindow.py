@@ -53,13 +53,13 @@ class MainWindow(KXmlGuiWindow):
         self.setCentralWidget(self.welcome)
         self.preferences = preferences.Preferences()
 
-        self.read_config()
-        self.setup_actions()
-
         self.progress = None
         self.thumbnailview = None
         self.api = None
         self.__step = 0
+
+        self.read_config()
+        self.setup_actions()
 
     def read_config(self):
 
@@ -69,32 +69,36 @@ class MainWindow(KXmlGuiWindow):
 
     def setup_actions(self):
 
-        connect_action = KAction(KIcon("document-open-remote"),
+        self.connect_action = KAction(KIcon("document-open-remote"),
                                  i18n("Connect"), self)
-        fetch_action = KAction(KIcon("download"), i18n("Fetch"), self)
-        clean_action = KAction(KIcon("trash-empty"),
+        self.fetch_action = KAction(KIcon("download"), i18n("Fetch"), self)
+        self.clean_action = KAction(KIcon("trash-empty"),
                                i18n("Clear thumbnail cache"),
                                self)
 
         connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
         connect_active = KAction.ShortcutTypes(KAction.ActiveShortcut)
 
-        connect_action.setShortcut(QKeySequence.Open,
+        self.connect_action.setShortcut(QKeySequence.Open,
                                    connect_default | connect_active)
-        fetch_action.setShortcut(QKeySequence.Find,
+        self.fetch_action.setShortcut(QKeySequence.Find,
                                  connect_default | connect_active)
 
-        self.actionCollection().addAction("connect", connect_action)
-        self.actionCollection().addAction("fetch", fetch_action)
-        self.actionCollection().addAction("clean", clean_action)
+        self.actionCollection().addAction("connect", self.connect_action)
+        self.actionCollection().addAction("fetch", self.fetch_action)
+        self.actionCollection().addAction("clean", self.clean_action)
 
         KStandardAction.quit (self.close, self.actionCollection())
         KStandardAction.preferences(self.show_preferences,
                                     self.actionCollection())
 
-        connect_action.triggered.connect(self.connect_danbooru)
-        fetch_action.triggered.connect(self.fetch)
-        clean_action.triggered.connect(self.clean_cache)
+        self.connect_action.triggered.connect(self.connect_danbooru)
+        self.fetch_action.triggered.connect(self.fetch)
+        self.clean_action.triggered.connect(self.clean_cache)
+
+        # No sense in enabling fetch at start
+        if not self.api:
+            self.fetch_action.setEnabled(False)
 
         setupGUI_args = [
             QSize(500, 400), self.StandardWindowOption(
@@ -130,6 +134,7 @@ class MainWindow(KXmlGuiWindow):
             self.api = dialog.danbooru_api()
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
+            self.fetch_action.setEnabled(True)
 
     def setup_area(self):
 
