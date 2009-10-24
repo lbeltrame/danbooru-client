@@ -46,7 +46,9 @@ class MainWindow(KXmlGuiWindow):
 
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
-        self.welcome = QLabel(i18n("Welcome to Danbooru Client!"))
+        self.welcome = QLabel()
+        pix = QPixmap(KStandardDirs.locate("appdata","logo.png"))
+        self.welcome.setPixmap(pix)
         self.welcome.setAlignment(Qt.AlignCenter)
         self.setCentralWidget(self.welcome)
         self.preferences = preferences.Preferences()
@@ -63,6 +65,7 @@ class MainWindow(KXmlGuiWindow):
 
         self.url_list = self.preferences.boards_list
         self.max_retrieve = self.preferences.thumbnail_no
+        self.column_no = self.preferences.column_no
 
     def setup_actions(self):
 
@@ -131,7 +134,9 @@ class MainWindow(KXmlGuiWindow):
     def setup_area(self):
 
         self.thumbnailview = thumbnailview.ThumbnailView(self.api,
-                                                       cache=self.cache)
+                                                         self.preferences,
+                                                       cache=self.cache,
+                                                        columns=self.column_no)
         self.setCentralWidget(self.thumbnailview)
         self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
 
