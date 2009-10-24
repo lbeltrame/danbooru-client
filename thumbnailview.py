@@ -17,6 +17,11 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+'''
+File: thumbnailview.py
+Author: Luca Beltrame
+Description: Main widget to display and download thumbnails
+'''
 
 from PyQt4.QtCore import QSize, pyqtSignal, Qt
 from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
@@ -98,6 +103,8 @@ class ThumbnailView(QTableWidget):
         self.__column_index = 0
         self.__max_row_items = 3
         self.__row_index = 0
+        self.__preferences = preferences
+
 
         self.api_data = api_data
         self.cache = cache
@@ -113,7 +120,8 @@ class ThumbnailView(QTableWidget):
         pixmap = widget.label.pixmap()
 
         dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
-                                           preferences=preferences, parent=self)
+                                           preferences=self.__preferences,
+                                           parent=self)
 
         if not dialog.exec_():
             return
