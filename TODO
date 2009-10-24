@@ -2,7 +2,7 @@
 - Enable the donwload of the pictures on click - DONE
 - Figure out how to associate IDs to pictures - DONE
 - Finish API backend 
-- Integrate Nepomuk - mostly done
+- Integrate Nepomuk - DONE
 - Multi-get downloads
 - Rubber band selection
 - Contextual menus
@@ -12,3 +12,4 @@
 - Support for pools listing and retrieving - will need some API changes
 - Implement proper Danbooru error handling
 - (far future) Support for other Danbooru functions such as posts and wiki
+- Disable fetching if not connected
