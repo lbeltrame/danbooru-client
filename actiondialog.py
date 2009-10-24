@@ -17,12 +17,18 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from PyQt4.QtCore import SIGNAL
+'''
+File: actiondialog.py
+Author: Luca Beltrame
+Description: Widget and dialog to display and download images from Danbooru.
+'''
+
 from PyQt4.QtGui import QWidget
 from PyKDE4.kdecore import KUrl
 from PyKDE4.kdeui import KDialog, KMessageBox
 from PyKDE4.kio import KIO, KRun, KFileDialog, KFile
 
+import danbooru2nepomuk
 from ui_actiondialog import Ui_ActionDialog
 
 class ActionWidget(QWidget, Ui_ActionDialog):
@@ -45,11 +51,13 @@ class ActionWidget(QWidget, Ui_ActionDialog):
 
 class ActionDialog(KDialog):
 
-    def __init__(self, url, pixmap=None, parent=None):
+    def __init__(self, url, pixmap=None, preferences=None, parent=None):
 
         super(ActionDialog, self).__init__(parent)
 
         self.url = url
+        self.tagging = preferences.nepomuk_enabled
+        self.blacklist = preferences.tag_blacklist
         self.actionwidget = ActionWidget(self.url, pixmap, self)
         self.setMainWidget(self.actionwidget)
         self.setCaption("Download or display image")
@@ -89,6 +97,7 @@ class ActionDialog(KDialog):
         save_dialog.setOperationMode(KFileDialog.Saving)
         modes = KFile.Modes(KFile.File | KFile.LocalOnly)
 
+        # Set the parameters
         save_dialog.setMode(modes)
         save_dialog.setConfirmOverwrite(True)
         save_dialog.setInlinePreviewShown(True)
@@ -106,4 +115,15 @@ class ActionDialog(KDialog):
             if not ok:
                 KMessageBox.error(self, KIO.NetAccess.lastErrorString())
                 return
+
+        if self.tagging:
+            ok = danbooru2nepomuk.nepomuk_running()
+            if ok:
+
+                # The user may select an arbitrary file name, so we tag
+                # using the original file name obtained from the URL
+                tags = danbooru2nepomuk.extract_tags(start_name,
+                                                     blacklist=self.blacklist)
+                # danbooru2nepomuk wants strings or QStrings
+                danbooru2nepomuk.tag_file(filename.toLocalFile(), tags)
 
