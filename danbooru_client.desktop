@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Danbooru Client
+Comment=A client for Danbooru image boards
+Icon=internet-web-browser
+Type=Application
+Exec=danbooru_client
+Categories=Qt;Graphics;RasterGraphics;Viewer;
