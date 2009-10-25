@@ -115,7 +115,9 @@ class MainWindow(KXmlGuiWindow):
             setupGUI_args.append(rc_file)
 
         self.setupGUI(*setupGUI_args)
-        self.actionCollection().removeAction(self.actionCollection().action("help_contents"))
+        # Called later than setupGUI or it won't exist yet
+        self.actionCollection().removeAction(
+            self.actionCollection().action("help_contents"))
 
     def show_preferences(self):
 
@@ -220,5 +222,3 @@ class MainWindow(KXmlGuiWindow):
             self.retrieve(tags, limit)
         else:
             return
-
-
