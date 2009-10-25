@@ -115,6 +115,7 @@ class MainWindow(KXmlGuiWindow):
             setupGUI_args.append(rc_file)
 
         self.setupGUI(*setupGUI_args)
+        self.actionCollection().removeAction(self.actionCollection().action("help_contents"))
 
     def show_preferences(self):
 
