@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="KIntSpinBox" name="kcfg_displayColumns">
+    <widget class="KIntSpinBox" name="kcfg_thumbnailMaxRetrieve">
      <property name="minimum">
       <number>1</number>
      </property>
@@ -42,7 +42,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="KIntSpinBox" name="kcfg_thumbnailMaxRetrieve">
+    <widget class="KIntSpinBox" name="kcfg_displayColumns">
      <property name="minimum">
       <number>1</number>
      </property>

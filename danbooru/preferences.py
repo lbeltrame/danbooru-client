@@ -66,8 +66,7 @@ class Preferences(KConfigSkeleton):
         self._tag_blacklist = self.addItemStringList("tagBlacklist",
                                                      self._tag_blacklist_values,
                                                      predefined_blacklist)
-
-        self._column_number = self.addItemInt("columnNumber", 3, 3)
+        self._column_number = self.addItemInt("displayColumns", 3, 3)
 
         self.readConfig()
 
