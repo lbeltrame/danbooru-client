@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-24 14:51+0200\n"
+"POT-Creation-Date: 2009-10-25 19:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,180 +16,168 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: danbooru2nepomuk.py:147
+#: danbooru/danbooru2nepomuk.py:146
 msgid "danbooru2nepomuk"
 msgstr ""
 
-#: danbooru2nepomuk.py:149
+#: danbooru/danbooru2nepomuk.py:148
 msgid "A tagger for files downloaded from Danbooru."
 msgstr ""
 
-#: danbooru2nepomuk.py:151 danbooru_client.py:40 kmainwindow.py:19
-#: test_api.py:35
+#: danbooru/danbooru2nepomuk.py:150 danbooru/danbooru_client.py:40
+#: danbooru/test_api.py:35
 msgid "(C) 2009 Luca Beltrame"
 msgstr ""
 
-#: danbooru2nepomuk.py:152
+#: danbooru/danbooru2nepomuk.py:151
 msgid "An automatic Nepomuk tagger for Danbooru-downloaded images."
 msgstr ""
 
-#: danbooru2nepomuk.py:181
+#: danbooru/danbooru2nepomuk.py:180
 msgid "File or directory to tag"
 msgstr ""
 
-#: danbooru2nepomuk.py:182
+#: danbooru/danbooru2nepomuk.py:181
 msgid "Scan a directory recursively"
 msgstr ""
 
-#: danbooru2nepomuk.py:203
+#: danbooru/danbooru2nepomuk.py:202
 msgid "Not enough arguments."
 msgstr ""
 
-#: danbooru_client.py:36 test_api.py:31
+#: danbooru/danbooru_client.py:36 danbooru/test_api.py:31
 msgid "Danbooru Client"
 msgstr ""
 
-#: danbooru_client.py:38 test_api.py:33
+#: danbooru/danbooru_client.py:38 danbooru/test_api.py:33
 msgid "A client for Danbooru sites."
 msgstr ""
 
-#: danbooru_client.py:41
+#: danbooru/danbooru_client.py:41
 msgid "Danbooru Client is a program to access Danbooru image boards."
 msgstr ""
 
-#: kmainwindow.py:15
-msgid "helloworld"
-msgstr ""
-
-#: kmainwindow.py:17 test_api.py:36
-msgid "Test"
-msgstr ""
-
-#: kmainwindow.py:20
-msgid "succhiate"
-msgstr ""
-
-#: kmainwindow.py:38
-msgid "Clear"
-msgstr ""
-
-#: mainwindow.py:75
+#: danbooru/mainwindow.py:73
 msgid "Connect"
 msgstr ""
 
-#: mainwindow.py:76
+#: danbooru/mainwindow.py:74
 msgid "Fetch"
 msgstr ""
 
-#: mainwindow.py:78
+#: danbooru/mainwindow.py:76
 msgid "Clear thumbnail cache"
 msgstr ""
 
-#: mainwindow.py:133
+#: danbooru/mainwindow.py:138
 #, python-format
 msgid "Connected to %s"
 msgstr ""
 
-#: mainwindow.py:164
+#: danbooru/mainwindow.py:172
 msgid "Error retrieving posts"
 msgstr ""
 
-#: mainwindow.py:168
+#: danbooru/mainwindow.py:176
 msgid "No posts found."
 msgstr ""
 
-#: mainwindow.py:175
+#: danbooru/mainwindow.py:183
 msgid "Retrieving"
 msgstr ""
 
-#: mainwindow.py:176
+#: danbooru/mainwindow.py:184
 msgid "Retrieving images..."
 msgstr ""
 
-#: mainwindow.py:198
+#: danbooru/mainwindow.py:206
 msgid "Thumbnail cache cleared."
 msgstr ""
 
-#: preferences.py:98
-msgid "General"
+#: danbooru/preferences.py:107
+msgid "Layout"
 msgstr ""
 
-#: preferences.py:100
-msgid "Tagging"
-msgstr ""
-
-#: ui_actiondialog.py:39
-msgid "Actions "
-msgstr ""
-
-#: ui_actiondialog.py:40
-msgid "Display image"
-msgstr ""
-
-#: ui_actiondialog.py:41
-msgid "Download image"
-msgstr ""
-
-#: ui_actiondialog.py:42
-msgid "Selected image"
-msgstr ""
-
-#: ui_connectdialog.py:48
-msgid "Danbooru URL"
-msgstr ""
-
-#: ui_connectdialog.py:49
-msgid "Username"
-msgstr ""
-
-#: ui_connectdialog.py:50
-msgid "Danbooru username (optional)"
-msgstr ""
-
-#: ui_connectdialog.py:51
-msgid "Password"
-msgstr ""
-
-#: ui_connectdialog.py:52
-msgid "Danbooru password (optional)"
-msgstr ""
-
-#: ui_fetchdialog.py:42
-msgid "Posts to retrieve"
-msgstr ""
-
-#: ui_fetchdialog.py:43
-msgid "Tags to include"
-msgstr ""
-
-#: ui_fetchdialog.py:44
-msgid "Tags to include in search (optional)"
-msgstr ""
-
-#: ui_fetchdialog.py:45
-msgid "Tags, comma separated"
-msgstr ""
-
-#: ui_fetchdialog.py:46
-msgid "Number of posts to retrieve (max 100)"
-msgstr ""
-
-#: ui_generalpage.py:44
+#: danbooru/preferences.py:111
 msgid "Danbooru URLs"
 msgstr ""
 
-#: ui_generalpage.py:45
-msgid "General settings"
+#: danbooru/preferences.py:114
+msgid "Tagging"
 msgstr ""
 
-#: ui_generalpage.py:46
+#: danbooru/test_api.py:36
+msgid "Test"
+msgstr ""
+
+#: danbooru/ui/ui_actiondialog.py:39
+msgid "Actions "
+msgstr ""
+
+#: danbooru/ui/ui_actiondialog.py:40
+msgid "Display image"
+msgstr ""
+
+#: danbooru/ui/ui_actiondialog.py:41
+msgid "Download image"
+msgstr ""
+
+#: danbooru/ui/ui_actiondialog.py:42
+msgid "Selected image"
+msgstr ""
+
+#: danbooru/ui/ui_connectdialog.py:48
+msgid "Danbooru URL"
+msgstr ""
+
+#: danbooru/ui/ui_connectdialog.py:49
+msgid "Username"
+msgstr ""
+
+#: danbooru/ui/ui_connectdialog.py:50
+msgid "Danbooru username (optional)"
+msgstr ""
+
+#: danbooru/ui/ui_connectdialog.py:51
+msgid "Password"
+msgstr ""
+
+#: danbooru/ui/ui_connectdialog.py:52
+msgid "Danbooru password (optional)"
+msgstr ""
+
+#: danbooru/ui/ui_fetchdialog.py:42
+msgid "Posts to retrieve"
+msgstr ""
+
+#: danbooru/ui/ui_fetchdialog.py:43
+msgid "Tags to include"
+msgstr ""
+
+#: danbooru/ui/ui_fetchdialog.py:44
+msgid "Tags to include in search (optional)"
+msgstr ""
+
+#: danbooru/ui/ui_fetchdialog.py:45
+msgid "Tags, comma separated"
+msgstr ""
+
+#: danbooru/ui/ui_fetchdialog.py:46
+msgid "Number of posts to retrieve (max 100)"
+msgstr ""
+
+#: danbooru/ui/ui_generalpage.py:39
 msgid "Default number of thumbnails to retrieve"
 msgstr ""
 
-#: ui_nepomukpage.py:34
+#: danbooru/ui/ui_generalpage.py:40
+msgid "Number of columns to display"
+msgstr ""
+
+#: danbooru/ui/ui_nepomukpage.py:34
 msgid "Enable Nepomuk tagging"
 msgstr ""
 
-#: ui_nepomukpage.py:35
+#: danbooru/ui/ui_nepomukpage.py:35
 msgid "Tag blacklist"
 msgstr ""
