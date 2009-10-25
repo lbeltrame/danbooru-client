@@ -7,4 +7,7 @@ find_package(PythonLibrary REQUIRED)
 find_package(PyQt4 REQUIRED)
 find_package(PyKDE4 REQUIRED)
 include(PythonMacros)
+
+install ( FILES danbooru_client.desktop DESTINATION ${XDG_APPS_INSTALL_DIR} )
+
 add_subdirectory( danbooru )
