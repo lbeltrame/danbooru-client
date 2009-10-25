@@ -46,6 +46,7 @@ class MainWindow(KXmlGuiWindow):
 
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
+        self.setHelpMenuEnabled(False)
         self.welcome = QLabel()
         pix = QPixmap(KStandardDirs.locate("appdata","logo.png"))
         self.welcome.setPixmap(pix)
