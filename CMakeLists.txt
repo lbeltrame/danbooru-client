@@ -1,0 +1,10 @@
+project(danbooru_client) 
+set(PROGRAM_VERSION 0.1)
+set (CMAKE_BUILD_TYPE "Release")
+
+find_package(KDE4 REQUIRED)
+find_package(PythonLibrary REQUIRED)
+find_package(PyQt4 REQUIRED)
+find_package(PyKDE4 REQUIRED)
+include(PythonMacros)
+add_subdirectory( danbooru )
