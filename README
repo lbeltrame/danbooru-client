@@ -1,0 +1,34 @@
+Danbooru Client - v.0.1
+
+Danbooru Client is an application to access Danbooru based image boards (link), using their REST API. This means the ability of viewing and downloading images without using a browser. 
+
+Requirements
+
+- KDE 4.3
+- PyKDE 4 (tested with PyKDE 4.3)
+- PyQt 4 - at least version 4.5
+- Python 2.5 or newer
+
+Installation
+
+Danbooru Client uses CMake. Unfortunately, due to the way CMake works, it requires a working compiler and the KDE 4 development headers installed. 
+To install, issue the following commands in the source directory:
+
+mkdir build; cd build
+cmake -DCMAKE_INSTALL_PREFIX=`kde4-config --prefix`
+make
+
+Followed by "make install" as root (or using sudo)
+
+This will install Danbooru Client in your system KDE install.
+
+Known limitations
+
+- Currently you can only download or view only one image at a time. Such a limitation will be removed in the future.
+- You cannot retrieve more than 100 posts. This is a forced limit in the Danbooru API
+- There is no way to blacklist images based on rating. Again, this is a limit of the Danbooru API
+
+Credits and license
+
+Danbooru Client was written by Luca Beltrame. The logo was made by Melissa Adkins. 
+The program is distributed under the terms of GNU GPL, version 2 or later. See the COPYING file for license information.
