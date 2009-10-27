@@ -44,7 +44,7 @@ app = KApplication()
 
 class TestDanbooruAPI(unittest.TestCase):
 
-    URL = "http://konachan.com"
+    URL = "http://moe.imouto.org"
 
     def setUp(self):
 
@@ -62,8 +62,10 @@ class TestDanbooruAPI(unittest.TestCase):
 
         "Thumbnail list retrieval"
 
-        self.api.get_post_list(limit=1)
-        url = self.api.data[0].thumbnail_url
+        ok = self.api.get_post_list(limit=1)
+        data = self.api.data[0]
+        self.assertTrue(data)
+        url = data.thumbnail_url
         check = self.api.validate_url(url)
         self.assertTrue(check)
 
@@ -72,11 +74,17 @@ class TestDanbooruAPI(unittest.TestCase):
         "Image URL and image retrieval"
 
         self.api.get_post_list(limit=1)
-        url = self.api.data[0].full_url
+        data = self.api.data[0]
+        self.assertTrue(data)
+        url = data.full_url
         check = self.api.validate_url(url)
         self.assertTrue(check)
-        picture, name = self.api.get_image(url, verbose=True)
-        self.assertFalse(picture.isNull())
+        self.api.get_image(url, verbose=True)
+        self.api.dataDownloaded.connect(self.checkImage)
+
+    def checkImage(self, name, pixmap):
+        self.assertFalse(pixmap.isNull())
+        self.assertFalse(name.isEmpty())
 
 def main():
 
