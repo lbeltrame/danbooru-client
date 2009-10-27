@@ -1,4 +1,155 @@
+2009-10-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api.py: Remove unused imports and update docstrings
+
+  * danbooru/thumbnailview.py: Remove some cruft
+
+  * danbooru/api.py: Slight modification to play nicer with unit tests
+
+  * danbooru/test_api.py: Update unit tests
+
+  * danbooru/mainwindow.py: Move from a KProgressDialog to a QProgressBar
+  embedded in the window. It's resized in a hackish way, but I found no other
+  way to make it smaller.
+
+  * danbooru/thumbnailview.py: Adapt to the new API format, and discard cache
+  (it's handled by the API now)
+
+  * danbooru/api.py: Huge rework in the API. Now it's based on QObject
+  (welcome, signals and slots!) and uses KIO.StoredGet to retrieve the posts,
+  emitting the dataDownloaded(KUrl, QString) signal. Along with this,
+  implemented a new custom collection for Danbooru items, since result( KJob*)
+  cannot give more than what the job has (url and data). With the new
+  collection, it's possible to retrieve a full item by giving the thumbnail or
+  image url using a dictionary-like syntax.
+
+2009-10-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/preferences.py, danbooru/ui/ui_generalpage.py,
+  danbooru/ui_src/generalpage_new.ui: Note to self: check the name of the
+  objects before saving them
+
+  * .gitignore: More ignores
+
+  * po/danbooru_client.pot: Regenerate it
+
+  * CMakeLists.txt: Copy .desktop file
+
+  * danbooru/mainwindow.py: Remove handbook menu entry for now
+
+  * danbooru_client.desktop: Desktop file for menu and other things. I need a
+  better icon, though.
+
+  * README: Basic README
+
+  * danbooru/mainwindow.py: Remove handbook for now
+
+  * danbooru/mainwindow.py: Remove help
+
+  * danbooru/CMakeLists.txt, po/index.lokalize, po/it.po,
+  po/lokalize-scripts/scripts.rc: Missing stuff, plus starts of (perhaps)
+  translation
+
+  * CMakeLists.txt, danbooru/danbooruui.rc, danbooru/ui/CMakeLists.txt,
+  danbooruui.rc: Final moves for cmake
+
+2009-10-24  Luca Beltrame <einar@heavensinferno.net>
+
+  * actiondialog.py, api.py, connectdialog.py, danbooru/actiondialog.py,
+  danbooru/api.py, danbooru/connectdialog.py, danbooru/danbooru2nepomuk.py,
+  danbooru/danbooru_client.py, danbooru/fetchdialog.py, danbooru/hashes.py,
+  danbooru/img/logo.png, danbooru/img/logo_resized.png, danbooru/mainwindow.py,
+  danbooru/preferences.py, danbooru/test_api.py, danbooru/thumbnailview.py,
+  danbooru/ui/ui_actiondialog.py, danbooru/ui/ui_connectdialog.py,
+  danbooru/ui/ui_danboorupage.py, danbooru/ui/ui_fetchdialog.py,
+  danbooru/ui/ui_generalpage.py, danbooru/ui/ui_nepomukpage.py,
+  danbooru/ui_src/actiondialog.ui, danbooru/ui_src/connectdialog.ui,
+  danbooru/ui_src/danboorupage.ui, danbooru/ui_src/fetchdialog.ui,
+  danbooru/ui_src/generalpage.ui, danbooru/ui_src/generalpage_new.ui,
+  danbooru/ui_src/nepomukpage.ui, danbooru2nepomuk.py, danbooru_client.py,
+  fetchdialog.py, hashes.py, img/logo.png, img/logo_resized.png, mainwindow.py,
+  preferences.py, test_api.py, thumbnailview.py, ui/ui_actiondialog.py,
+  ui/ui_connectdialog.py, ui/ui_danboorupage.py, ui/ui_fetchdialog.py,
+  ui/ui_generalpage.py, ui/ui_nepomukpage.py, ui_src/actiondialog.ui,
+  ui_src/connectdialog.ui, ui_src/danboorupage.ui, ui_src/fetchdialog.ui,
+  ui_src/generalpage.ui, ui_src/generalpage_new.ui, ui_src/nepomukpage.ui: Move
+  stuff around
+
+  * fetchdialog.py: Turn tags with spaces in underscores
+
+  * : Forgot this file
+
+  * TODO, actiondialog.py, connectdialog.py, fetchdialog.py, preferences.py,
+  ui/ui_actiondialog.py, ui/ui_connectdialog.py, ui/ui_danboorupage.py,
+  ui/ui_fetchdialog.py, ui/ui_generalpage.py, ui/ui_nepomukpage.py,
+  ui_actiondialog.py, ui_connectdialog.py, ui_danboorupage.py,
+  ui_fetchdialog.py, ui_generalpage.py, ui_nepomukpage.py: Move UI files to a
+  separate dir
+
+  * ui_src/izzo.ui: Leftovers
+
+  * ui/actiondialog.ui, ui/connectdialog.ui, ui/danboorupage.ui,
+  ui/fetchdialog.ui, ui/generalpage.ui, ui/generalpage_new.ui, ui/izzo.ui,
+  ui/nepomukpage.ui, ui_src/actiondialog.ui, ui_src/connectdialog.ui,
+  ui_src/danboorupage.ui, ui_src/fetchdialog.ui, ui_src/generalpage.ui,
+  ui_src/generalpage_new.ui, ui_src/izzo.ui, ui_src/nepomukpage.ui: Move things
+
+  * mainwindow.py: Properly disable actions if we aren't connected
+
+  * TODO: TODO updated
+
+  * connectdialog.py: Fix imports
+
+  * img/logo.png, img/logo_resized.png: Logos
+
+  * Messsages.sh, po/danbooru_client.pot: Skeletons for translations
+
+  * ui/danboorupage.ui, ui/generalpage_new.ui, ui/izzo.ui, ui/nepomukpage.ui:
+  UI files
+
+  * ui_danboorupage.py, ui_generalpage.py, ui_nepomukpage.py: Updated UI files
+
+  * mainwindow.py: - Load more preferences - Use the application logo - Support
+  the tagging feature
+
+  * thumbnailview.py: Pass the preferences object instead of values, easier
+
+  * actiondialog.py: Rejoice, tagging with Nepomuk works now!
+
+  * danbooru_client.py: Proper version and catalog name
+
+  * danbooru2nepomuk.py: Support for other tag blacklists if not used from
+  command line
+
+  * preferences.py: Fix broken imports
+
+  * preferences.py: Split up the configuration in three pages, and clean up
+  imports
+
+  * thumbnailview.py: Pass in the preferences object so that the action dialog
+  can use it; Fix imports to avoid the "from XXX to *".
+
+2009-10-23  Luca Beltrame <einar@heavensinferno.net>
+
+  * preferences.py: New preferences
+
+  * thumbnailview.py: Properly center images
+
 2009-10-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * ui_generalpage.py: Properly fix things now
+
+  * ui_generalpage.py: pykdeuic4 screwing up again...
+
+  * preferences.py: New preferences (no UI yet)
+
+  * danbooru_client.py, mainwindow.py: Create a smaller program that will
+  launch the main window. Also, some more docstrings
+
+  * danbooru_client.py, mainwindow.py: Split the mainwindow from the actual
+  application
+
+  * ChangeLog: ChangeLog updated.
 
   * TODO: More TODO updates
 
