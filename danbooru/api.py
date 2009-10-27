@@ -63,8 +63,6 @@ class Danbooru(QObject):
         """Check whether a given URL exists. Returns True if found, False if
         otherwise. Adapted from http://code.activestate.com/recipes/286225/"""
 
-        valid_responses = [200, 301, 302]
-
         host, path = urlparse.urlsplit(url)[1:3]
         try:
             ## Make HTTPConnection Object
@@ -72,8 +70,7 @@ class Danbooru(QObject):
             connection.request("HEAD", path)
             ## Grab HTTPResponse Object
             responseOb = connection.getresponse()
-            # Some Danbooru boards report 302 instead of 200
-            if responseOb.status in valid_responses:
+            if responseOb.status == 200:
                 return True
             else:
                 return False
@@ -137,8 +134,6 @@ class Danbooru(QObject):
                 item = DanbooruItem(item)
                 self.data.append(item)
 
-            # self.data = [DanbooruItem(item) for item in data]
-
         else:
             return False
 
@@ -177,35 +172,36 @@ class Danbooru(QObject):
         image_url = KUrl(image_url)
         flags = KIO.JobFlags(KIO.HideProgressInfo)
 
-        self.pixmap = QPixmap()
+        pixmap = QPixmap()
         name = image_url.fileName()
 
         # No need to download if in cache
-        if not self.cache.find(name, self.pixmap):
 
-            job = KIO.storedGet(image_url, KIO.NoReload, flags)
-            # Schedule: we don't want to overload servers
-            KIO.Scheduler.scheduleJob(job)
+        if self.cache is not None:
+            if self.cache.find(name, pixmap):
+                self.dataDownloaded.emit(image_url, pixmap)
+                return
 
-            # Ugly, but not wrapped by PyKDE4
-            self.connect(job, SIGNAL("result (KJob *)"), self.job_download)
-            return
-        else:
-            self.dataDownloaded.emit(image_url, self.pixmap)
+        job = KIO.storedGet(image_url, KIO.NoReload, flags)
+        # Schedule: we don't want to overload servers
+        KIO.Scheduler.scheduleJob(job)
+
+        # Ugly, but not wrapped by PyKDE4
+        self.connect(job, SIGNAL("result (KJob *)"), self.job_download)
 
     def job_download(self, job):
 
         img = QPixmap()
         name = job.url()
         if job.error():
-            print "Some error occurred"
             job.ui().showErrorMessage()
-            # Emit empty data in case of errors
-            #self.dataDownloaded.emit(name, img)
             return
 
         img.loadFromData(job.data())
-        self.cache.insert(job.url().fileName(), img)
+
+        if self.cache is not None:
+            self.cache.insert(job.url().fileName(), img)
+
         self.dataDownloaded.emit(name, img)
 
 class DanbooruList(object):
@@ -230,7 +226,11 @@ class DanbooruList(object):
             index = self.__thumbnail_url[key]
             return self.__data[index]
         else:
-            return
+            # So we can get by index as well 
+            try:
+                return self.__data[key]
+            except TypeError, IndexError:
+                return
 
     def __contains__(self, key):
 
@@ -269,6 +269,8 @@ class DanbooruItem(object):
         self.__data = json_data
 
     def __getattr__(self, name):
+
+        print self.__data.keys()
 
         if name not in self.__data:
             return None
