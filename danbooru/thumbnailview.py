@@ -100,7 +100,6 @@ class ThumbnailView(QTableWidget):
 
         self.__max_columns = columns
         self.__column_index = 0
-        self.__max_row_items = 3
         self.__row_index = 0
         self.__preferences = preferences
 
