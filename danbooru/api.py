@@ -20,7 +20,6 @@ import json
 import urlparse
 import urllib
 import httplib
-import time
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import QPixmap
@@ -206,7 +205,11 @@ class Danbooru(QObject):
 
 class DanbooruList(object):
 
-    "Specialized container for Danbooru items."
+    """Specialized container for Danbooru items. It contains a lists of
+    DanbooruItems and at the same time it also stores thumbnail and full image
+    urls. The dictionaries are used to keep indices to the internal list, and
+    they're used to return the corresponding item (standard index access is also
+    possible)."""
 
     def __init__(self):
 
@@ -218,6 +221,10 @@ class DanbooruList(object):
         return str(self.__data)
 
     def __getitem__(self, key):
+
+        """Keys are first checked in the two internal dictionaries, then if no
+        match is found, they're used as indices for the internal list. In case
+        of no match, or exception, None is returned."""
 
         if key in self.__full_url:
             index = self.__full_url[key]
@@ -251,6 +258,9 @@ class DanbooruList(object):
             yield item
 
     def append(self, item):
+
+        """Append logic similar to lists, but which also includes creating the
+        keys for the dictionaries."""
 
         assert isinstance(item, DanbooruItem)
 
