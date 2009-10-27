@@ -32,7 +32,7 @@ import hashes
 """Module that provides a wrapper for Danbooru API calls. Items are stored as
 DanbooruItems, which enable easy extraction of information using attributes."""
 
-class Danbooru(object):
+class Danbooru(QObject):
 
     "Class which provides a PyKDE4 wrapper to the Danbooru API."
 
@@ -41,8 +41,12 @@ class Danbooru(object):
     _POOL_URL = "pool/index.json"
     _ARTIST_URL = "pool/index.json"
 
-    def __init__(self, api_url, login=None, password=None):
+    dataDownloaded = pyqtSignal(KUrl, QPixmap)
 
+    def __init__(self, api_url, login=None, password=None, parent=None,
+                cache=None):
+
+        super(Danbooru, self).__init__(parent)
         result = self.validate_url(api_url)
 
         if not result:
@@ -50,6 +54,7 @@ class Danbooru(object):
 
         self.url = api_url
         self.data = None
+        self.cache = cache
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
 
@@ -120,13 +125,19 @@ class Danbooru(object):
             try:
                 data = json.load(api_response)
 
-                if "sucess" in data[0]:
+                if "success" in data[0]:
                     if not data[0]["success"]:
                         return False
             finally:
                 KIO.NetAccess.removeTempFile(tempfile)
 
-            self.data = [DanbooruItem(item) for item in data]
+            self.data = DanbooruList()
+
+            for item in data:
+                item = DanbooruItem(item)
+                self.data.append(item)
+
+            # self.data = [DanbooruItem(item) for item in data]
 
         else:
             return False
@@ -154,36 +165,99 @@ class Danbooru(object):
     def get_image(self, image_url, verbose=False, wait=2):
 
         """Retrieves a picture (full or thumbnail) for a specific URL.
-        Returns a QImage. If for any reason the picture isn't downloaded,
-        returns a null QImage. Set verbose to True to view the download
-        progress. To avoid overloading the server, set the wait parameter to
-        X in order to have the retrieval pause every X seconds."""
+        It uses KIO.storedGet to download it asynchronously, but setting a
+        KIO.Scheduler to queue the jobs. Once the job has finished, it will emit
+        the dataDownloaded(KUrl, QPixmap) signal.
+        """
 
         # Not less than two seconds. We want to play nice.
         if wait < 2:
             wait = 2
 
-        tempfile = KTemporaryFile()
-        if tempfile.open():
+        image_url = KUrl(image_url)
+        flags = KIO.JobFlags(KIO.HideProgressInfo)
 
-            if not verbose:
-                flags = KIO.JobFlags(KIO.Overwrite | KIO.HideProgressInfo)
-            else:
-                flags = KIO.JobFlags(KIO.Overwrite)
+        self.pixmap = QPixmap()
+        name = image_url.fileName()
 
-        job = KIO.file_copy(KUrl(image_url), KUrl(tempfile.fileName()),
-                                         -1, flags)
+        # No need to download if in cache
+        if not self.cache.find(name, self.pixmap):
+
+            job = KIO.storedGet(image_url, KIO.NoReload, flags)
+            # Schedule: we don't want to overload servers
+            KIO.Scheduler.scheduleJob(job)
+
+            # Ugly, but not wrapped by PyKDE4
+            self.connect(job, SIGNAL("result (KJob *)"), self.job_download)
+            return
+        else:
+            self.dataDownloaded.emit(image_url, self.pixmap)
+
+    def job_download(self, job):
+
         img = QPixmap()
-        name = KUrl(image_url).fileName()
+        name = job.url()
+        if job.error():
+            print "Some error occurred"
+            job.ui().showErrorMessage()
+            # Emit empty data in case of errors
+            #self.dataDownloaded.emit(name, img)
+            return
 
-        # To prevent server overloads, we can't really use async jobs
-        if KIO.NetAccess.synchronousRun(job, None):
-            destination = job.destUrl()
-            img.load(destination.path())
-            time.sleep(wait)
+        img.loadFromData(job.data())
+        self.cache.insert(job.url().fileName(), img)
+        self.dataDownloaded.emit(name, img)
 
-        return img, name
+class DanbooruList(object):
 
+    "Specialized container for Danbooru items."
+
+    def __init__(self):
+
+        self.__data = list()
+        self.__full_url = dict()
+        self.__thumbnail_url = dict()
+
+    def __str__(self):
+        return str(self.__data)
+
+    def __getitem__(self, key):
+
+        if key in self.__full_url:
+            index = self.__full_url[key]
+            return self.__data[index]
+        elif key in self.__thumbnail_url:
+            index = self.__thumbnail_url[key]
+            return self.__data[index]
+        else:
+            return
+
+    def __contains__(self, key):
+
+        if key in self.__full_url:
+            return True
+        elif key in self.__thumbnail_url:
+            return True
+        elif key in self.__data:
+            return True
+        else:
+            return False
+
+    def __len__(self):
+        return len(self.__data)
+
+    def __iter__(self):
+        for item in self.__data:
+            yield item
+
+    def append(self, item):
+
+        assert isinstance(item, DanbooruItem)
+
+        last_index = len(self.__data)  if self.__data else 0
+        self.__data.append(item)
+        self.__full_url[item.full_url] = last_index
+        self.__thumbnail_url[item.thumbnail_url] = last_index
 
 class DanbooruItem(object):
 
