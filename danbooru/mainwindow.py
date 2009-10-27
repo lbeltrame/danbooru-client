@@ -46,14 +46,22 @@ class MainWindow(KXmlGuiWindow):
 
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
+        self.preferences = preferences.Preferences()
+
         self.welcome = QLabel()
         pix = QPixmap(KStandardDirs.locate("appdata","logo.png"))
         self.welcome.setPixmap(pix)
         self.welcome.setAlignment(Qt.AlignCenter)
         self.setCentralWidget(self.welcome)
-        self.preferences = preferences.Preferences()
 
-        self.progress = None
+        self.statusbar = self.statusBar()
+        self.progress = QProgressBar()
+        self.progress.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        # Hackish, but how to make it small otherwise?
+        self.progress.setMinimumSize(100, 1)
+        self.statusbar.addPermanentWidget(self.progress)
+        self.progress.hide()
+
         self.thumbnailview = None
         self.api = None
         self.__step = 0
@@ -95,6 +103,7 @@ class MainWindow(KXmlGuiWindow):
         self.connect_action.triggered.connect(self.connect_danbooru)
         self.fetch_action.triggered.connect(self.fetch)
         self.clean_action.triggered.connect(self.clean_cache)
+        self.actionCollection().actionHovered.connect(self.actiontooltip)
 
         # No sense in enabling fetch at start
         if not self.api:
@@ -119,6 +128,11 @@ class MainWindow(KXmlGuiWindow):
         self.actionCollection().removeAction(
             self.actionCollection().action("help_contents"))
 
+    def actiontooltip(self, action):
+
+        if action.isEnabled():
+            self.statusBar().showMessage(action.text())
+
     def show_preferences(self):
 
         if KConfigDialog.showDialog("Preferences dialog"):
@@ -135,6 +149,7 @@ class MainWindow(KXmlGuiWindow):
 
         if dialog.exec_():
             self.api = dialog.danbooru_api()
+            self.api.cache = self.cache
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)
@@ -143,18 +158,14 @@ class MainWindow(KXmlGuiWindow):
 
         self.thumbnailview = thumbnailview.ThumbnailView(self.api,
                                                          self.preferences,
-                                                       cache=self.cache,
                                                         columns=self.column_no)
         self.setCentralWidget(self.thumbnailview)
         self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
 
     def update_progress(self):
 
-        if self.progress is None:
-            return
-
         self.__step += 1
-        self.progress.progressBar().setValue(self.__step)
+        self.progress.setValue(self.__step)
 
     def retrieve(self, tags, limit):
 
@@ -180,18 +191,15 @@ class MainWindow(KXmlGuiWindow):
 
         max_steps = len(urls)
 
-        self.progress = KProgressDialog(self, i18n("Retrieving"),
-                                        i18n("Retrieving images..."))
-        self.progress.setMinimumDuration(1000)
-        self.progress.adjustSize()
-        self.progress.setAutoClose(True)
-        self.progress.setAllowCancel(False)
-        self.progress.progressBar().setMaximum(max_steps)
+        self.progress.setMaximum(max_steps)
+        self.progress.show()
 
         self.thumbnailview.display_thumbnails()
 
         # Reset the counter in case of subsequent fetches
         self.__step = 0
+        self.progress.reset()
+        self.progress.hide()
 
     def clear(self):
 
