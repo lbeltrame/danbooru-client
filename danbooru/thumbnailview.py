@@ -88,7 +88,7 @@ class ThumbnailView(QTableWidget):
 
     thumbnailDownloaded = pyqtSignal() # To notify changes
 
-    def __init__(self, api_data, preferences, cache=None, columns=5, parent=None):
+    def __init__(self, api_data, preferences, columns=5, parent=None):
 
         super(ThumbnailView, self).__init__(parent)
         self.setColumnCount(columns)
@@ -97,7 +97,6 @@ class ThumbnailView(QTableWidget):
         self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.verticalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.setShowGrid(False)
-        self.setIconSize(QSize(1024, 1024))
 
         self.__max_columns = columns
         self.__column_index = 0
@@ -105,11 +104,10 @@ class ThumbnailView(QTableWidget):
         self.__row_index = 0
         self.__preferences = preferences
 
-
         self.api_data = api_data
-        self.cache = cache
 
         self.itemClicked.connect(self.retrieve_url)
+        self.api_data.dataDownloaded.connect(self.process_thumbnails)
 
     def retrieve_url(self, item):
 
@@ -160,18 +158,23 @@ class ThumbnailView(QTableWidget):
         result = item_no // self.__max_columns
         self.setRowCount(result+1)
 
+    def process_thumbnails(self, url, pixmap):
+
+        # Empty data is worthless: skip!
+        if url.isEmpty() or pixmap.isNull():
+            return
+
+        item_url = unicode(url.prettyUrl())
+        name = url.fileName()
+        post_data = self.api_data.data[item_url]
+
+        item = self.create_image_item(pixmap, post_data)
+        self.insert_items(item)
+
     def display_thumbnails(self):
 
         self.setup_rows(len(self.api_data.data))
 
         for item in self.api_data.data:
 
-            pixmap, name = self.api_data.get_image(item.thumbnail_url)
-            item = self.create_image_item(pixmap, item)
-            if item:
-                self.insert_items(item)
-            else:
-                continue
-
-            if not self.cache.find(name, pixmap):
-                self.cache.insert(name, pixmap)
+            self.api_data.get_image(item.thumbnail_url)
