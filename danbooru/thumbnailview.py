@@ -23,12 +23,13 @@ Author: Luca Beltrame
 Description: Main widget to display and download thumbnails
 '''
 
-from PyQt4.QtCore import QSize, pyqtSignal, Qt
+from PyQt4.QtCore import pyqtSignal, Qt
 from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
-                         QHeaderView, QPixmap)
+                         QHeaderView, QPixmap, QCheckBox, QSizePolicy,
+                        QKeySequence)
 
-from PyKDE4.kdecore import KUrl
-from PyKDE4.kdeui import KUrlLabel
+from PyKDE4.kdecore import KUrl, i18n
+from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager
 
 import actiondialog
 
@@ -61,8 +62,15 @@ class ThumbnailViewItem(QWidget):
 
         if label_text is not None:
             self.__text_label.setText(label_text)
-            # self.layout.addStretch()
             self.layout.addWidget(self.__text_label)
+
+        self.checkbox = QCheckBox()
+        self.checkbox.setChecked(False)
+        self.checkbox.setText(i18n("Select"))
+        KAcceleratorManager.setNoAccel(self.checkbox)
+        self.checkbox.setSizePolicy(QSizePolicy.Fixed,
+                                    QSizePolicy.Fixed)
+        self.layout.addWidget(self.checkbox)
 
         self.layout.setSpacing(6) # Ugly hack!
 
@@ -90,6 +98,8 @@ class ThumbnailView(QTableWidget):
 
     def __init__(self, api_data, preferences, columns=5, parent=None):
 
+        #FIXME: Add docstrings!
+
         super(ThumbnailView, self).__init__(parent)
         self.setColumnCount(columns)
         self.verticalHeader().hide()
@@ -104,6 +114,7 @@ class ThumbnailView(QTableWidget):
         self.__preferences = preferences
 
         self.api_data = api_data
+        self.__items = list()
 
         self.itemClicked.connect(self.retrieve_url)
         self.api_data.dataDownloaded.connect(self.process_thumbnails)
@@ -150,7 +161,19 @@ class ThumbnailView(QTableWidget):
         self.resizeColumnsToContents()
         thumbnail_item.label.leftClickedUrl.connect(self.retrieve_url)
 
+        # As for some reason cellWidget(row, col) returns None
+        self.__items.append(thumbnail_item)
+
         self.thumbnailDownloaded.emit()
+
+    def clear_items(self):
+        self.__items = list()
+
+    def items(self):
+        if not self.__items:
+            return
+        for item in self.__items:
+            yield item
 
     def setup_rows(self, item_no):
 
@@ -177,3 +200,17 @@ class ThumbnailView(QTableWidget):
         for item in self.api_data.data:
 
             self.api_data.get_image(item.thumbnail_url)
+
+    def selected_images(self):
+
+        if not self.__items:
+            return
+
+        selected_items = list()
+
+        for item in self.items():
+
+            if item.checkbox.isChecked():
+                selected_items.append(item.data.full_url)
+
+        return selected_items
