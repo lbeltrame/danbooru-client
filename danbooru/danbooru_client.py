@@ -32,9 +32,9 @@ import mainwindow
 def main():
 
     app_name="danbooru_client"
-    catalog = "danbooru_client.pot"
+    catalog = "danbooru_client"
     program_name = ki18n("Danbooru Client")
-    version = "0.1"
+    version = "0.2"
     description = ki18n("A client for Danbooru sites.")
     license = KAboutData.License_GPL
     copyright = ki18n("(C) 2009 Luca Beltrame")
