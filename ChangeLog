@@ -1,4 +1,30 @@
+2009-10-29  Luca Beltrame <einar@heavensinferno.net>
+
+  * TODO: Updated TODO
+
+  * danbooru/mainwindow.py: Whitespace
+
+  * danbooru/danbooru_client.py: Bump version again
+
+  * CMakeLists.txt: Bump version
+
+  * danbooru/danbooruui.rc: Batch download action
+
+  * danbooru/danbooru_client.py: Bump version, add catalog
+
+  * danbooru/actiondialog.py: Switch to async download jobs when a user selects
+  to download an image.
+
+  * danbooru/thumbnailview.py: Support for selecting images through a checkbox
+  for each item. As for some reasons the various methods to access QTableWidget
+  items do not work, use an internal list
+
+  * danbooru/mainwindow.py: Support for batch downloads - unqueued as
+  KIO.Scheduler does not work with FileCopyJobs. Also, code cleanups
+
 2009-10-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChangeLog updated
 
   * danbooru/api.py: Remove unused imports and update docstrings
 
