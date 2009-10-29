@@ -23,8 +23,9 @@ Author: Luca Beltrame
 Description: Widget and dialog to display and download images from Danbooru.
 '''
 
+from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QWidget
-from PyKDE4.kdecore import KUrl
+from PyKDE4.kdecore import KUrl, i18n
 from PyKDE4.kdeui import KDialog, KMessageBox
 from PyKDE4.kio import KIO, KRun, KFileDialog, KFile
 
@@ -60,7 +61,7 @@ class ActionDialog(KDialog):
         self.blacklist = preferences.tag_blacklist
         self.actionwidget = ActionWidget(self.url, pixmap, self)
         self.setMainWidget(self.actionwidget)
-        self.setCaption("Download or display image")
+        self.setCaption(i18n("Download or display image"))
 
         self.__actions = dict(view=self.view, download=self.download)
 
@@ -87,10 +88,11 @@ class ActionDialog(KDialog):
         start_url = KUrl("kfiledialog:///danbooru/%s" % unicode(start_name))
         mimetype_job = KIO.mimetype(KUrl(self.url), KIO.HideProgressInfo)
 
+        # Small enough to be synchronous
         if KIO.NetAccess.synchronousRun(mimetype_job, self):
             mimetype = mimetype_job.mimetype()
 
-        caption = "Save image file"
+        caption = i18n("Save image file")
 
         # Build the save dialog
         save_dialog = KFileDialog(start_url, mimetype, self)
@@ -110,11 +112,19 @@ class ActionDialog(KDialog):
             if not filename:
                 return
 
-            ok = KIO.NetAccess.download(KUrl(self.url), filename.toLocalFile(),
-                                        self)
-            if not ok:
-                KMessageBox.error(self, KIO.NetAccess.lastErrorString())
-                return
+            download_job = KIO.file_copy(KUrl(self.url), filename, -1)
+
+            self.connect(download_job, SIGNAL("result( KJob *)"),
+                                              self.download_slot)
+
+    def download_slot(self, job):
+
+        if job.error():
+            job.ui().showErrorMessage()
+            return
+
+        start_name = job.srcUrl().fileName()
+        download_name = job.destUrl().toLocalFile()
 
         if self.tagging:
             ok = danbooru2nepomuk.nepomuk_running()
@@ -125,5 +135,5 @@ class ActionDialog(KDialog):
                 tags = danbooru2nepomuk.extract_tags(start_name,
                                                      blacklist=self.blacklist)
                 # danbooru2nepomuk wants strings or QStrings
-                danbooru2nepomuk.tag_file(filename.toLocalFile(), tags)
+                danbooru2nepomuk.tag_file(download_name, tags)
 
