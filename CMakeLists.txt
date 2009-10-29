@@ -1,5 +1,5 @@
 project(danbooru_client) 
-set(PROGRAM_VERSION 0.1)
+set(PROGRAM_VERSION 0.3)
 set (CMAKE_BUILD_TYPE "Release")
 
 find_package(KDE4 REQUIRED)
