@@ -33,7 +33,7 @@ from PyQt4.QtGui import *
 
 from PyKDE4.kdecore import *
 from PyKDE4.kdeui import *
-from PyKDE4.kparts import *
+from PyKDE4.kio import *
 
 import preferences
 import thumbnailview
@@ -75,7 +75,15 @@ class MainWindow(KXmlGuiWindow):
         self.max_retrieve = self.preferences.thumbnail_no
         self.column_no = self.preferences.column_no
 
-    def setup_actions(self):
+    def setup_tooltips(self):
+
+        self.connect_action.setToolTip(i18n("Connect to a Danbooru board"))
+        self.fetch_action.setToolTip(
+            i18n("Fetch thumbnails from a Danbooru board")
+        )
+        self.batch_download_action.setToolTip(i18n("Batch download images"))
+
+    def create_actions(self):
 
         self.connect_action = KAction(KIcon("document-open-remote"),
                                  i18n("Connect"), self)
@@ -83,38 +91,50 @@ class MainWindow(KXmlGuiWindow):
         self.clean_action = KAction(KIcon("trash-empty"),
                                i18n("Clear thumbnail cache"),
                                self)
+        self.batch_download_action = KAction(KIcon("download"),
+                                             i18n("Batch download"), self)
 
+        # Shortcuts
         connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
         connect_active = KAction.ShortcutTypes(KAction.ActiveShortcut)
-
         self.connect_action.setShortcut(QKeySequence.Open,
                                    connect_default | connect_active)
         self.fetch_action.setShortcut(QKeySequence.Find,
                                  connect_default | connect_active)
 
+        # No sense in enabling fetch and batch at start
+        if not self.api:
+            self.fetch_action.setEnabled(False)
+            self.batch_download_action.setEnabled(False)
+
+    def setup_actions(self):
+
+        self.create_actions()
+        self.setup_tooltips()
+
+        # Addition to the action collection
         self.actionCollection().addAction("connect", self.connect_action)
         self.actionCollection().addAction("fetch", self.fetch_action)
         self.actionCollection().addAction("clean", self.clean_action)
-
+        self.actionCollection().addAction("batchDownload",
+                                          self.batch_download_action)
         KStandardAction.quit (self.close, self.actionCollection())
         KStandardAction.preferences(self.show_preferences,
                                     self.actionCollection())
 
+        # Connect signals
         self.connect_action.triggered.connect(self.connect_danbooru)
         self.fetch_action.triggered.connect(self.fetch)
         self.clean_action.triggered.connect(self.clean_cache)
-        self.actionCollection().actionHovered.connect(self.actiontooltip)
-
-        # No sense in enabling fetch at start
-        if not self.api:
-            self.fetch_action.setEnabled(False)
+        self.batch_download_action.triggered.connect(self.batch_download)
+        self.actionCollection().actionHovered.connect(self.action_tooltip)
 
         setupGUI_args = [
             QSize(500, 400), self.StandardWindowOption(
                 self.ToolBar | self.Keys | self.Create | self.Save | self.StatusBar)
         ]
 
-        #Check first in standard locations
+        #Check first in standard locations for danbooruui.rc
 
         rc_file = KStandardDirs.locate("appdata", "danbooruui.rc")
         if rc_file.isEmpty():
@@ -122,16 +142,17 @@ class MainWindow(KXmlGuiWindow):
                                                    "danbooruui.rc"))
         else:
             setupGUI_args.append(rc_file)
-
         self.setupGUI(*setupGUI_args)
+
+        # Remove handbook menu entry
         # Called later than setupGUI or it won't exist yet
         self.actionCollection().removeAction(
             self.actionCollection().action("help_contents"))
 
-    def actiontooltip(self, action):
+    def action_tooltip(self, action):
 
         if action.isEnabled():
-            self.statusBar().showMessage(action.text())
+            self.statusBar().showMessage(action.toolTip(), 2000)
 
     def show_preferences(self):
 
@@ -198,15 +219,18 @@ class MainWindow(KXmlGuiWindow):
 
         # Reset the counter in case of subsequent fetches
         self.__step = 0
-        self.progress.reset()
         self.progress.hide()
+        self.progress.reset()
+        self.batch_download_action.setEnabled(True)
 
     def clear(self):
 
         if self.thumbnailview is None:
             return
 
+        self.thumbnailview.clear_items()
         self.thumbnailview.clear()
+        self.batch_download_action.setEnabled(False)
 
     def clean_cache(self):
 
@@ -218,11 +242,11 @@ class MainWindow(KXmlGuiWindow):
         if not self.api:
             return
 
-        self.clear()
-
         dialog = fetchdialog.FetchDialog(self.max_retrieve, self)
 
         if dialog.exec_():
+            # Clear only if we pressed OK
+            self.clear()
             tags = dialog.tags()
             limit = dialog.limit()
 
@@ -230,3 +254,35 @@ class MainWindow(KXmlGuiWindow):
             self.retrieve(tags, limit)
         else:
             return
+
+    def batch_download(self, ok):
+
+        selected_items = self.thumbnailview.selected_images()
+
+        if not selected_items:
+            return
+
+        start_url = KUrl("kfiledialog:///danbooru")
+        caption = i18n("Select a directory to save the images to")
+        directory = KFileDialog.getExistingDirectoryUrl(start_url, self, caption)
+
+        if directory.isEmpty():
+            return
+
+        for item in selected_items:
+            file_url = KUrl(item)
+
+            # Make a local copy to append paths as addPath works in-place
+            destination = KUrl(directory)
+            file_name = file_url.fileName()
+            destination.addPath(file_name)
+
+            job = KIO.file_copy(KUrl(item), destination, -1)
+            self.connect(job, SIGNAL("result (KJob *)"), self.job_slot_result)
+
+    def job_slot_result(self, job):
+
+        if job.error():
+            job.ui().showErrorMessage()
+
+
