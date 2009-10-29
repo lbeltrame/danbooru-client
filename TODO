@@ -3,13 +3,12 @@
 - Figure out how to associate IDs to pictures - DONE
 - Finish API backend 
 - Integrate Nepomuk - DONE
-- Multi-get downloads
-- Rubber band selection - needed?
-- Contextual menus - needed?
-- Checkboxes for selection
+- Multi-get downloads - DONE
+- Checkboxes for selection - DONE
 - Pass a pixmap to the action dialog so it can be shown - doable? - DONE
 - Configuration with KConfigXT - DONE
 - Support for pools listing and retrieving - will need some API changes
 - Implement proper Danbooru error handling
 - (far future) Support for other Danbooru functions such as posts and wiki
 - Disable fetching if not connected - DONE
+- Implement a limitation system on batch downloads - max 5 per time
