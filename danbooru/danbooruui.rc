@@ -5,6 +5,7 @@
     <text>Main Toolbar</text>
       <Action name="connect" />
       <Action name="fetch" />
+      <Action name="batchDownload" />
       <ActionList name="dynamicActionlist" />
   </ToolBar>
   <MenuBar>
@@ -12,6 +13,7 @@
         <text>&amp;File</text>
         <Action name="connect" />
 	<Action name="fetch" />
+        <Action name="batchDownload" />
 	<Action name="clean" />
     </Menu>
   </MenuBar>
