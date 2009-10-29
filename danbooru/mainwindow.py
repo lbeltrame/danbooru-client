@@ -27,6 +27,7 @@ from __future__ import division
 
 import sys
 import os
+import time
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -276,7 +277,6 @@ class MainWindow(KXmlGuiWindow):
             destination = KUrl(directory)
             file_name = file_url.fileName()
             destination.addPath(file_name)
-
             job = KIO.file_copy(KUrl(item), destination, -1)
             self.connect(job, SIGNAL("result (KJob *)"), self.job_slot_result)
 
