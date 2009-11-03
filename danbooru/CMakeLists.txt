@@ -22,7 +22,7 @@ foreach ( _PYFILE ${DANBOORU_FILES} )
 endforeach ( _PYFILE )
 
 install ( FILES danbooruui.rc DESTINATION ${DATA_INSTALL_DIR}/danbooru_client)
-install ( FILES img/logo_resized.png DESTINATION ${DATA_INSTALL_DIR}/danbooru_client/logo.png)
+install ( FILES img/logo_resized.png DESTINATION ${DATA_INSTALL_DIR}/danbooru_client RENAME logo.png)
 
 #Copied and modified from FindPyKDE4.cmake
 INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -DTARGET=${PYTHON_SITE_PACKAGES_DIR}/danbooru/danbooru_client.py -DLINK_NAME=${BIN_INSTALL_DIR}/danbooru_client -P ${current_module_dir}/create_exe_symlink.cmake)" )
