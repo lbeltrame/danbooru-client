@@ -28,6 +28,7 @@ from ui.ui_fetchdialog import Ui_FetchDialog
 class FetchWidget(QWidget, Ui_FetchDialog):
 
     def __init__(self, limit, parent =None):
+
         super(FetchWidget, self).__init__(parent)
 
         self.setupUi(self)
@@ -37,14 +38,22 @@ class FetchWidget(QWidget, Ui_FetchDialog):
         self.validator = QRegExpValidator(regexp, self)
         self.tagLineEdit.setValidator(self.validator)
 
+    def rating_limit(self):
+        return self.__RATINGS[self.ratingComboBox.text()]
+
 
 class FetchDialog(KDialog):
 
+    __RATINGS = dict(Safe=["safe"], Questionable=["safe", "questionable"],
+                     Explicit=["safe", "questionable", "explicit"])
+
     def __init__(self, default_limit, parent=None):
+
         super(FetchDialog, self).__init__(parent)
 
         self.__tags = None
         self.__limit = None
+        self.__rating = None
         self.fetchwidget = FetchWidget(default_limit, self)
 
         self.setMainWidget(self.fetchwidget)
@@ -54,6 +63,9 @@ class FetchDialog(KDialog):
 
     def limit(self):
         return self.__limit
+
+    def max_rating(self):
+        return self.__rating
 
     def strip_tags(self, taglist):
         return [tag.strip() for tag in taglist]
@@ -68,4 +80,6 @@ class FetchDialog(KDialog):
         self.__tags =  [re.sub("\s","_", item) for item in self.__tags]
 
         self.__limit = self.fetchwidget.postSpinBox.value()
+        text = unicode(self.fetchwidget.ratingComboBox.currentText())
+        self.__rating = self.__RATINGS[text]
         KDialog.accept(self)
