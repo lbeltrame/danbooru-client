@@ -27,7 +27,6 @@ from __future__ import division
 
 import sys
 import os
-import time
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -189,7 +188,7 @@ class MainWindow(KXmlGuiWindow):
         self.__step += 1
         self.progress.setValue(self.__step)
 
-    def retrieve(self, tags, limit):
+    def retrieve(self, tags, limit, ratings=None):
 
         # Catch errors gracefully
         try:
@@ -206,10 +205,20 @@ class MainWindow(KXmlGuiWindow):
             return
 
         if not posts:
-            self.satusBar().setMessage(i18n("No posts found."), 3000)
+            self.statusBar().showMessage(i18n("No posts found."), 3000)
             return
 
-        urls = [item.thumbnail_url for item in self.api.data]
+        if ratings:
+            selected_posts = [item for item in self.api.data if item.rating in
+                              ratings]
+            if not selected_posts:
+                self.statusbar.showMessage(
+                    i18n("No posts match your selected rating."), 3000)
+                return
+
+            urls = [item.thumbnail_url for item in self.api.data]
+        else:
+            urls = [item.thumbnail_url for item in self.api.data]
 
         max_steps = len(urls)
 
@@ -250,9 +259,10 @@ class MainWindow(KXmlGuiWindow):
             self.clear()
             tags = dialog.tags()
             limit = dialog.limit()
+            ratings = dialog.max_rating()
 
             self.setup_area()
-            self.retrieve(tags, limit)
+            self.retrieve(tags, limit, ratings)
         else:
             return
 
