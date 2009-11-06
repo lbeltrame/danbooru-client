@@ -56,14 +56,17 @@ class MainWindow(KXmlGuiWindow):
 
         self.statusbar = self.statusBar()
         self.progress = QProgressBar()
+        self.thumbnailview = None
         self.progress.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
         # Hackish, but how to make it small otherwise?
         self.progress.setMinimumSize(100, 1)
         self.statusbar.addPermanentWidget(self.progress)
         self.progress.hide()
 
-        self.thumbnailview = None
+        # Various instance bits needed
         self.api = None
+        self.__ratings = None
         self.__step = 0
 
         self.read_config()
@@ -188,11 +191,11 @@ class MainWindow(KXmlGuiWindow):
         self.__step += 1
         self.progress.setValue(self.__step)
 
-    def retrieve(self, tags, limit, ratings=None):
+    def retrieve(self, tags, limit):
 
         # Catch errors gracefully
         try:
-            posts = self.api.get_post_list(limit=limit, tags=tags)
+            self.api.get_post_list(limit=limit, tags=tags)
         except ValueError, error:
             first_line = "Could not download information from the specified board."
             second_line = "This means connection problems, or that the board"
@@ -204,13 +207,17 @@ class MainWindow(KXmlGuiWindow):
                               i18n("Error retrieving posts"))
             return
 
-        if not posts:
+        self.api.dataReady.connect(self.fetch_posts)
+
+    def fetch_posts(self):
+
+        if not self.api.data:
             self.statusBar().showMessage(i18n("No posts found."), 3000)
             return
 
-        if ratings:
+        if self.__ratings:
             selected_posts = [item for item in self.api.data if item.rating in
-                              ratings]
+                              self.__ratings]
             if not selected_posts:
                 self.statusbar.showMessage(
                     i18n("No posts match your selected rating."), 3000)
@@ -259,10 +266,10 @@ class MainWindow(KXmlGuiWindow):
             self.clear()
             tags = dialog.tags()
             limit = dialog.limit()
-            ratings = dialog.max_rating()
+            self.__ratings = dialog.max_rating()
 
             self.setup_area()
-            self.retrieve(tags, limit, ratings)
+            self.retrieve(tags, limit)
         else:
             return
 
