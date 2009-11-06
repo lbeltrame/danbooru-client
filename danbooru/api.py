@@ -41,6 +41,7 @@ class Danbooru(QObject):
     _ARTIST_URL = "pool/index.json"
 
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
+    dataReady = pyqtSignal()
 
     def __init__(self, api_url, login=None, password=None, parent=None,
                 cache=None):
@@ -116,27 +117,28 @@ class Danbooru(QObject):
         request_url = urlparse.urljoin(request_url, url_parameters)
         tempfile = QString()
 
-        if KIO.NetAccess.download(KUrl(request_url), tempfile, None):
-            api_response = open(tempfile)
-            try:
-                data = json.load(api_response)
+        job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
+                            KIO.HideProgressInfo)
 
-                if "success" in data[0]:
-                    if not data[0]["success"]:
-                        return False
-            finally:
-                KIO.NetAccess.removeTempFile(tempfile)
+        self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
-            self.data = DanbooruList()
 
-            for item in data:
-                item = DanbooruItem(item)
-                self.data.append(item)
+    def process_post_list(self, job):
 
-        else:
-            return False
+        if job.error():
+            self.data = None
+            return
 
-        return True
+        job_data = job.data()
+        decoded_data = json.loads(unicode(job_data.data()))
+
+        self.data = DanbooruList()
+
+        for item in decoded_data:
+            item = DanbooruItem(item)
+            self.data.append(item)
+
+        self.dataReady.emit()
 
     def get_tag_list(self):
 
@@ -345,4 +347,10 @@ class DanbooruItem(object):
 
         return self.__data["source"]
 
+    @property
+    def rating(self):
+
+        RATINGS = dict(s="safe", q="questionable", e="explicit")
+
+        return RATINGS[self.__data["rating"]]
 
