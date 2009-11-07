@@ -1,4 +1,27 @@
+2009-11-07  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui/ui_fetchdialog.py, danbooru/ui_src/fetchdialog.ui: UI files to
+  support ratings
+
+  * danbooru/api.py: More API docs
+
+  * danbooru/mainwindow.py: Support for async post list retrieval
+
+  * danbooru/api.py: Now even the post list is retrieved asynchronously. Good
+  for slow connections. (also, add the ratings value to each DanbooruItem)
+
+  * danbooru/mainwindow.py: Support the ratings in the mainwindow code
+
+  * danbooru/fetchdialog.py: Rating support implemented. Now the user can
+  select the maximum rating of the images retrieved (default: Safe).
+
+2009-11-03  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/CMakeLists.txt: Fix logo installation
+
 2009-10-29  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChangeLog updated
 
   * TODO: Updated TODO
 

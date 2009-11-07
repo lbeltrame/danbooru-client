@@ -1,7 +1,9 @@
 - Display data in the main window - DONE
 - Enable the donwload of the pictures on click - DONE
 - Figure out how to associate IDs to pictures - DONE
-- Finish API backend 
+- Support for ratings - DONE
+- Support for pools
+- Rewrite parser to use XML instead of JSON?
 - Integrate Nepomuk - DONE
 - Multi-get downloads - DONE
 - Checkboxes for selection - DONE
