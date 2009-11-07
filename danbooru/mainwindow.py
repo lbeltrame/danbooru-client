@@ -231,7 +231,6 @@ class MainWindow(KXmlGuiWindow):
             urls = [item.thumbnail_url for item in self.api.data]
 
         max_steps = len(urls)
-        #self.thumbnailview.api_data.data = self.api.data
         self.progress.setMaximum(max_steps)
         self.progress.show()
 
