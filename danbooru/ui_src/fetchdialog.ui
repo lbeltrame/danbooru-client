@@ -6,26 +6,39 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>352</width>
-    <height>62</height>
+    <width>259</width>
+    <height>91</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string/>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-   </property>
    <item row="0" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="postLabel">
      <property name="text">
       <string>Posts to retrieve</string>
      </property>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="KIntSpinBox" name="postSpinBox">
+     <property name="toolTip">
+      <string>Number of posts to retrieve (max 100)</string>
+     </property>
+     <property name="whatsThis">
+      <string>The number of posts to retrieve. Notice that Danbooru limits the maximum number of posts to 100.</string>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="tagLabel">
      <property name="text">
       <string>Tags to include</string>
      </property>
@@ -42,22 +55,41 @@
      <property name="toolTip">
       <string>Tags to include in search (optional)</string>
      </property>
+     <property name="whatsThis">
+      <string>Input here the tags that should be used when looking for posts. Separate them with commas, without spaces.</string>
+     </property>
      <property name="clickMessage">
       <string>Tags, comma separated</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="KIntSpinBox" name="postSpinBox">
-     <property name="toolTip">
-      <string>Number of posts to retrieve (max 100)</string>
+   <item row="2" column="0">
+    <widget class="QLabel" name="ratingLabel">
+     <property name="text">
+      <string>Maximum allowed rating</string>
      </property>
-     <property name="minimum">
-      <number>1</number>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="KComboBox" name="ratingComboBox">
+     <property name="whatsThis">
+      <string>This selects the maximum ratings for the image. &quot;Safe&quot; images are intended for all audiences; &quot;Questionable&quot; images may contain suggestive but not explicit imagery; &quot;Explicit&quot; images contain very explicit content.</string>
      </property>
-     <property name="maximum">
-      <number>100</number>
-     </property>
+     <item>
+      <property name="text">
+       <string>Safe</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Questionable</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Explicit</string>
+      </property>
+     </item>
     </widget>
    </item>
   </layout>
@@ -72,6 +104,11 @@
    <class>KLineEdit</class>
    <extends>QLineEdit</extends>
    <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
