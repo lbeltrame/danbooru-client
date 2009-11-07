@@ -1,4 +1,20 @@
+2009-11-08  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/mainwindow.py: Remove useless line
+
+  * danbooru/mainwindow.py: Fix the mess #2:  - Recycle the thumbnailview item
+  instead regenerating one at each fetch; - Disconnect the dataReady signal
+  when we clear, or it will get called multiple times; - Document why the API
+  object doesn't need to be explicitly updated in the thumbnailview.
+
+  * danbooru/thumbnailview.py: Fix the mess part #1: Reset column and row index
+  when cleared.
+
 2009-11-07  Luca Beltrame <einar@heavensinferno.net>
+
+  * CMakeLists.txt, danbooru/danbooru_client.py: Bump version
+
+  * ChangeLog, TODO: ChangeLog, TODO updates
 
   * danbooru/ui/ui_fetchdialog.py, danbooru/ui_src/fetchdialog.ui: UI files to
   support ratings
