@@ -29,11 +29,19 @@ from PyKDE4.kio import KIO
 import hashes
 
 """Module that provides a wrapper for Danbooru API calls. Items are stored as
-DanbooruItems, which enable easy extraction of information using attributes."""
+DanbooruItems, which enable easy extraction of information using attributes. To
+store lists of individual DanbooruItems, a special class called DanbooruList has
+also been provided."""
 
 class Danbooru(QObject):
 
-    "Class which provides a PyKDE4 wrapper to the Danbooru API."
+    """Class which provides a PyKDE4 wrapper to the Danbooru API. It has
+    functions to retrieve posts, images, tags and more. It is a subclass of
+    QObject and makes use of KDE's KIO to handle network operations
+    asynchronously.
+    This class provides two custom signals: dataDownloaded (for data that has
+    been downloaded, forexample an image) and dataReady (when other network
+    operations are complete)."""
 
     _POST_URL = "post/index.json"
     _TAG_URL = "tag/index.json"
