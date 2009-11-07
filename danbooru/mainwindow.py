@@ -193,7 +193,10 @@ class MainWindow(KXmlGuiWindow):
 
     def retrieve(self, tags, limit):
 
-        # Catch errors gracefully
+        # Notice: there is no need to update the API object in the
+        # thumbnailviewi, when posts are updated, because it is just a reference
+        # to the one stored in this class, hence it gets updated for free
+
         try:
             self.api.get_post_list(limit=limit, tags=tags)
         except ValueError, error:
@@ -228,7 +231,7 @@ class MainWindow(KXmlGuiWindow):
             urls = [item.thumbnail_url for item in self.api.data]
 
         max_steps = len(urls)
-
+        #self.thumbnailview.api_data.data = self.api.data
         self.progress.setMaximum(max_steps)
         self.progress.show()
 
@@ -245,9 +248,11 @@ class MainWindow(KXmlGuiWindow):
         if self.thumbnailview is None:
             return
 
-        self.thumbnailview.clear_items()
         self.thumbnailview.clear()
+        self.thumbnailview.clear_items()
         self.batch_download_action.setEnabled(False)
+        # Disconnect, or we'll get fired multiple times!
+        self.api.dataReady.disconnect()
 
     def clean_cache(self):
 
@@ -268,7 +273,8 @@ class MainWindow(KXmlGuiWindow):
             limit = dialog.limit()
             self.__ratings = dialog.max_rating()
 
-            self.setup_area()
+            if not self.thumbnailview:
+                self.setup_area()
             self.retrieve(tags, limit)
         else:
             return
