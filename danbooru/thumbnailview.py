@@ -156,6 +156,7 @@ class ThumbnailView(QTableWidget):
             self.__column_index = 0
 
         self.setCellWidget(self.__row_index, self.__column_index, thumbnail_item)
+
         self.__column_index += 1
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
@@ -168,6 +169,8 @@ class ThumbnailView(QTableWidget):
 
     def clear_items(self):
         self.__items = list()
+        self.__row_index = 0
+        self.__column_index = 0
 
     def items(self):
         if not self.__items:
@@ -177,8 +180,14 @@ class ThumbnailView(QTableWidget):
 
     def setup_rows(self, item_no):
 
-        result = item_no // self.__max_columns
-        self.setRowCount(result+1)
+        max_columns = self.__max_columns
+
+        if len(self.api_data.data) <= max_columns:
+            max_columns = item_no
+            self.setRowCount(1)
+        else:
+            result = item_no // max_columns
+            self.setRowCount(result+1)
 
     def process_thumbnails(self, url, pixmap):
 
@@ -198,7 +207,6 @@ class ThumbnailView(QTableWidget):
         self.setup_rows(len(self.api_data.data))
 
         for item in self.api_data.data:
-
             self.api_data.get_image(item.thumbnail_url)
 
     def selected_images(self):
