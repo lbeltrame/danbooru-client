@@ -172,11 +172,18 @@ class MainWindow(KXmlGuiWindow):
         dialog = connectdialog.ConnectDialog(self.url_list, self)
 
         if dialog.exec_():
+            self.api = None
             self.api = dialog.danbooru_api()
+
+            if self.thumbnailview is not None:
+                # Update API reference in the thumbnailview
+                self.thumbnailview.update_data(self.api)
+
             self.api.cache = self.cache
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)
+            self.api.dataReady.connect(self.fetch_posts)
 
     def setup_area(self):
 
@@ -193,10 +200,6 @@ class MainWindow(KXmlGuiWindow):
 
     def retrieve(self, tags, limit):
 
-        # Notice: there is no need to update the API object in the
-        # thumbnailviewi, when posts are updated, because it is just a reference
-        # to the one stored in this class, hence it gets updated for free
-
         try:
             self.api.get_post_list(limit=limit, tags=tags)
         except ValueError, error:
@@ -210,7 +213,6 @@ class MainWindow(KXmlGuiWindow):
                               i18n("Error retrieving posts"))
             return
 
-        self.api.dataReady.connect(self.fetch_posts)
 
     def fetch_posts(self):
 
@@ -250,8 +252,6 @@ class MainWindow(KXmlGuiWindow):
         self.thumbnailview.clear()
         self.thumbnailview.clear_items()
         self.batch_download_action.setEnabled(False)
-        # Disconnect, or we'll get fired multiple times!
-        self.api.dataReady.disconnect()
 
     def clean_cache(self):
 
@@ -306,5 +306,6 @@ class MainWindow(KXmlGuiWindow):
 
         if job.error():
             job.ui().showErrorMessage()
+
 
 

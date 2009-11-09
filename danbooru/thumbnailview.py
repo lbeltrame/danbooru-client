@@ -25,8 +25,7 @@ Description: Main widget to display and download thumbnails
 
 from PyQt4.QtCore import pyqtSignal, Qt
 from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
-                         QHeaderView, QPixmap, QCheckBox, QSizePolicy,
-                        QKeySequence)
+                         QHeaderView, QPixmap, QCheckBox, QSizePolicy)
 
 from PyKDE4.kdecore import KUrl, i18n
 from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager
@@ -171,6 +170,11 @@ class ThumbnailView(QTableWidget):
         self.__items = list()
         self.__row_index = 0
         self.__column_index = 0
+
+    def update_data(self, api_data):
+        self.api_data = api_data
+        # Reconnect, the signal changed
+        self.api_data.dataDownloaded.connect(self.process_thumbnails)
 
     def items(self):
         if not self.__items:
