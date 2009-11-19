@@ -19,7 +19,7 @@ class Ui_GeneralPage(object):
         self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.thumbnalLabel)
         self.kcfg_thumbnailMaxRetrieve = KIntSpinBox(GeneralPage)
         self.kcfg_thumbnailMaxRetrieve.setMinimum(1)
-        self.kcfg_thumbnailMaxRetrieve.setMaximum(10)
+        self.kcfg_thumbnailMaxRetrieve.setMaximum(100)
         self.kcfg_thumbnailMaxRetrieve.setProperty("value", 3)
         self.kcfg_thumbnailMaxRetrieve.setObjectName("kcfg_thumbnailMaxRetrieve")
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.kcfg_thumbnailMaxRetrieve)
