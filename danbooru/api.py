@@ -47,6 +47,7 @@ class Danbooru(QObject):
     _TAG_URL = "tag/index.json"
     _POOL_URL = "pool/index.json"
     _ARTIST_URL = "pool/index.json"
+    _POOL_INFO_URL = "pool/get.json"
 
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
     dataReady = pyqtSignal()
