@@ -281,6 +281,7 @@ class MainWindow(KXmlGuiWindow):
             tags = dialog.tags()
             limit = dialog.limit()
             self.__ratings = dialog.max_rating()
+            self.api.selected_ratings = dialog.max_rating()
 
             if not self.thumbnailview:
                 self.setup_area()
