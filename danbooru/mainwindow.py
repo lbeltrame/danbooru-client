@@ -36,7 +36,7 @@ from PyKDE4.kdeui import *
 from PyKDE4.kio import *
 
 import preferences
-import thumbnailview
+import thumbnailarea
 import fetchdialog
 import connectdialog
 
@@ -187,11 +187,16 @@ class MainWindow(KXmlGuiWindow):
 
     def setup_area(self):
 
-        self.thumbnailview = thumbnailview.ThumbnailView(self.api,
+        self.thumbnailview = thumbnailarea.ThumbnailArea(self.api,
                                                          self.preferences,
-                                                        columns=self.column_no)
+                                                         self)
+
+        #self.thumbnailview = thumbnailview.ThumbnailView(self.api,
+        #                                                 self.preferences,
+        #                                                columns=self.column_no)
         self.setCentralWidget(self.thumbnailview)
-        self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
+        #TODO: get the signal from the thumbnailarea
+        # self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
 
     def update_progress(self):
 
@@ -200,8 +205,11 @@ class MainWindow(KXmlGuiWindow):
 
     def retrieve(self, tags, limit):
 
+        #TODO: Put in the current page from the thumbnail area
+        page = None
+
         try:
-            self.api.get_post_list(limit=limit, tags=tags)
+            self.api.get_post_list(limit=limit, tags=tags, page=page)
         except ValueError, error:
             first_line = "Could not download information from the specified board."
             second_line = "This means connection problems, or that the board"
@@ -215,6 +223,8 @@ class MainWindow(KXmlGuiWindow):
 
 
     def fetch_posts(self):
+
+        return
 
         if not self.api.data:
             self.statusBar().showMessage(i18n("No posts found."), 3000)
@@ -236,7 +246,7 @@ class MainWindow(KXmlGuiWindow):
         self.progress.setMaximum(max_steps)
         self.progress.show()
 
-        self.thumbnailview.display_thumbnails()
+        self.thumbnailview.new_page()
 
         # Reset the counter in case of subsequent fetches
         self.__step = 0
