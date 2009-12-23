@@ -49,6 +49,8 @@ class Danbooru(QObject):
     _ARTIST_URL = "pool/index.json"
     _POOL_INFO_URL = "pool/get.json"
 
+    _RATINGS = ["Safe", "Questionable", "Explicit"]
+
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
     dataReady = pyqtSignal()
 
@@ -66,10 +68,10 @@ class Danbooru(QObject):
         self.cache = cache
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
+        self.__rating = None
         # These are needed to update previous results
         self.__limit = None
         self.__tags = None
-
 
     def __http_exists(self, url):
 
@@ -90,6 +92,26 @@ class Danbooru(QObject):
 
         except httplib.HTTPException, e:
             return False
+
+    def allowed_ratings(self):
+
+        if not self.__rating:
+            return ["Safe", "Questionable", "Explicit"]
+        else:
+            return self.__rating
+
+    def set_allowed_ratings(self, rating):
+
+        if rating not in self._RATINGS:
+            return
+
+        if rating == "Safe":
+            self.__rating = ["Safe"]
+        elif rating == "Questionable":
+            self.__rating = ["Safe", "Questionable"]
+        elif rating == "Explicit":
+            self.__rating = ["Safe", "Questionable", "Explicit"]
+
 
     def validate_url(self, url):
 
@@ -240,6 +262,8 @@ class Danbooru(QObject):
             self.cache.insert(job.url().fileName(), img)
 
         self.dataDownloaded.emit(name, img)
+
+    max_rating = property(allowed_ratings, set_max_ratings)
 
 class DanbooruList(object):
 
