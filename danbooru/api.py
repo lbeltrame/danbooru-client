@@ -219,7 +219,6 @@ class Danbooru(QObject):
         # Schedule: we don't want to overload servers
         KIO.Scheduler.scheduleJob(job)
 
-        # Ugly, but not wrapped by PyKDE4
         self.connect(job, SIGNAL("result (KJob *)"), self.job_download)
 
     def job_download(self, job):
