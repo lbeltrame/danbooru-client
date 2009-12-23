@@ -66,6 +66,10 @@ class Danbooru(QObject):
         self.cache = cache
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
+        # These are needed to update previous results
+        self.__limit = None
+        self.__tags = None
+
 
     def __http_exists(self, url):
 
@@ -100,7 +104,7 @@ class Danbooru(QObject):
 
         pass
 
-    def get_post_list(self, limit=5, tags=None):
+    def get_post_list(self, limit=5, tags=None, page=None):
 
         """Method to get posts with specific tags and limits. There is a hardcoded
         limit of 100 posts in Danbooru, so limits > 100 will be ignored.
@@ -110,6 +114,9 @@ class Danbooru(QObject):
         if limit > 100:
             limit = 100
 
+        self.__limit = limit if not self.__limit else self.__limit
+        self.__tags = tags if not self.__tags else self.__tags
+
         limit_parameter = "limit=%d" % limit
         if tags:
             tags = "+".join(tags)
@@ -117,6 +124,10 @@ class Danbooru(QObject):
             tags = ""
 
         parameters = dict(tags=tags, limit=limit)
+
+        if page:
+            parameters["page"] = page
+
         url_parameters = urllib.urlencode(parameters)
         # Danbooru doesn't want HTML-encoded pluses
         url_parameters = urllib.unquote(url_parameters)
@@ -124,15 +135,27 @@ class Danbooru(QObject):
         url_parameters = "?" + url_parameters
         request_url = urlparse.urljoin(self.url, self._POST_URL)
         request_url = urlparse.urljoin(request_url, url_parameters)
-        tempfile = QString()
 
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
 
         self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
+    def update(self, page=None):
+
+        """Updates previously added results. This should be used to get the next
+        page of the same batch."""
+
+        if not self.__limit and not self.__tags:
+            return
+
+        self.get_post_list(limit=self.__limit, tags=self.__tags, page=page)
 
     def process_post_list(self, job):
+
+        """Collects the data from the job and loads it into an object that can
+        be read by the JSON parser. Then each element of the data is converted
+        into a DanbooruItem and stored in a DanbooruList."""
 
         if job.error():
             self.data = None
@@ -201,6 +224,11 @@ class Danbooru(QObject):
 
     def job_download(self, job):
 
+        """Slot callled from get_image. Loads the image in a QPixmap and inserts
+        it into the thumbnail cache, if present. then it emits the
+        dataDownloaded signal, which carries the URL of the image and the pixmap
+        itself."""
+
         img = QPixmap()
         name = job.url()
         if job.error():
@@ -247,7 +275,7 @@ class DanbooruList(object):
             # So we can get by index as well 
             try:
                 return self.__data[key]
-            except TypeError, IndexError:
+            except ( TypeError, IndexError ):
                 return
 
     def __contains__(self, key):
