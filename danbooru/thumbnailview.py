@@ -222,6 +222,14 @@ class ThumbnailView(QTableWidget):
 
     def process_thumbnails(self, url, pixmap):
 
+        """Function that processes thumbnails and creates ThumbnailViewItems
+        that wil be later inserted into the table widget. It is actually a slot
+        called by dataDownloaded, from which it gets the URL and the pixmap.
+        Said URL is used to retrieve then the full DanbooruItem from the
+        retrieved API data. Once we reach the last item, the dataDownloaded
+        signal is disconnected, because otherwise even data sent to other
+        thumbnailviews (multi-page setting) would be displayed."""
+
         # Empty data is worthless: skip!
         if url.isEmpty() or pixmap.isNull():
             return
@@ -234,13 +242,16 @@ class ThumbnailView(QTableWidget):
         # so that the data won't be sent to all thumbnailviews
 
         if self.api_data.data[-1] == post_data:
-            print "Last item"
             self.api_data.dataDownloaded.disconnect()
 
         item = self.create_image_item(pixmap, post_data)
         self.insert_items(item)
 
     def display_thumbnails(self):
+
+        """This function starts the thumbnail retrieval and display. First it
+        sets up the right rows in the widget, depending on the data, then it
+        gets every image from the thumbnail URLs."""
 
         self.setup_rows(len(self.api_data.data))
 
