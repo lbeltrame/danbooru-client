@@ -107,7 +107,7 @@ class ThumbnailView(QTableWidget):
         self.verticalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.setShowGrid(False)
 
-        self.__max_columns = columns
+        self.__max_columns = preferences.column_no
         self.__column_index = 0
         self.__row_index = 0
         self.__preferences = preferences
@@ -118,7 +118,17 @@ class ThumbnailView(QTableWidget):
         self.itemClicked.connect(self.retrieve_url)
         self.api_data.dataDownloaded.connect(self.process_thumbnails)
 
+    def __len__(self):
+
+        "Returns the number of URLs stored."
+
+        return len(self.__items)
+
     def retrieve_url(self, item):
+
+        """Function that performs actions on the currently clicked thumbnail
+        (called from the itemClicked signal). It pops up a (modal) dialog asking
+        for actions to perform."""
 
         row = self.currentRow()
         column = self.currentColumn()
@@ -135,6 +145,11 @@ class ThumbnailView(QTableWidget):
 
     def create_image_item(self, pixmap=None, item=None):
 
+        """This function creates, starting from a DanbooruItem object and a
+        pixmap (retrieved from the service), a ThumbnailViewItem that is then
+        returned to be added into the table widget of the ThumbnailView. If the
+        item or the pixmap are invalid, None is returned."""
+
         pixmap = QPixmap() if not pixmap else pixmap
 
         if pixmap.isNull():
@@ -150,6 +165,11 @@ class ThumbnailView(QTableWidget):
 
     def insert_items(self, thumbnail_item):
 
+        """Function that inserts ThumbnailViewItems into the ThumbnailView's table
+        widget. Columns and rows index are tracked so that the specific
+        parameters asked by the user are upheld. It emits thumbnailDownloaded
+        once each item has been added."""
+
         if self.__column_index >= self.__max_columns:
             self.__row_index += 1
             self.__column_index = 0
@@ -163,10 +183,13 @@ class ThumbnailView(QTableWidget):
 
         # As for some reason cellWidget(row, col) returns None
         self.__items.append(thumbnail_item)
-
         self.thumbnailDownloaded.emit()
 
     def clear_items(self):
+
+        """Clears the internal list of items. Not needed anymore since the
+        addition of pagination support."""
+
         self.__items = list()
         self.__row_index = 0
         self.__column_index = 0
@@ -177,6 +200,10 @@ class ThumbnailView(QTableWidget):
         self.api_data.dataDownloaded.connect(self.process_thumbnails)
 
     def items(self):
+
+        """Generator functions that yields each ThumbnailViewItem stored in the
+        internal list."""
+
         if not self.__items:
             return
         for item in self.__items:
@@ -202,6 +229,13 @@ class ThumbnailView(QTableWidget):
         item_url = unicode(url.prettyUrl())
         name = url.fileName()
         post_data = self.api_data.data[item_url]
+
+        # To support pagination, disconnect after we have reached the last item,
+        # so that the data won't be sent to all thumbnailviews
+
+        if self.api_data.data[-1] == post_data:
+            print "Last item"
+            self.api_data.dataDownloaded.disconnect()
 
         item = self.create_image_item(pixmap, post_data)
         self.insert_items(item)
