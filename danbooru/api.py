@@ -21,9 +21,9 @@ import urlparse
 import urllib
 import httplib
 
-from PyQt4.QtCore import *
+from PyQt4.QtCore import QObject, SIGNAL, pyqtSignal
 from PyQt4.QtGui import QPixmap
-from PyKDE4.kdecore import *
+from PyKDE4.kdecore import KUrl
 from PyKDE4.kio import KIO
 
 import hashes
@@ -93,14 +93,20 @@ class Danbooru(QObject):
         except httplib.HTTPException, e:
             return False
 
-    def allowed_ratings(self):
+    def _allowed_ratings(self):
+
+        """Function to return the allowed ratings for fetching. If no ratings have
+        been defined, it returns all ratings."""
 
         if not self.__rating:
             return ["Safe", "Questionable", "Explicit"]
         else:
             return self.__rating
 
-    def set_allowed_ratings(self, rating):
+    def _set_allowed_ratings(self, rating):
+
+        """Function to set the maximum allowed rating for fetching. Supplied
+        ratings that are invalid are silently ignored."""
 
         if rating not in self._RATINGS:
             return
@@ -177,7 +183,8 @@ class Danbooru(QObject):
 
         """Collects the data from the job and loads it into an object that can
         be read by the JSON parser. Then each element of the data is converted
-        into a DanbooruItem and stored in a DanbooruList."""
+        into a DanbooruItem and stored in a DanbooruList. Prior to inserting the
+        items in the list, they are checked for rating."""
 
         if job.error():
             self.data = None
@@ -188,9 +195,13 @@ class Danbooru(QObject):
 
         self.data = DanbooruList()
 
+        allowed_ratings = self.selected_ratings
+
         for item in decoded_data:
             item = DanbooruItem(item)
-            self.data.append(item)
+
+            if item.rating in allowed_ratings:
+                self.data.append(item)
 
         self.dataReady.emit()
 
@@ -263,7 +274,9 @@ class Danbooru(QObject):
 
         self.dataDownloaded.emit(name, img)
 
-    max_rating = property(allowed_ratings, set_max_ratings)
+    # Properties
+
+    selected_ratings = property(_allowed_ratings, _set_allowed_ratings)
 
 class DanbooruList(object):
 
@@ -410,7 +423,7 @@ class DanbooruItem(object):
     @property
     def rating(self):
 
-        RATINGS = dict(s="safe", q="questionable", e="explicit")
+        ratings = dict(s="Safe", q="Questionable", e="Explicit")
 
-        return RATINGS[self.__data["rating"]]
+        return ratings[self.__data["rating"]]
 
