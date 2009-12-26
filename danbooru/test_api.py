@@ -18,7 +18,10 @@
 
 import sys
 import unittest
+import copy
+import time
 
+from PyQt4.QtCore import *
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import *
 
@@ -42,6 +45,7 @@ about_data = KAboutData(app_name, catalog, program_name, version, description,
 KCmdLineArgs.init(sys.argv, about_data)
 app = KApplication()
 
+
 class TestDanbooruAPI(unittest.TestCase):
 
     URL = "http://moe.imouto.org"
@@ -49,14 +53,41 @@ class TestDanbooruAPI(unittest.TestCase):
     def setUp(self):
 
         self.api = api.Danbooru(self.URL)
+        self.old = None
+        self.api.dataReady.connect(self._dataTest)
+
+    def _dataTest(self):
+        self.assertEqual(len(self.api.data), 15)
+        self.api.dataReady.disconnect(self._dataTest)
 
     def testData(self):
 
         "Post list retrieval"
 
-        ok = self.api.get_post_list(limit=1)
-        self.assertTrue(ok)
-        self.assertEqual(len(self.api.data), 1)
+
+        self.api.dataReady.connect(self._dataTest)
+        self.api.get_post_list(limit=1)
+
+    def _updateTest(self):
+
+        self.assertEqual(1, False)
+
+        if not self.old:
+            print "Here"
+            self.old = copy.deepcopy(self.api)
+            self.api.update(page=2)
+        else:
+            current_data = self.api.data
+            if self.old:
+                print "here"
+                self.assertNotEqual(self.current_data, self.old.data)
+
+    def testUpdate(self):
+
+        "Checking update() method"
+
+        self.api.dataReady.connect(self._updateTest)
+        self.api.get_post_list(limit=5)
 
     def testGetThumbnailUrls(self):
 
@@ -88,8 +119,10 @@ class TestDanbooruAPI(unittest.TestCase):
 
 def main():
 
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestDanbooruAPI)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    print "Testing currently disabled."
+
+    # suite = unittest.TestLoader().loadTestsFromTestCase(TestDanbooruAPI)
+    # unittest.TextTestRunner(verbosity=2).run(suite)
 
 if __name__ == "__main__":
     main()

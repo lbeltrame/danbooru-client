@@ -17,6 +17,13 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+'''
+File: fetchdialog.py
+Author: Luca Beltrame
+Description: Module that implements the fetch dialog for the Danbooru Client
+application
+'''
+
 import re
 
 from PyQt4.QtCore import QRegExp
@@ -26,6 +33,9 @@ from PyKDE4.kdeui import KDialog
 from ui.ui_fetchdialog import Ui_FetchDialog
 
 class FetchWidget(QWidget, Ui_FetchDialog):
+
+    """Class that constructs the widget used for setting the parameters to fetch
+    posts from a Danbooru board."""
 
     def __init__(self, limit, parent =None):
 
@@ -38,14 +48,14 @@ class FetchWidget(QWidget, Ui_FetchDialog):
         self.validator = QRegExpValidator(regexp, self)
         self.tagLineEdit.setValidator(self.validator)
 
-    def rating_limit(self):
-        return self.__RATINGS[self.ratingComboBox.text()]
-
 
 class FetchDialog(KDialog):
 
-    __RATINGS = dict(Safe=["safe"], Questionable=["safe", "questionable"],
-                     Explicit=["safe", "questionable", "explicit"])
+    """Class that provides a dialog to set parameters for fetching posts from a
+    Danbooru board."""
+
+    __RATINGS = dict(Safe="Safe", Questionable="Questionable",
+                     Explicit="Explicit")
 
     def __init__(self, default_limit, parent=None):
 
@@ -59,15 +69,27 @@ class FetchDialog(KDialog):
         self.setMainWidget(self.fetchwidget)
 
     def tags(self):
+
+        "Returns the user selected tags."
+
         return self.__tags
 
     def limit(self):
+
+        "Returns the post limit (maximum 100) selected by the user."
+
         return self.__limit
 
     def max_rating(self):
+
+        "Returns the maximum allowed rating chosen by the user."
+
         return self.__rating
 
     def strip_tags(self, taglist):
+
+        "Strips whitespace from tags."
+
         return [tag.strip() for tag in taglist]
 
     def accept(self):

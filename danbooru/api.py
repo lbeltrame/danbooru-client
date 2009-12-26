@@ -21,9 +21,9 @@ import urlparse
 import urllib
 import httplib
 
-from PyQt4.QtCore import *
+from PyQt4.QtCore import QObject, SIGNAL, pyqtSignal
 from PyQt4.QtGui import QPixmap
-from PyKDE4.kdecore import *
+from PyKDE4.kdecore import KUrl
 from PyKDE4.kio import KIO
 
 import hashes
@@ -39,15 +39,27 @@ class Danbooru(QObject):
     functions to retrieve posts, images, tags and more. It is a subclass of
     QObject and makes use of KDE's KIO to handle network operations
     asynchronously.
-    This class provides two custom signals: dataDownloaded (for data that has
-    been downloaded, forexample an image) and dataReady (when other network
-    operations are complete)."""
+
+    This class provides two custom signals:
+
+        - dataDownloaded, for image data that has been downloaded, which
+        includes the KUrl pointing to the URL of the downloaded image, and the
+        QPixmap of the image itself;
+        - dataReady, when network operations are complete.
+
+    The class also provides the selected_ratings attribute, which is used to
+    filter items that are being retrieved depending on the maximum rating used
+    (Safe, Questionable, or Explicit)."""
 
     _POST_URL = "post/index.json"
     _TAG_URL = "tag/index.json"
     _POOL_URL = "pool/index.json"
     _ARTIST_URL = "pool/index.json"
     _POOL_INFO_URL = "pool/get.json"
+
+    _RATINGS = ["Safe", "Questionable", "Explicit"]
+
+    # Signals
 
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
     dataReady = pyqtSignal()
@@ -66,6 +78,10 @@ class Danbooru(QObject):
         self.cache = cache
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
+        self.__rating = None
+        # These are needed to update previous results
+        self.__limit = None
+        self.__tags = None
 
     def __http_exists(self, url):
 
@@ -87,6 +103,31 @@ class Danbooru(QObject):
         except httplib.HTTPException, e:
             return False
 
+    def _allowed_ratings(self):
+
+        """Function to return the allowed ratings for fetching. If no ratings have
+        been defined, it returns all ratings."""
+
+        if not self.__rating:
+            return ["Safe", "Questionable", "Explicit"]
+        else:
+            return self.__rating
+
+    def _set_allowed_ratings(self, rating):
+
+        """Function to set the maximum allowed rating for fetching. Supplied
+        ratings that are invalid are silently ignored."""
+
+        if rating not in self._RATINGS:
+            return
+
+        if rating == "Safe":
+            self.__rating = ["Safe"]
+        elif rating == "Questionable":
+            self.__rating = ["Safe", "Questionable"]
+        elif rating == "Explicit":
+            self.__rating = ["Safe", "Questionable", "Explicit"]
+
     def validate_url(self, url):
 
         "Validates the input URL and returns the result (True/False)"
@@ -100,15 +141,19 @@ class Danbooru(QObject):
 
         pass
 
-    def get_post_list(self, limit=5, tags=None):
+    def get_post_list(self, limit=5, tags=None, page=None):
 
         """Method to get posts with specific tags and limits. There is a hardcoded
         limit of 100 posts in Danbooru, so limits > 100 will be ignored.
         If present, tags must be supplied as a list. Data are stored as a list
-        of DanbooruItems."""
+        of DanbooruItems. Different pages can be accessed setting the page
+        parameter."""
 
         if limit > 100:
             limit = 100
+
+        self.__limit = limit if not self.__limit else self.__limit
+        self.__tags = tags if not self.__tags else self.__tags
 
         limit_parameter = "limit=%d" % limit
         if tags:
@@ -117,6 +162,10 @@ class Danbooru(QObject):
             tags = ""
 
         parameters = dict(tags=tags, limit=limit)
+
+        if page:
+            parameters["page"] = page
+
         url_parameters = urllib.urlencode(parameters)
         # Danbooru doesn't want HTML-encoded pluses
         url_parameters = urllib.unquote(url_parameters)
@@ -124,15 +173,28 @@ class Danbooru(QObject):
         url_parameters = "?" + url_parameters
         request_url = urlparse.urljoin(self.url, self._POST_URL)
         request_url = urlparse.urljoin(request_url, url_parameters)
-        tempfile = QString()
 
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
 
         self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
+    def update(self, page=None):
+
+        """Updates previously added results. This should be used to get the next
+        page of the same batch."""
+
+        if not self.__limit and not self.__tags:
+            return
+
+        self.get_post_list(limit=self.__limit, tags=self.__tags, page=page)
 
     def process_post_list(self, job):
+
+        """Collects the data from the job and loads it into an object that can
+        be read by the JSON parser. Then each element of the data is converted
+        into a DanbooruItem and stored in a DanbooruList. Prior to inserting the
+        items in the list, they are checked for rating."""
 
         if job.error():
             self.data = None
@@ -143,9 +205,13 @@ class Danbooru(QObject):
 
         self.data = DanbooruList()
 
+        allowed_ratings = self.selected_ratings
+
         for item in decoded_data:
             item = DanbooruItem(item)
-            self.data.append(item)
+
+            if item.rating in allowed_ratings:
+                self.data.append(item)
 
         self.dataReady.emit()
 
@@ -196,10 +262,14 @@ class Danbooru(QObject):
         # Schedule: we don't want to overload servers
         KIO.Scheduler.scheduleJob(job)
 
-        # Ugly, but not wrapped by PyKDE4
         self.connect(job, SIGNAL("result (KJob *)"), self.job_download)
 
     def job_download(self, job):
+
+        """Slot callled from get_image. Loads the image in a QPixmap and inserts
+        it into the thumbnail cache, if present. then it emits the
+        dataDownloaded signal, which carries the URL of the image and the pixmap
+        itself."""
 
         img = QPixmap()
         name = job.url()
@@ -213,6 +283,10 @@ class Danbooru(QObject):
             self.cache.insert(job.url().fileName(), img)
 
         self.dataDownloaded.emit(name, img)
+
+    # Properties
+
+    selected_ratings = property(_allowed_ratings, _set_allowed_ratings)
 
 class DanbooruList(object):
 
@@ -247,10 +321,13 @@ class DanbooruList(object):
             # So we can get by index as well 
             try:
                 return self.__data[key]
-            except TypeError, IndexError:
+            except ( TypeError, IndexError ):
                 return
 
     def __contains__(self, key):
+
+        """Keys are checked in the various dictionary, and also in the list of
+        items."""
 
         if key in self.__full_url:
             return True
@@ -359,7 +436,9 @@ class DanbooruItem(object):
     @property
     def rating(self):
 
-        RATINGS = dict(s="safe", q="questionable", e="explicit")
+        "Rating for the image."
 
-        return RATINGS[self.__data["rating"]]
+        ratings = dict(s="Safe", q="Questionable", e="Explicit")
+
+        return ratings[self.__data["rating"]]
 

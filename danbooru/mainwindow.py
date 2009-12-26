@@ -36,7 +36,7 @@ from PyKDE4.kdeui import *
 from PyKDE4.kio import *
 
 import preferences
-import thumbnailview
+import thumbnailarea
 import fetchdialog
 import connectdialog
 
@@ -56,10 +56,10 @@ class MainWindow(KXmlGuiWindow):
 
         self.statusbar = self.statusBar()
         self.progress = QProgressBar()
-        self.thumbnailview = None
+        self.thumbnailarea = None
         self.progress.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
-        # Hackish, but how to make it small otherwise?
+        # FIXME: Hackish, but how to make it small otherwise?
         self.progress.setMinimumSize(100, 1)
         self.statusbar.addPermanentWidget(self.progress)
         self.progress.hide()
@@ -159,6 +159,8 @@ class MainWindow(KXmlGuiWindow):
 
     def show_preferences(self):
 
+        "Shows the preferences dialog."
+
         if KConfigDialog.showDialog("Preferences dialog"):
             return
         else:
@@ -169,36 +171,26 @@ class MainWindow(KXmlGuiWindow):
 
     def connect_danbooru(self, ok):
 
+        "Connects to a Danbooru board."
+
         dialog = connectdialog.ConnectDialog(self.url_list, self)
 
         if dialog.exec_():
             self.api = None
             self.api = dialog.danbooru_api()
 
-            if self.thumbnailview is not None:
-                # Update API reference in the thumbnailview
-                self.thumbnailview.update_data(self.api)
+            if self.thumbnailarea is not None:
+                # Update API reference in the thumbnailarea
+                self.thumbnailarea.update_data(self.api)
 
             self.api.cache = self.cache
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)
-            self.api.dataReady.connect(self.fetch_posts)
-
-    def setup_area(self):
-
-        self.thumbnailview = thumbnailview.ThumbnailView(self.api,
-                                                         self.preferences,
-                                                        columns=self.column_no)
-        self.setCentralWidget(self.thumbnailview)
-        self.thumbnailview.thumbnailDownloaded.connect(self.update_progress)
-
-    def update_progress(self):
-
-        self.__step += 1
-        self.progress.setValue(self.__step)
 
     def retrieve(self, tags, limit):
+
+        "Retrieves posts from the currently connected Danbooru board."
 
         try:
             self.api.get_post_list(limit=limit, tags=tags)
@@ -211,54 +203,10 @@ class MainWindow(KXmlGuiWindow):
                                  error_line))
             KMessageBox.error(self, i18n(message),
                               i18n("Error retrieving posts"))
-            return
-
-
-    def fetch_posts(self):
-
-        if not self.api.data:
-            self.statusBar().showMessage(i18n("No posts found."), 3000)
-            return
-
-        if self.__ratings:
-            selected_posts = [item for item in self.api.data if item.rating in
-                              self.__ratings]
-            if not selected_posts:
-                self.statusbar.showMessage(
-                    i18n("No posts match your selected rating."), 3000)
-                return
-
-            urls = [item.thumbnail_url for item in self.api.data]
-        else:
-            urls = [item.thumbnail_url for item in self.api.data]
-
-        max_steps = len(urls)
-        self.progress.setMaximum(max_steps)
-        self.progress.show()
-
-        self.thumbnailview.display_thumbnails()
-
-        # Reset the counter in case of subsequent fetches
-        self.__step = 0
-        self.progress.hide()
-        self.progress.reset()
-        self.batch_download_action.setEnabled(True)
-
-    def clear(self):
-
-        if self.thumbnailview is None:
-            return
-
-        self.thumbnailview.clear()
-        self.thumbnailview.clear_items()
-        self.batch_download_action.setEnabled(False)
-
-    def clean_cache(self):
-
-        self.cache.discard()
-        self.statusBar().showMessage(i18n("Thumbnail cache cleared."))
 
     def fetch(self, ok):
+
+        "Fetches the actual data from the connected Danbooru board."
 
         if not self.api:
             return
@@ -270,9 +218,10 @@ class MainWindow(KXmlGuiWindow):
             self.clear()
             tags = dialog.tags()
             limit = dialog.limit()
-            self.__ratings = dialog.max_rating()
+            # self.__ratings = dialog.max_rating()
+            self.api.selected_ratings = dialog.max_rating()
 
-            if not self.thumbnailview:
+            if not self.thumbnailarea:
                 self.setup_area()
             self.retrieve(tags, limit)
         else:
@@ -280,7 +229,7 @@ class MainWindow(KXmlGuiWindow):
 
     def batch_download(self, ok):
 
-        selected_items = self.thumbnailview.selected_images()
+        selected_items = self.thumbnailarea.selected_images()
 
         if not selected_items:
             return
@@ -301,6 +250,55 @@ class MainWindow(KXmlGuiWindow):
             destination.addPath(file_name)
             job = KIO.file_copy(KUrl(item), destination, -1)
             self.connect(job, SIGNAL("result (KJob *)"), self.job_slot_result)
+
+    def setup_area(self):
+
+        "Sets up the central widget to display thumbnails."
+
+        self.thumbnailarea = thumbnailarea.ThumbnailArea(self.api,
+                                                         self.preferences,
+                                                         self)
+
+        self.setCentralWidget(self.thumbnailarea)
+        self.thumbnailarea.thumbnailDownloaded.connect(self.update_progress)
+        self.thumbnailarea.downloadCompleted.connect(self.download_finished)
+
+    def download_finished(self):
+
+        "Slot called when all the data has been completed."
+
+        if not self.batch_download_action.isEnabled():
+            self.batch_download_action.setEnabled(True)
+
+        self.__step = 0
+        self.progress.hide()
+
+    def update_progress(self):
+
+        "Updates the progress bar."
+
+        if not self.progress.isVisible():
+            self.progress.show()
+
+        self.__step += 1
+        self.progress.setValue(self.__step)
+
+    def clear(self):
+
+        "Clears the central widget."
+
+        if self.thumbnailarea is None:
+            return
+
+        self.thumbnailarea.clear()
+        self.batch_download_action.setEnabled(False)
+
+    def clean_cache(self):
+
+        "Purges the thumbnail cache."
+
+        self.cache.discard()
+        self.statusBar().showMessage(i18n("Thumbnail cache cleared."))
 
     def job_slot_result(self, job):
 
