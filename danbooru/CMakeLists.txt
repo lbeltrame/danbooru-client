@@ -1,17 +1,18 @@
 include (KDE4Defaults)
 
 set(DANBOORU_FILES 
+  	__init__.py
 	actiondialog.py
+	api.py
       	connectdialog.py
    	danbooru_client.py
-      	hashes.py
-    	mainwindow.py
-     	test_api.py
-	api.py
 	danbooru2nepomuk.py
       	fetchdialog.py
-  	__init__.py
+      	hashes.py
+    	mainwindow.py
       	preferences.py
+     	test_api.py
+	thumbnailarea.py
       	thumbnailview.py
 )
 
