@@ -36,6 +36,11 @@ import actiondialog
 
 class ThumbnailViewItem(QWidget):
 
+    """Class that handles the thumbnails. It is a modified QWidget that keeps
+    track of the URL of the full image, the DanbooruItem associated to it, and
+    the actual iamge (a pixmap). It contains a QCheckBox that is used for
+    selecting the image for batch download."""
+
     def __init__(self, image=None, url=None, data=None):
 
         super(ThumbnailViewItem, self).__init__()
@@ -66,12 +71,16 @@ class ThumbnailViewItem(QWidget):
         self.checkbox = QCheckBox()
         self.checkbox.setChecked(False)
         self.checkbox.setText(i18n("Select"))
+
+        # Remove the accelerator, we don't want it
         KAcceleratorManager.setNoAccel(self.checkbox)
         self.checkbox.setSizePolicy(QSizePolicy.Fixed,
                                     QSizePolicy.Fixed)
         self.layout.addWidget(self.checkbox)
 
-        self.layout.setSpacing(6) # Ugly hack!
+        # FIXME: Hack to make sure there's enough space around the image, so that
+        # things to do not look as cramped
+        self.layout.setSpacing(6)
 
     def label_text(self):
 
@@ -93,11 +102,28 @@ class ThumbnailViewItem(QWidget):
 
 class ThumbnailView(QTableWidget):
 
-    thumbnailDownloaded = pyqtSignal() # To notify changes
+    """Class used to show the thumbnails retrieved from a Danbooru board. It is
+    a subclass of QTableWidget, with some modifications. The number of columns
+    can be set, and it follows the preferences set in the main application.
+
+    Provided signals:
+
+    - thumbnailDownloaded - used to notify other parts of the code when a
+    thumbnail is going to be displayed.
+    - downloadCompleted - used to notify that all the thumbnails have been
+    downloaded
+    """
+
+    # Signals
+
+    thumbnailDownloaded = pyqtSignal()
+    downloadCompleted = pyqtSignal()
 
     def __init__(self, api_data, preferences, columns=5, parent=None):
 
-        #FIXME: Add docstrings!
+        """Initialize a new ThumbnailView. api_data is a reference to a Danbooru
+        object, preferences a reference to the KConfigXT instance, while columns
+        is a deprecated parameter."""
 
         super(ThumbnailView, self).__init__(parent)
         self.setColumnCount(columns)
@@ -181,7 +207,9 @@ class ThumbnailView(QTableWidget):
         self.resizeColumnsToContents()
         thumbnail_item.label.leftClickedUrl.connect(self.retrieve_url)
 
-        # As for some reason cellWidget(row, col) returns None
+        # For some reason cellWidget(row, col) returns None, so we keep an
+        # internal list of items
+
         self.__items.append(thumbnail_item)
         self.thumbnailDownloaded.emit()
 
@@ -193,11 +221,6 @@ class ThumbnailView(QTableWidget):
         self.__items = list()
         self.__row_index = 0
         self.__column_index = 0
-
-    def update_data(self, api_data):
-        self.api_data = api_data
-        # Reconnect, the signal changed
-        self.api_data.dataDownloaded.connect(self.process_thumbnails)
 
     def items(self):
 
@@ -238,14 +261,18 @@ class ThumbnailView(QTableWidget):
         name = url.fileName()
         post_data = self.api_data.data[item_url]
 
+        item = self.create_image_item(pixmap, post_data)
+        self.insert_items(item)
+
+        if self.api_data.data[-1] == post_data:
+            self.downloadCompleted.emit()
+
         # To support pagination, disconnect after we have reached the last item,
         # so that the data won't be sent to all thumbnailviews
 
         if self.api_data.data[-1] == post_data:
             self.api_data.dataDownloaded.disconnect()
-
-        item = self.create_image_item(pixmap, post_data)
-        self.insert_items(item)
+            self.downloadCompleted.emit()
 
     def display_thumbnails(self):
 
@@ -259,6 +286,9 @@ class ThumbnailView(QTableWidget):
             self.api_data.get_image(item.thumbnail_url)
 
     def selected_images(self):
+
+        """Returns a list of the items that have been checked. Used for batch
+        downloading."""
 
         if not self.__items:
             return
