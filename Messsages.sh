@@ -23,5 +23,5 @@ done
 echo "Done merging translations"
 
 echo "Cleaning up"
-#rm rc.py
+rm rc.py
 echo "Done"
