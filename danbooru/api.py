@@ -39,9 +39,17 @@ class Danbooru(QObject):
     functions to retrieve posts, images, tags and more. It is a subclass of
     QObject and makes use of KDE's KIO to handle network operations
     asynchronously.
-    This class provides two custom signals: dataDownloaded (for data that has
-    been downloaded, forexample an image) and dataReady (when other network
-    operations are complete)."""
+
+    This class provides two custom signals:
+
+        - dataDownloaded, for image data that has been downloaded, which
+        includes the KUrl pointing to the URL of the downloaded image, and the
+        QPixmap of the image itself;
+        - dataReady, when network operations are complete.
+
+    The class also provides the selected_ratings attribute, which is used to
+    filter items that are being retrieved depending on the maximum rating used
+    (Safe, Questionable, or Explicit)."""
 
     _POST_URL = "post/index.json"
     _TAG_URL = "tag/index.json"
@@ -50,6 +58,8 @@ class Danbooru(QObject):
     _POOL_INFO_URL = "pool/get.json"
 
     _RATINGS = ["Safe", "Questionable", "Explicit"]
+
+    # Signals
 
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
     dataReady = pyqtSignal()
@@ -118,7 +128,6 @@ class Danbooru(QObject):
         elif rating == "Explicit":
             self.__rating = ["Safe", "Questionable", "Explicit"]
 
-
     def validate_url(self, url):
 
         "Validates the input URL and returns the result (True/False)"
@@ -137,7 +146,8 @@ class Danbooru(QObject):
         """Method to get posts with specific tags and limits. There is a hardcoded
         limit of 100 posts in Danbooru, so limits > 100 will be ignored.
         If present, tags must be supplied as a list. Data are stored as a list
-        of DanbooruItems."""
+        of DanbooruItems. Different pages can be accessed setting the page
+        parameter."""
 
         if limit > 100:
             limit = 100
@@ -316,6 +326,9 @@ class DanbooruList(object):
 
     def __contains__(self, key):
 
+        """Keys are checked in the various dictionary, and also in the list of
+        items."""
+
         if key in self.__full_url:
             return True
         elif key in self.__thumbnail_url:
@@ -422,6 +435,8 @@ class DanbooruItem(object):
 
     @property
     def rating(self):
+
+        "Rating for the image."
 
         ratings = dict(s="Safe", q="Questionable", e="Explicit")
 
