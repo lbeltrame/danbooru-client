@@ -16,20 +16,21 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.    
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyKDE4.kdecore import *
-from PyKDE4.kdeui import *
+from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QWidget
+from PyKDE4.kdeui import KAcceleratorManager
 
 import thumbnailview
 from ui.ui_thumbnailarea import Ui_ThumbnailArea
 
 class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
-    # Signal that is emitted when a page is added
-    pageAdded = pyqtSignal(int)
+    downloadCompleted = pyqtSignal()
 
     def __init__(self, api_data=None, preferences=None, parent=None):
+
+        """Initialize a new ThumbnailArea. api_data is a reference to a Danbooru
+        object, while preferences is a reference to a KConfigXT instance."""
 
         super(ThumbnailArea, self).__init__(parent)
         self.setupUi(self)
@@ -40,30 +41,41 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         self.__firstpage = True
         self.__current_index = 0
 
+        KAcceleratorManager.setNoAccel(self.thumbnailTabWidget)
         self.nextPageButton.setDisabled(True)
 
         self.nextPageButton.clicked.connect(self.new_page)
         self.api_data.dataReady.connect(self.fetch_posts)
 
-    #FIXME: Things are being connected multiple times in mainwindow!
+    def __iter__(self):
+
+        for item in self.__pages:
+            yield item
 
     def new_page(self):
+
+        "Slot used to create a new page."
 
         current_page = self.thumbnailTabWidget.currentIndex() + 1
         next_page = 1 if current_page == 0 else current_page + 1
         page_name = "Page %d" % next_page
 
         view = thumbnailview.ThumbnailView(self.api_data, self.preferences)
-
-        # addTab returns the index, so let's use it
         index = self.thumbnailTabWidget.addTab(view, page_name)
-        self.__pages.append(view) # Prevents GC issues
+
+        # PyKDE4 suffers from garbage collection issues with widgets like
+        # KPageWidget or KTabWidget. Therefore, we add the item to a list to
+        # keep a reference of it around
+
+        self.__pages.append(view)
+        view.downloadCompleted.connect(self.downloadCompleted.emit)
 
         # Update the data if it's not the first page
 
         if index != 0:
             self.api_data.update(page=index+1)
             self.__current_index = index
+            self.thumbnailTabWidget.setCurrentIndex(index)
             return
         else:
             view.display_thumbnails()
@@ -71,12 +83,14 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
     def fetch_posts(self):
 
+        """Slot used to fetch posts, calling the display_thumbnail of the
+        thumbnail view corresponding to the current index."""
+
         if not self.api_data.data:
             return
 
-        #TODO: Handle ratings
-
         if self.__firstpage:
+            # We don't have an index yet, use a different approach
             self.new_page()
             self.__firstpage = False
             return
@@ -91,6 +105,32 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         self.thumbnailTabWidget.clear()
         self.__pages = list()
         self.__firstpage = True
+        self.__current_index = 0
         self.nextPageButton.setDisabled(True)
 
+    def selected_images(self):
+
+        "Returns a list of the selected images in all pages."
+
+        images = list()
+
+        for thumbnailview in self:
+
+            selected = thumbnailview.selected_images()
+
+            if selected:
+                images.extend(selected)
+
+        return images
+
+    def update_data(self, api_data):
+
+        "Updates the API data."
+
+        self.api_data = api_data
+
+        # As we changed object, the connection to the item points still to the
+        # old one. Therefore, we need to re-connect the signal again
+
+        self.api_data.dataReady.connect(self.fetch_posts)
 
