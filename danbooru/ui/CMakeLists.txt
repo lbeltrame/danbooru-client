@@ -8,6 +8,7 @@ set (UI_FILES
 	ui_actiondialog.py
       	ui_danboorupage.py
      	ui_generalpage.py
+	ui_thumbnailarea.py
 )
 
 foreach ( _UI_FILE ${UI_FILES})
