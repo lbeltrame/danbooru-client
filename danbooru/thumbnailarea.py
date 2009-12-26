@@ -16,8 +16,9 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.    
 
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QWidget
+from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtGui import QWidget, QLabel
+from PyKDE4.kdecore import i18n
 from PyKDE4.kdeui import KAcceleratorManager
 
 import thumbnailview
@@ -26,6 +27,7 @@ from ui.ui_thumbnailarea import Ui_ThumbnailArea
 class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
     downloadCompleted = pyqtSignal()
+    thumbnailDownloaded = pyqtSignal()
 
     def __init__(self, api_data=None, preferences=None, parent=None):
 
@@ -56,11 +58,28 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         "Slot used to create a new page."
 
+        if self.__firstpage:
+            view, index = self.create_tab()
+            view.display_thumbnails()
+            self.nextPageButton.setDisabled(False)
+            self.__firstpage = False
+        else:
+            self.__current_index += 1
+            self.api_data.update(page=self.__current_index+1)
+
+    def create_tab(self):
+
+        """Creates a new tab in the tab widget, and adds it to the internal lists.
+        Returns the inserted widget and the index it was inserted in."""
+
         current_page = self.thumbnailTabWidget.currentIndex() + 1
         next_page = 1 if current_page == 0 else current_page + 1
         page_name = "Page %d" % next_page
 
         view = thumbnailview.ThumbnailView(self.api_data, self.preferences)
+        view.thumbnailDownloaded.connect(self.thumbnailDownloaded.emit)
+        view.downloadCompleted.connect(self.downloadCompleted.emit)
+
         index = self.thumbnailTabWidget.addTab(view, page_name)
 
         # PyKDE4 suffers from garbage collection issues with widgets like
@@ -68,18 +87,8 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         # keep a reference of it around
 
         self.__pages.append(view)
-        view.downloadCompleted.connect(self.downloadCompleted.emit)
 
-        # Update the data if it's not the first page
-
-        if index != 0:
-            self.api_data.update(page=index+1)
-            self.__current_index = index
-            self.thumbnailTabWidget.setCurrentIndex(index)
-            return
-        else:
-            view.display_thumbnails()
-            self.nextPageButton.setDisabled(False)
+        return view, index
 
     def fetch_posts(self):
 
@@ -87,16 +96,20 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         thumbnail view corresponding to the current index."""
 
         if not self.api_data.data:
+            label = QLabel(i18n("No matching posts found for this page."))
+            label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            self.__current_index += 1
+            text = "Page %d (empty)" % self.__current_index
+            index = self.thumbnailTabWidget.addTab(label, text)
+            self.thumbnailTabWidget.setCurrentIndex(index)
             return
 
         if self.__firstpage:
-            # We don't have an index yet, use a different approach
             self.new_page()
-            self.__firstpage = False
-            return
-
-        view = self.thumbnailTabWidget.widget(self.__current_index)
-        view.display_thumbnails()
+        else:
+            view, index = self.create_tab()
+            view.display_thumbnails()
+            self.thumbnailTabWidget.setCurrentIndex(index)
 
     def clear(self):
 
