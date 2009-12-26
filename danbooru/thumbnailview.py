@@ -84,16 +84,20 @@ class ThumbnailViewItem(QWidget):
 
     def label_text(self):
 
+        "Adds information on the item stored, which will be then shown."
+
         if self.data is not None:
             height = self.data.height
             width = self.data.width
             size = self.data.size / float (1024000)
+            rating = self.data.rating
 
             width = "Width: %d pixels" % width
             size = "Size: %1.2f Mb" % size
             height = "Height: %d pixels" % height
+            rating = "Rating: %s" % rating
 
-            text = "\n".join((width, height, size))
+            text = "\n".join((width, height, size, rating))
         else:
             text = None
 
@@ -106,12 +110,12 @@ class ThumbnailView(QTableWidget):
     a subclass of QTableWidget, with some modifications. The number of columns
     can be set, and it follows the preferences set in the main application.
 
-    Provided signals:
+    This class provides two custom signals:
 
-    - thumbnailDownloaded - used to notify other parts of the code when a
-    thumbnail is going to be displayed.
-    - downloadCompleted - used to notify that all the thumbnails have been
-    downloaded
+        - thumbnailDownloaded, used to notify other parts of the code when a
+        thumbnail is going to be displayed.
+        - downloadCompleted,used to notify that all the thumbnails have been
+        downloaded
     """
 
     # Signals
@@ -119,14 +123,14 @@ class ThumbnailView(QTableWidget):
     thumbnailDownloaded = pyqtSignal()
     downloadCompleted = pyqtSignal()
 
-    def __init__(self, api_data, preferences, columns=5, parent=None):
+    def __init__(self, api_data, preferences, parent=None):
 
         """Initialize a new ThumbnailView. api_data is a reference to a Danbooru
-        object, preferences a reference to the KConfigXT instance, while columns
-        is a deprecated parameter."""
+        object, preferences a reference to the KConfigXT instance."""
 
         super(ThumbnailView, self).__init__(parent)
-        self.setColumnCount(columns)
+
+        self.setColumnCount(preferences.column_no)
         self.verticalHeader().hide()
         self.horizontalHeader().hide()
         self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
@@ -224,7 +228,7 @@ class ThumbnailView(QTableWidget):
 
     def items(self):
 
-        """Generator functions that yields each ThumbnailViewItem stored in the
+        """Generator function that yields each ThumbnailViewItem stored in the
         internal list."""
 
         if not self.__items:
@@ -233,6 +237,9 @@ class ThumbnailView(QTableWidget):
             yield item
 
     def setup_rows(self, item_no):
+
+        """Sets up the proper number of rows depending on the items that have been
+        stored in the API data object."""
 
         max_columns = self.__max_columns
 
@@ -263,9 +270,6 @@ class ThumbnailView(QTableWidget):
 
         item = self.create_image_item(pixmap, post_data)
         self.insert_items(item)
-
-        if self.api_data.data[-1] == post_data:
-            self.downloadCompleted.emit()
 
         # To support pagination, disconnect after we have reached the last item,
         # so that the data won't be sent to all thumbnailviews
