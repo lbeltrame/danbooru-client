@@ -3,7 +3,6 @@
 - Figure out how to associate IDs to pictures - DONE
 - Support for ratings - DONE
 - Support for pools
-- Rewrite parser to use XML instead of JSON?
 - Integrate Nepomuk - DONE
 - Multi-get downloads - DONE
 - Checkboxes for selection - DONE
@@ -14,3 +13,4 @@
 - (far future) Support for other Danbooru functions such as posts and wiki
 - Disable fetching if not connected - DONE
 - Implement a limitation system on batch downloads - max 5 per time
+- Pagination support - DONE
