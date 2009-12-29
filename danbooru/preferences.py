@@ -32,6 +32,7 @@ from ui.ui_generalpage import Ui_GeneralPage
 from ui.ui_nepomukpage import Ui_NepomukPage
 from ui.ui_danboorupage import Ui_DanbooruPage
 
+
 class Preferences(KConfigSkeleton):
 
     """Class to handle preferences. Currently, the following items are stored:
@@ -44,6 +45,7 @@ class Preferences(KConfigSkeleton):
         Currently usernames and passwords are not saved at all."""
 
     def __init__(self, *args):
+
         KConfigSkeleton.__init__(self, *args)
 
         self.setCurrentGroup("General")
@@ -72,26 +74,43 @@ class Preferences(KConfigSkeleton):
 
     @property
     def boards_list(self):
+
+        "The currently known boards."
+
         return self._danbooru_boards.value()
 
     @property
     def thumbnail_no(self):
+
+        "Maximum number of thumbnails to use (max 100)."
+
         return self._max_retrieve.value()
 
     @property
     def column_no(self):
+
+        "Number of columns used to display the data."
+
         return self._column_number.value()
 
     @property
     def nepomuk_enabled(self):
+
+        "Returns the state of Nepomuk integration."
+
         return self._nepomuk_enabled.value()
 
     @property
     def tag_blacklist(self):
+
+        "Blacklisted tags."
+
         return self._tag_blacklist.value()
 
 
 class PreferencesDialog(KConfigDialog):
+
+    "Preferences dialog used by Danbooru Client."
 
     def __init__(self, parent=None, name=None, preferences=None):
 
@@ -100,6 +119,9 @@ class PreferencesDialog(KConfigDialog):
                                             KDialog.Cancel))
 
         self.resize(QSize(550, 420))
+
+        # Setup pages
+
         self.general_page = GeneralPage(self, preferences)
         self.nepomuk_page = NepomukPage(self, preferences)
         self.general_page_item = self.addPage(self.general_page,
@@ -119,7 +141,7 @@ class PreferencesDialog(KConfigDialog):
 
 class GeneralPage(QWidget, Ui_GeneralPage):
 
-    "Page containing layout options"
+    "Page containing general configuration options"
 
     def __init__(self, parent=None, preferences=None):
 
@@ -157,7 +179,7 @@ class NepomukPage(QWidget, Ui_NepomukPage):
 
 class DanbooruPage(QWidget, Ui_DanbooruPage):
 
-    "Page containing Danbooru URLs"
+    "Page containing Danbooru URL configuration"
 
     def __init__(self, parent=None, preferences=None):
 
@@ -165,10 +187,9 @@ class DanbooruPage(QWidget, Ui_DanbooruPage):
         self.setupUi(self)
 
         self.kcfg_danbooruUrls.insertStringList(preferences.boards_list)
+        # Allow only HTTP(S) URls in the lineedit
         regex =(r"(http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?")
         regex = QRegExp(regex)
 
         self._validator = QRegExpValidator(regex, self)
         self.kcfg_danbooruUrls.lineEdit().setValidator(self._validator)
-
-
