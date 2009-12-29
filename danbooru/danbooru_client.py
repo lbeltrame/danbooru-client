@@ -29,6 +29,7 @@ from PyKDE4.kdeui import KApplication
 
 import mainwindow
 
+
 def main():
 
     app_name="danbooru_client"
@@ -49,8 +50,8 @@ def main():
 
     KCmdLineArgs.init(sys.argv, about_data)
     app = KApplication()
-    mw = mainwindow.MainWindow()
-    mw.show()
+    window = mainwindow.MainWindow()
+    window.show()
     app.exec_()
 
 if __name__ == '__main__':
