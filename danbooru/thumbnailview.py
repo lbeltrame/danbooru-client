@@ -4,7 +4,7 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, under 
+#   it under the terms of the GNU General Public License, under
 #   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,
@@ -31,6 +31,7 @@ from PyKDE4.kdecore import KUrl, i18n
 from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager
 
 import actiondialog
+
 
 #TODO: Switch to model/view
 
@@ -78,8 +79,9 @@ class ThumbnailViewItem(QWidget):
                                     QSizePolicy.Fixed)
         self.layout.addWidget(self.checkbox)
 
-        # FIXME: Hack to make sure there's enough space around the image, so that
-        # things to do not look as cramped
+        # FIXME: Hack to make sure there's enough space around the image,
+        # so that things to do not look as cramped
+
         self.layout.setSpacing(6)
 
     def label_text(self):
@@ -89,7 +91,7 @@ class ThumbnailViewItem(QWidget):
         if self.data is not None:
             height = self.data.height
             width = self.data.width
-            size = self.data.size / float (1024000)
+            size = self.data.size / float(1024000)
             rating = self.data.rating
 
             width = "Width: %d pixels" % width
@@ -125,8 +127,9 @@ class ThumbnailView(QTableWidget):
 
     def __init__(self, api_data, preferences, parent=None):
 
-        """Initialize a new ThumbnailView. api_data is a reference to a Danbooru
-        object, preferences a reference to the KConfigXT instance."""
+        """Initialize a new ThumbnailView. api_data is a reference to a
+        Danbooru object, preferences a reference to the KConfigXT
+        instance."""
 
         super(ThumbnailView, self).__init__(parent)
 
@@ -157,8 +160,8 @@ class ThumbnailView(QTableWidget):
     def retrieve_url(self, item):
 
         """Function that performs actions on the currently clicked thumbnail
-        (called from the itemClicked signal). It pops up a (modal) dialog asking
-        for actions to perform."""
+        (called from the itemClicked signal). It pops up a (modal) dialog
+        asking for actions to perform."""
 
         row = self.currentRow()
         column = self.currentColumn()
@@ -195,8 +198,8 @@ class ThumbnailView(QTableWidget):
 
     def insert_items(self, thumbnail_item):
 
-        """Function that inserts ThumbnailViewItems into the ThumbnailView's table
-        widget. Columns and rows index are tracked so that the specific
+        """Function that inserts ThumbnailViewItems into the ThumbnailView's
+        table widget. Columns and rows index are tracked so that the specific
         parameters asked by the user are upheld. It emits thumbnailDownloaded
         once each item has been added."""
 
@@ -204,7 +207,8 @@ class ThumbnailView(QTableWidget):
             self.__row_index += 1
             self.__column_index = 0
 
-        self.setCellWidget(self.__row_index, self.__column_index, thumbnail_item)
+        self.setCellWidget(self.__row_index, self.__column_index,
+                           thumbnail_item)
 
         self.__column_index += 1
         self.resizeRowsToContents()
@@ -238,8 +242,8 @@ class ThumbnailView(QTableWidget):
 
     def setup_rows(self, item_no):
 
-        """Sets up the proper number of rows depending on the items that have been
-        stored in the API data object."""
+        """Sets up the proper number of rows depending on the items that have
+        been stored in the API data object."""
 
         max_columns = self.__max_columns
 
@@ -248,7 +252,7 @@ class ThumbnailView(QTableWidget):
             self.setRowCount(1)
         else:
             result = item_no // max_columns
-            self.setRowCount(result+1)
+            self.setRowCount(result + 1)
 
     def process_thumbnails(self, url, pixmap):
 
@@ -271,8 +275,8 @@ class ThumbnailView(QTableWidget):
         item = self.create_image_item(pixmap, post_data)
         self.insert_items(item)
 
-        # To support pagination, disconnect after we have reached the last item,
-        # so that the data won't be sent to all thumbnailviews
+        # To support pagination, disconnect after we have reached the last
+        # item, so that the data won't be sent to all thumbnailviews
 
         if self.api_data.data[-1] == post_data:
             self.api_data.dataDownloaded.disconnect()
