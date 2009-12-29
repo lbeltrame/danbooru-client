@@ -37,6 +37,19 @@ from ui.ui_thumbnailarea import Ui_ThumbnailArea
 
 class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
+    """Class that provides an area where individual ThumbnailViews (from
+    thumbnailview.py) can be placed in, using a tabbed interface. The class uses
+    an internal list for each page added, to avoid garbage collection issues.
+    Methods to create tabs are not called directly, but are instead slots called
+    upon by signal.
+
+    This class provides the following custom signals:
+
+        - downloadCompleted - used to relay the downloadCompleted signal from
+        the ThumbnailView;
+        - thumbnailDownloaded - used to rely the thumbnailDownloaded signal from
+        the ThumbnailView."""
+
     downloadCompleted = pyqtSignal()
     thumbnailDownloaded = pyqtSignal()
 
@@ -143,9 +156,9 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         images = list()
 
-        for thumbnailview in self:
+        for view in self:
 
-            selected = thumbnailview.selected_images()
+            selected = view.selected_images()
 
             if selected:
                 images.extend(selected)
