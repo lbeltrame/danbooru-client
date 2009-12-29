@@ -29,10 +29,12 @@ subsequently tagged. To recurse through subdirectories, use the -r option."""
 import sys
 import re
 
-from PyQt4.QtCore import *
-from PyKDE4.kdecore import *
-from PyKDE4.nepomuk import *
-from PyKDE4.kdeui import *
+from PyQt4.QtCore import QDirIterator, QDir, QFileInfo, QUrl
+from PyKDE4.kdecore import (KAboutData, KCmdLineArgs, KCmdLineOptions, i18n,
+                            ki18n)
+from PyKDE4.nepomuk import Nepomuk
+from PyKDE4.kdeui import KApplication
+
 
 # Regexp to filter out the board name and post ID from the filename
 BOARD_REGEX = re.compile("(.*[0-9]+)\s(.*)(.jpe?g|.gif|.png|.tif)")
@@ -142,7 +144,7 @@ def setup_kapplication():
     "Function to set up KAboutData."
 
     app_name="danbooru2nepomuk"
-    catalog = ""
+    catalog = "danbooru_client"
     program_name = ki18n("danbooru2nepomuk")
     version = "0.1"
     description = ki18n("A tagger for files downloaded from Danbooru.")
@@ -192,13 +194,14 @@ def main():
     app = KApplication()
 
     args = KCmdLineArgs.parsedArgs()
+    KCmdLineArgs.enable_i18n()
 
     if not nepomuk_running():
-        print "Nepomuk service not running. Please check your installation."
-        sys.exit(-1)
+        KCmdLineArgs.usageError(
+            i18n("Nepomuk service not running. Please check your installation.")
+        )
 
     if args.count() == 0:
-        KCmdLineArgs.enable_i18n()
         KCmdLineArgs.usageError(i18n("Not enough arguments."))
 
     target = args.arg(0)
@@ -210,8 +213,8 @@ def main():
     elif info.isFile():
         tag(info.filePath())
     else:
-        print "You need to specify either a file or a valid path."
-        sys.exit(-1)
+        KCmdLineArgs.usageError(i18n(
+            "You need to specify either a file or a valid path."))
 
 if __name__ == '__main__':
     main()
