@@ -16,6 +16,8 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.    
 
+from functools import partial
+
 from PyQt4.QtCore import pyqtSignal, Qt
 from PyQt4.QtGui import QWidget, QLabel
 from PyKDE4.kdecore import i18n
@@ -23,6 +25,7 @@ from PyKDE4.kdeui import KAcceleratorManager
 
 import thumbnailview
 from ui.ui_thumbnailarea import Ui_ThumbnailArea
+
 
 class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
@@ -65,6 +68,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
             self.__firstpage = False
         else:
             self.__current_index += 1
+            self.nextPageButton.setDisabled(True)
             self.api_data.update(page=self.__current_index+1)
 
     def create_tab(self):
@@ -75,10 +79,12 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         current_page = self.thumbnailTabWidget.currentIndex() + 1
         next_page = 1 if current_page == 0 else current_page + 1
         page_name = "Page %d" % next_page
+        enable_button = partial(self.nextPageButton.setDisabled, False)
 
         view = thumbnailview.ThumbnailView(self.api_data, self.preferences)
         view.thumbnailDownloaded.connect(self.thumbnailDownloaded.emit)
         view.downloadCompleted.connect(self.downloadCompleted.emit)
+        view.downloadCompleted.connect(enable_button)
 
         index = self.thumbnailTabWidget.addTab(view, page_name)
 
