@@ -16,6 +16,13 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.    
 
+'''
+File: thumbnailarea.py
+Author: Luca Beltrame
+Description: Module handling the thumbnail area, which presents several
+ThumbnailViews using a tabbed interface.
+'''
+
 from functools import partial
 
 from PyQt4.QtCore import pyqtSignal, Qt
@@ -54,6 +61,8 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
     def __iter__(self):
 
+        "Yields every stored page in the thumbnail area."
+
         for item in self.__pages:
             yield item
 
@@ -64,7 +73,6 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         if self.__firstpage:
             view, index = self.create_tab()
             view.display_thumbnails()
-            self.nextPageButton.setDisabled(False)
             self.__firstpage = False
         else:
             self.__current_index += 1
