@@ -14,7 +14,8 @@
 #   You should have received a copy of the GNU General Public
 #   License along with this program; if not, write to the
 #   Free Software Foundation, Inc.,
-#   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.    
+#   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 
 '''
 File: thumbnailarea.py
@@ -41,8 +42,9 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
     def __init__(self, api_data=None, preferences=None, parent=None):
 
-        """Initialize a new ThumbnailArea. api_data is a reference to a Danbooru
-        object, while preferences is a reference to a KConfigXT instance."""
+        """Initialize a new ThumbnailArea. api_data is a reference to a
+        Danbooru object, while preferences is a reference to a
+        KConfigXT instance."""
 
         super(ThumbnailArea, self).__init__(parent)
         self.setupUi(self)
@@ -77,12 +79,12 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         else:
             self.__current_index += 1
             self.nextPageButton.setDisabled(True)
-            self.api_data.update(page=self.__current_index+1)
+            self.api_data.update(page=self.__current_index + 1)
 
     def create_tab(self):
 
-        """Creates a new tab in the tab widget, and adds it to the internal lists.
-        Returns the inserted widget and the index it was inserted in."""
+        """Creates a new tab in the tab widget, and adds it to the internal
+        lists. Returns the inserted widget and the index it was inserted in."""
 
         current_page = self.thumbnailTabWidget.currentIndex() + 1
         next_page = 1 if current_page == 0 else current_page + 1
@@ -160,4 +162,3 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         # old one. Therefore, we need to re-connect the signal again
 
         self.api_data.dataReady.connect(self.fetch_posts)
-
