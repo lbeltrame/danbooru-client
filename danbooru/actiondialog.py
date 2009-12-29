@@ -82,6 +82,9 @@ class ActionDialog(KDialog):
 
     def view(self):
 
+        """Triggers the display of the image using the user's default image
+        viewer."""
+
         # Garbage collection ensues if we don't keep a reference around
         self.display = KRun(KUrl(self.url), self, 0, False, True, '')
         if self.display.hasError():
@@ -97,6 +100,7 @@ class ActionDialog(KDialog):
 
         start_name = KUrl(self.url).fileName()
         start_url = KUrl("kfiledialog:///danbooru/%s" % unicode(start_name))
+        # Get the mimetype to be passed to the save dialog
         mimetype_job = KIO.mimetype(KUrl(self.url), KIO.HideProgressInfo)
 
         # Small enough to be synchronous

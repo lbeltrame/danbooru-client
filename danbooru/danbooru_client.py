@@ -4,7 +4,7 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, under 
+#   it under the terms of the GNU General Public License, under
 #   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,

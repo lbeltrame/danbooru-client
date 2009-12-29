@@ -32,6 +32,7 @@ from PyKDE4.kdeui import KDialog
 
 from ui.ui_fetchdialog import Ui_FetchDialog
 
+
 class FetchWidget(QWidget, Ui_FetchDialog):
 
     """Class that constructs the widget used for setting the parameters to fetch
