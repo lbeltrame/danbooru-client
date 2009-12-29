@@ -28,21 +28,28 @@ from __future__ import division
 import sys
 import os
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import Qt, QSize
+from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
+                         QKeySequence)
 
-from PyKDE4.kdecore import *
-from PyKDE4.kdeui import *
-from PyKDE4.kio import *
+from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
+from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
+                          KStandardAction, KIcon, KConfigDialog, KMessageBox)
+from PyKDE4.kio import KFileDialog, KIO
 
 import preferences
 import thumbnailarea
 import fetchdialog
 import connectdialog
 
+
 class MainWindow(KXmlGuiWindow):
 
+    "Class which displays the main Danbooru Client window."
+
     def __init__(self):
+
+        "Initialize a new main window."
 
         KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
@@ -74,11 +81,15 @@ class MainWindow(KXmlGuiWindow):
 
     def read_config(self):
 
+        """Reads the configuration from the instance variable of the preferences,
+        and sets some parameters."""
+
         self.url_list = self.preferences.boards_list
         self.max_retrieve = self.preferences.thumbnail_no
-        self.column_no = self.preferences.column_no
 
     def setup_tooltips(self):
+
+        "Sets tooltips for the actions."
 
         self.connect_action.setToolTip(i18n("Connect to a Danbooru board"))
         self.fetch_action.setToolTip(
@@ -87,6 +98,8 @@ class MainWindow(KXmlGuiWindow):
         self.batch_download_action.setToolTip(i18n("Batch download images"))
 
     def create_actions(self):
+
+        "Creates actions for the main window."
 
         self.connect_action = KAction(KIcon("document-open-remote"),
                                  i18n("Connect"), self)
@@ -112,6 +125,9 @@ class MainWindow(KXmlGuiWindow):
 
     def setup_actions(self):
 
+        """Wrapper function that creates actions, setups tooltips, adds actions
+        to the action collection, and connects relevant signals."""
+
         self.create_actions()
         self.setup_tooltips()
 
@@ -130,6 +146,7 @@ class MainWindow(KXmlGuiWindow):
         self.fetch_action.triggered.connect(self.fetch)
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
+        # Show tooltips in the status bar as well
         self.actionCollection().actionHovered.connect(self.action_tooltip)
 
         setupGUI_args = [
@@ -141,18 +158,23 @@ class MainWindow(KXmlGuiWindow):
 
         rc_file = KStandardDirs.locate("appdata", "danbooruui.rc")
         if rc_file.isEmpty():
+            # Not found, check elsewhere
             setupGUI_args.append(os.path.join(sys.path [0],
                                                    "danbooruui.rc"))
         else:
             setupGUI_args.append(rc_file)
+
         self.setupGUI(*setupGUI_args)
 
-        # Remove handbook menu entry
-        # Called later than setupGUI or it won't exist yet
+        # Remove handbook menu entry: the call needs to be put later than
+        # setupGUI or the action won't exist, leading to no effect
+
         self.actionCollection().removeAction(
             self.actionCollection().action("help_contents"))
 
     def action_tooltip(self, action):
+
+        "Slot to show statusbar help when actions are hovered."
 
         if action.isEnabled():
             self.statusBar().showMessage(action.toolTip(), 2000)
@@ -218,7 +240,6 @@ class MainWindow(KXmlGuiWindow):
             self.clear()
             tags = dialog.tags()
             limit = dialog.limit()
-            # self.__ratings = dialog.max_rating()
             self.api.selected_ratings = dialog.max_rating()
 
             if not self.thumbnailarea:
@@ -228,6 +249,8 @@ class MainWindow(KXmlGuiWindow):
             return
 
     def batch_download(self, ok):
+
+        "Slot called for batch downloading of selected images."
 
         selected_items = self.thumbnailarea.selected_images()
 
@@ -265,7 +288,8 @@ class MainWindow(KXmlGuiWindow):
 
     def download_finished(self):
 
-        "Slot called when all the data has been completed."
+        """Slot called when all the data has been completed. Clears the progress
+        bar and resets it to 0."""
 
         if not self.batch_download_action.isEnabled():
             self.batch_download_action.setEnabled(True)
@@ -304,6 +328,3 @@ class MainWindow(KXmlGuiWindow):
 
         if job.error():
             job.ui().showErrorMessage()
-
-
-
