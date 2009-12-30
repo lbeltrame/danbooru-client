@@ -1,4 +1,4 @@
-Danbooru Client - v.0.1
+Danbooru Client - v.0.5.1
 
 Danbooru Client is an application to access Danbooru based image boards (link), using their REST API. This means the ability of viewing and downloading images without using a browser. 
 
@@ -25,7 +25,7 @@ This will install Danbooru Client in your system KDE install.
 Known limitations
 
 - Currently you can only download or view only one image at a time. Such a limitation will be removed in the future.
-- You cannot retrieve more than 100 posts. This is a forced limit in the Danbooru API
+- You cannot retrieve more than 100 posts. This is a forced limit in the Danbooru API. However, you can use pagination ("More results" button) to work around this limitation.
 - There is no way to blacklist images based on rating. Again, this is a limit of the Danbooru API
 
 Credits and license
