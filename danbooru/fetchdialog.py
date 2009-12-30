@@ -60,7 +60,6 @@ class FetchWidget(QWidget, Ui_FetchDialog):
     def setup_rating(self, rating):
 
         if rating in self.__rating_mappings:
-            print "Here"
             self.__rating_mappings[rating].setChecked(True)
 
     def selected_rating(self):
