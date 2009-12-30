@@ -4,7 +4,7 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, under 
+#   it under the terms of the GNU General Public License, under
 #   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,
@@ -23,7 +23,7 @@ Author: Luca Beltrame
 Description: Preferences module for the Danbooru client.
 '''
 
-from PyQt4.QtCore import QStringList, QSize, QRegExp,Qt
+from PyQt4.QtCore import QString, QStringList, QSize, QRegExp,Qt
 from PyQt4.QtGui import QWidget, QRegExpValidator
 from PyKDE4.kdeui import KConfigSkeleton, KConfigDialog, KIcon, KDialog
 from PyKDE4.kdecore import i18n
@@ -70,6 +70,12 @@ class Preferences(KConfigSkeleton):
                                                      predefined_blacklist)
         self._column_number = self.addItemInt("displayColumns", 3, 3)
 
+        self._max_rating_value = QString()
+        predefined_max_rating = QString("Safe")
+        self._max_rating = self.addItemString("maxAllowedRating",
+                                              self._max_rating_value,
+                                              predefined_max_rating)
+
         self.readConfig()
 
     @property
@@ -106,6 +112,13 @@ class Preferences(KConfigSkeleton):
         "Blacklisted tags."
 
         return self._tag_blacklist.value()
+
+    @property
+    def max_allowed_rating(self):
+
+        "The maximum allowed rating"
+
+        return self._max_rating.value()
 
 
 class PreferencesDialog(KConfigDialog):
