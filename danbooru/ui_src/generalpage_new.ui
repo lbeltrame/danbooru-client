@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>283</width>
-    <height>62</height>
+    <width>299</width>
+    <height>92</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,20 +34,46 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="columnLabel">
      <property name="text">
       <string>Number of columns to display</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="2" column="1">
     <widget class="KIntSpinBox" name="kcfg_displayColumns">
      <property name="minimum">
       <number>1</number>
      </property>
      <property name="maximum">
       <number>100</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="KComboBox" name="kcfg_maxAllowedRating">
+     <item>
+      <property name="text">
+       <string>Safe</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Questionable</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Explicit</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="ratingLabel">
+     <property name="text">
+      <string>Maximum allowed rating</string>
      </property>
     </widget>
    </item>
@@ -58,6 +84,11 @@
    <class>KIntSpinBox</class>
    <extends>QSpinBox</extends>
    <header>knuminput.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
