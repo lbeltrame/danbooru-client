@@ -169,8 +169,6 @@ class GeneralPage(QWidget, Ui_GeneralPage):
         super(GeneralPage, self).__init__(parent)
         self.setupUi(self)
 
-        max_rating = unicode(preferences.max_allowed_rating)
-
         self.kcfg_thumbnailMaxRetrieve.setValue(preferences.thumbnail_no)
         self.kcfg_displayColumns.setValue(preferences.column_no)
         self.kcfg_maxAllowedRating.setCurrentIndex(preferences.rating_index)
