@@ -38,16 +38,30 @@ class FetchWidget(QWidget, Ui_FetchDialog):
     """Class that constructs the widget used for setting the parameters to fetch
     posts from a Danbooru board."""
 
-    def __init__(self, limit, parent =None):
+    def __init__(self, limit, default_rating=None, parent =None):
 
         super(FetchWidget, self).__init__(parent)
-
         self.setupUi(self)
+
+        self.__rating_mappings = {"Safe":self.safeRadioButton,
+                                  "Questionable":self.questionableRadioButton,
+                                  "Explicit":self.explicitRadioButton}
+
         self.postSpinBox.setValue(limit)
         # Allow only letters, numbers, commas and underscores
         regexp = QRegExp(r"^[a-zA-Z,_0-9]+$")
         self.validator = QRegExpValidator(regexp, self)
         self.tagLineEdit.setValidator(self.validator)
+
+        if default_rating:
+            default_rating = unicode(default_rating)
+            self.setup_rating(default_rating)
+
+    def setup_rating(self, rating):
+
+        if rating in self.__rating_mappings:
+            print "Here"
+            self.__rating_mappings[rating].setChecked(True)
 
     def selected_rating(self):
 
@@ -67,14 +81,16 @@ class FetchDialog(KDialog):
     """Class that provides a dialog to set parameters for fetching posts from a
     Danbooru board."""
 
-    def __init__(self, default_limit, parent=None):
+    def __init__(self, default_limit, preferences=None, parent=None):
 
         super(FetchDialog, self).__init__(parent)
 
         self.__tags = None
         self.__limit = None
         self.__rating = None
-        self.fetchwidget = FetchWidget(default_limit, self)
+        self.fetchwidget = FetchWidget(default_limit,
+                                       preferences.max_allowed_rating,
+                                       parent=self)
 
         self.setMainWidget(self.fetchwidget)
 
