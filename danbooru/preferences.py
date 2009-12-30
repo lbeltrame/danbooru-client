@@ -44,6 +44,8 @@ class Preferences(KConfigSkeleton):
 
         Currently usernames and passwords are not saved at all."""
 
+    __RATINGS = ["Safe", "Questionable", "Explicit"]
+
     def __init__(self, *args):
 
         KConfigSkeleton.__init__(self, *args)
@@ -70,11 +72,10 @@ class Preferences(KConfigSkeleton):
                                                      predefined_blacklist)
         self._column_number = self.addItemInt("displayColumns", 3, 3)
 
-        self._max_rating_value = QString()
-        predefined_max_rating = QString("Safe")
-        self._max_rating = self.addItemString("maxAllowedRating",
+        self._max_rating_value = 0
+        self._max_rating = self.addItemInt("maxAllowedRating",
                                               self._max_rating_value,
-                                              predefined_max_rating)
+                                              0)
 
         self.readConfig()
 
@@ -116,7 +117,14 @@ class Preferences(KConfigSkeleton):
     @property
     def max_allowed_rating(self):
 
-        "The maximum allowed rating"
+        "The maximum allowed rating, in string form"
+
+        return self.__RATINGS[self._max_rating.value()]
+
+    @property
+    def rating_index(self):
+
+        "The index of the list of the maximum allowed ratings"
 
         return self._max_rating.value()
 
@@ -161,8 +169,11 @@ class GeneralPage(QWidget, Ui_GeneralPage):
         super(GeneralPage, self).__init__(parent)
         self.setupUi(self)
 
+        max_rating = unicode(preferences.max_allowed_rating)
+
         self.kcfg_thumbnailMaxRetrieve.setValue(preferences.thumbnail_no)
         self.kcfg_displayColumns.setValue(preferences.column_no)
+        self.kcfg_maxAllowedRating.setCurrentIndex(preferences.rating_index)
 
 
 class NepomukPage(QWidget, Ui_NepomukPage):
