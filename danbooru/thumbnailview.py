@@ -94,12 +94,12 @@ class ThumbnailViewItem(QWidget):
             size = self.data.size / float(1024000)
             rating = self.data.rating
 
-            width = "Width: %d pixels" % width
-            size = "Size: %1.2f Mb" % size
-            height = "Height: %d pixels" % height
-            rating = "Rating: %s" % rating
+            width = i18n("Width: %d pixels\n" % width)
+            size = i18n("Size: %1.2f Mb\n" % size)
+            height = i18n("Height: %d pixels\n" % height)
+            rating = i18n("Rating: %s" % rating)
 
-            text = "\n".join((width, height, size, rating))
+            text = width+height+size+rating
         else:
             text = None
 
