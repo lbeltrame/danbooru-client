@@ -1,4 +1,65 @@
+2009-12-30  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui/ui_generalpage.py, danbooru/ui_src/generalpage_new.ui: New UI
+  for rating selection
+
+  * danbooru/mainwindow.py: Support for preferences for fetch dialog inserted
+  into main window code
+
+  * danbooru/preferences.py: Remove needless line
+
+  * danbooru/preferences.py: Support for saving the rating in the preferences,
+  using some hacks to workaround the absence of hashes in KConfigXT
+
+  * danbooru/fetchdialog.py: Remove stupid debug statement
+
+  * danbooru/preferences.py: Add maximum rating in the preferences
+
+  * danbooru/fetchdialog.py: Read in the maximum allowed rating from the
+  preferences
+
+  * danbooru/mainwindow.py: Forgot an import
+
+  * danbooru/fetchdialog.py: Adapt dialog to the UI changes
+
+  * danbooru/ui/ui_fetchdialog.py: New UI for fetching posts
+
+2009-12-29  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/actiondialog.py, danbooru/danbooru_client.py,
+  danbooru/fetchdialog.py, danbooru/hashes.py, po/danbooru_client.pot: More
+  PEP8 fixes and translation updates
+
+  * danbooru/thumbnailview.py: More PEP8 style fixes
+
+  * danbooru/preferences.py: Docstrings and PEP8 style fixes
+
+  * danbooru/mainwindow.py: Cleanups:  - use named imports - PEP8 style fixes -
+  More docstrings - Reword comments
+
+  * danbooru/danbooru_client.py: Better variable naming
+
+  * danbooru/danbooru2nepomuk.py: Named imports and more i18n strings
+
+  * danbooru/connectdialog.py: Docstrings, removal of dead code and some PEP8
+  cleanup
+
+  * danbooru/api.py: Style fixes
+
+  * danbooru/actiondialog.py: Docstrings and style fixes
+
+  * danbooru/thumbnailarea.py: More PEP8 fixes
+
+  * danbooru/thumbnailarea.py: PEP8 style fixes
+
+  * danbooru/thumbnailarea.py: Remove unneded code and add docstrings
+
+  * danbooru/thumbnailarea.py: Prevent races among tabs by disabling the button
+  until a tab has finished downloading
+
 2009-12-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: Last but not least, update ChangeLog!
 
   * Messsages.sh: Cleanup
 
@@ -74,6 +135,8 @@
   * danbooru/mainwindow.py: Support in mainwindow for pagination
 
 2009-12-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui_src/fetchdialog.ui: Better UI file for fetch dialog
 
   * danbooru/ui_src/fetchdialog.ui: Better UI file for fetch dialog
 

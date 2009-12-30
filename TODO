@@ -14,3 +14,6 @@
 - Disable fetching if not connected - DONE
 - Implement a limitation system on batch downloads - max 5 per time
 - Pagination support - DONE
+- Support for default rating - DONE
+- Usability for dialogs - IN PROGRESS
+- Support for tag blacklisting in the API
