@@ -16,6 +16,11 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+"""Module that provides a wrapper for Danbooru API calls. Items are stored as
+DanbooruItems, which enable easy extraction of information using attributes. To
+store lists of individual DanbooruItems, a special class called DanbooruList
+has also been provided."""
+
 import json
 import urlparse
 import urllib
@@ -28,10 +33,6 @@ from PyKDE4.kio import KIO
 
 import hashes
 
-"""Module that provides a wrapper for Danbooru API calls. Items are stored as
-DanbooruItems, which enable easy extraction of information using attributes. To
-store lists of individual DanbooruItems, a special class called DanbooruList has
-also been provided."""
 
 class Danbooru(QObject):
 
@@ -71,7 +72,7 @@ class Danbooru(QObject):
         result = self.validate_url(api_url)
 
         if not result:
-            raise IOError, "The given URL does not exist."
+            raise IOError("The given URL does not exist.")
 
         self.url = api_url
         self.data = None
@@ -100,13 +101,13 @@ class Danbooru(QObject):
             else:
                 return False
 
-        except httplib.HTTPException, e:
+        except httplib.HTTPException:
             return False
 
     def _allowed_ratings(self):
 
-        """Function to return the allowed ratings for fetching. If no ratings have
-        been defined, it returns all ratings."""
+        """Function to return the allowed ratings for fetching. If no ratings
+        have been defined, it returns all ratings."""
 
         if not self.__rating:
             return ["Safe", "Questionable", "Explicit"]
@@ -132,8 +133,8 @@ class Danbooru(QObject):
 
         "Validates the input URL and returns the result (True/False)"
 
-        ok = self.__http_exists(url)
-        return ok
+        result = self.__http_exists(url)
+        return result
 
     def process_tags(self, tags):
 
@@ -143,11 +144,11 @@ class Danbooru(QObject):
 
     def get_post_list(self, limit=5, tags=None, page=None):
 
-        """Method to get posts with specific tags and limits. There is a hardcoded
-        limit of 100 posts in Danbooru, so limits > 100 will be ignored.
-        If present, tags must be supplied as a list. Data are stored as a list
-        of DanbooruItems. Different pages can be accessed setting the page
-        parameter."""
+        """Method to get posts with specific tags and limits. There is a
+        hardcoded limit of 100 posts in Danbooru, so limits > 100 will be
+        ignored. If present, tags must be supplied as a list. Data are
+        stored as a DanbooruList of DanbooruItems. Different pages can
+        be accessed setting the page parameter."""
 
         if limit > 100:
             limit = 100
@@ -181,8 +182,8 @@ class Danbooru(QObject):
 
     def update(self, page=None):
 
-        """Updates previously added results. This should be used to get the next
-        page of the same batch."""
+        """Updates previously added results. This should be used to get the
+        next page of the same batch."""
 
         if not self.__limit and not self.__tags:
             return
@@ -193,8 +194,8 @@ class Danbooru(QObject):
 
         """Collects the data from the job and loads it into an object that can
         be read by the JSON parser. Then each element of the data is converted
-        into a DanbooruItem and stored in a DanbooruList. Prior to inserting the
-        items in the list, they are checked for rating."""
+        into a DanbooruItem and stored in a DanbooruList. Prior to inserting
+        the items in the list, they are checked for rating."""
 
         if job.error():
             self.data = None
@@ -233,12 +234,12 @@ class Danbooru(QObject):
 
         pass
 
-    def get_image(self, image_url, verbose=False, wait=2):
+    def get_image(self, image_url, wait=2):
 
         """Retrieves a picture (full or thumbnail) for a specific URL.
         It uses KIO.storedGet to download it asynchronously, but setting a
-        KIO.Scheduler to queue the jobs. Once the job has finished, it will emit
-        the dataDownloaded(KUrl, QPixmap) signal.
+        KIO.Scheduler to queue the jobs. Once the job has finished, it will
+        emit the dataDownloaded(KUrl, QPixmap) signal.
         """
 
         # Not less than two seconds. We want to play nice.
@@ -266,10 +267,10 @@ class Danbooru(QObject):
 
     def job_download(self, job):
 
-        """Slot callled from get_image. Loads the image in a QPixmap and inserts
-        it into the thumbnail cache, if present. then it emits the
-        dataDownloaded signal, which carries the URL of the image and the pixmap
-        itself."""
+        """Slot callled from get_image. Loads the image in a QPixmap and
+        inserts it into the thumbnail cache, if present. then it emits the
+        dataDownloaded signal, which carries the URL of the image and the
+        pixmap itself."""
 
         img = QPixmap()
         name = job.url()
@@ -288,13 +289,14 @@ class Danbooru(QObject):
 
     selected_ratings = property(_allowed_ratings, _set_allowed_ratings)
 
+
 class DanbooruList(object):
 
     """Specialized container for Danbooru items. It contains a lists of
     DanbooruItems and at the same time it also stores thumbnail and full image
     urls. The dictionaries are used to keep indices to the internal list, and
-    they're used to return the corresponding item (standard index access is also
-    possible)."""
+    they're used to return the corresponding item (standard index access is
+    also possible)."""
 
     def __init__(self):
 
@@ -318,10 +320,10 @@ class DanbooruList(object):
             index = self.__thumbnail_url[key]
             return self.__data[index]
         else:
-            # So we can get by index as well 
+            # So we can get by index as well
             try:
                 return self.__data[key]
-            except ( TypeError, IndexError ):
+            except (TypeError, IndexError):
                 return
 
     def __contains__(self, key):
@@ -356,6 +358,7 @@ class DanbooruList(object):
         self.__data.append(item)
         self.__full_url[item.full_url] = last_index
         self.__thumbnail_url[item.thumbnail_url] = last_index
+
 
 class DanbooruItem(object):
 
@@ -441,4 +444,3 @@ class DanbooruItem(object):
         ratings = dict(s="Safe", q="Questionable", e="Explicit")
 
         return ratings[self.__data["rating"]]
-

@@ -16,12 +16,14 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from hashlib import sha1
 
 """This module contains the strings needed to salt the passwords for Danboorun
 access. Use the generate_hash function to create an appropriate hash."""
 
 #TODO:Move to configuration?
+
+from hashlib import sha1
+
 
 _MAPPING = {"http://konachan.net":"So-I-Heard-You-Like-Mupkids-?--your-password--",
  "http://konachan.com":"So-I-Heard-You-Like-Mupkids-?--your-password--",
@@ -35,11 +37,9 @@ def generate_hash(url, password):
 
     if url not in _MAPPING:
         return
-    
+
     salt = _MAPPING[url]
     salt.replace("your-password",password)
     sha1_hash = sha1(salt)
 
     return sha1_hash.hexdigest()
-
-

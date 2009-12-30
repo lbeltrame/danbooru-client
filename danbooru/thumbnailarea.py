@@ -14,7 +14,17 @@
 #   You should have received a copy of the GNU General Public
 #   License along with this program; if not, write to the
 #   Free Software Foundation, Inc.,
-#   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.    
+#   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+'''
+File: thumbnailarea.py
+Author: Luca Beltrame
+Description: Module handling the thumbnail area, which presents several
+ThumbnailViews using a tabbed interface.
+'''
+
+from functools import partial
 
 from PyQt4.QtCore import pyqtSignal, Qt
 from PyQt4.QtGui import QWidget, QLabel
@@ -24,15 +34,30 @@ from PyKDE4.kdeui import KAcceleratorManager
 import thumbnailview
 from ui.ui_thumbnailarea import Ui_ThumbnailArea
 
+
 class ThumbnailArea(QWidget, Ui_ThumbnailArea):
+
+    """Class that provides an area where individual ThumbnailViews (from
+    thumbnailview.py) can be placed in, using a tabbed interface. The class uses
+    an internal list for each page added, to avoid garbage collection issues.
+    Methods to create tabs are not called directly, but are instead slots called
+    upon by signal.
+
+    This class provides the following custom signals:
+
+        - downloadCompleted - used to relay the downloadCompleted signal from
+        the ThumbnailView;
+        - thumbnailDownloaded - used to rely the thumbnailDownloaded signal from
+        the ThumbnailView."""
 
     downloadCompleted = pyqtSignal()
     thumbnailDownloaded = pyqtSignal()
 
     def __init__(self, api_data=None, preferences=None, parent=None):
 
-        """Initialize a new ThumbnailArea. api_data is a reference to a Danbooru
-        object, while preferences is a reference to a KConfigXT instance."""
+        """Initialize a new ThumbnailArea. api_data is a reference to a
+        Danbooru object, while preferences is a reference to a
+        KConfigXT instance."""
 
         super(ThumbnailArea, self).__init__(parent)
         self.setupUi(self)
@@ -51,6 +76,8 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
     def __iter__(self):
 
+        "Yields every stored page in the thumbnail area."
+
         for item in self.__pages:
             yield item
 
@@ -61,24 +88,26 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         if self.__firstpage:
             view, index = self.create_tab()
             view.display_thumbnails()
-            self.nextPageButton.setDisabled(False)
             self.__firstpage = False
         else:
             self.__current_index += 1
-            self.api_data.update(page=self.__current_index+1)
+            self.nextPageButton.setDisabled(True)
+            self.api_data.update(page=self.__current_index + 1)
 
     def create_tab(self):
 
-        """Creates a new tab in the tab widget, and adds it to the internal lists.
-        Returns the inserted widget and the index it was inserted in."""
+        """Creates a new tab in the tab widget, and adds it to the internal
+        lists. Returns the inserted widget and the index it was inserted in."""
 
         current_page = self.thumbnailTabWidget.currentIndex() + 1
         next_page = 1 if current_page == 0 else current_page + 1
         page_name = "Page %d" % next_page
+        enable_button = partial(self.nextPageButton.setDisabled, False)
 
         view = thumbnailview.ThumbnailView(self.api_data, self.preferences)
         view.thumbnailDownloaded.connect(self.thumbnailDownloaded.emit)
         view.downloadCompleted.connect(self.downloadCompleted.emit)
+        view.downloadCompleted.connect(enable_button)
 
         index = self.thumbnailTabWidget.addTab(view, page_name)
 
@@ -127,9 +156,9 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         images = list()
 
-        for thumbnailview in self:
+        for view in self:
 
-            selected = thumbnailview.selected_images()
+            selected = view.selected_images()
 
             if selected:
                 images.extend(selected)
@@ -146,4 +175,3 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         # old one. Therefore, we need to re-connect the signal again
 
         self.api_data.dataReady.connect(self.fetch_posts)
-

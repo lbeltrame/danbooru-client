@@ -4,7 +4,7 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, under 
+#   it under the terms of the GNU General Public License, under
 #   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,
@@ -29,12 +29,13 @@ from PyKDE4.kdeui import KApplication
 
 import mainwindow
 
+
 def main():
 
     app_name="danbooru_client"
     catalog = "danbooru_client"
     program_name = ki18n("Danbooru Client")
-    version = "0.4"
+    version = "0.5"
     description = ki18n("A client for Danbooru sites.")
     license = KAboutData.License_GPL
     copyright = ki18n("(C) 2009 Luca Beltrame")
@@ -49,8 +50,8 @@ def main():
 
     KCmdLineArgs.init(sys.argv, about_data)
     app = KApplication()
-    mw = mainwindow.MainWindow()
-    mw.show()
+    window = mainwindow.MainWindow()
+    window.show()
     app.exec_()
 
 if __name__ == '__main__':

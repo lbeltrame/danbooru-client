@@ -1,4 +1,109 @@
+2009-12-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * Messsages.sh: Cleanup
+
+  * po/it.po: Remove broken po file
+
+  * CMakeLists.txt, po/CMakeLists.txt, po/danbooru_client.pot: Install
+  translations if they are there
+
+  * Messsages.sh: Proper Messages.sh
+
+2009-12-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * po/index.lokalize, po/lokalize-scripts/scripts.rc: Remove cruft
+
+  * TODO: Update TODO
+
+  * danbooru/danbooru_client.py: Bump version to 0.5
+
+  * danbooru/ui_src/thumbnailarea.ui: And this one as well
+
+  * danbooru/ui/ui_thumbnailarea.py: Whoops, forgot this UI file
+
+  * danbooru/test_api.py: Updated tests, but they don't work without a local
+  event loop, hence they are disabled
+
+  * danbooru/mainwindow.py: Adapt to the pagination, and move functions around
+  so that they actually make sense
+
+  * danbooru/thumbnailview.py: A few changes: - remove dead code - update
+  docstrings - remove double connection - add rating to image information
+
+  * danbooru/fetchdialog.py: Remove dead code, update docstrings, and fix
+  behavior so that the fetch dialog is compatible with the new API rating
+
+  * danbooru/thumbnailarea.py: Massive refactoring of the code. Now empty pages
+  are labeled as such and no more bogus pages are created when not needed
+
+  * danbooru/ui/CMakeLists.txt: Forgot this...
+
+  * danbooru/CMakeLists.txt: Add new files
+
+  * danbooru/api.py: Documentation
+
+  * danbooru/thumbnailview.py: Added a signal to notify the completion of the
+  download. Also, general cleanup and documentation all around
+
+  * danbooru/thumbnailarea.py: Add new functions to update the data (and adjust
+  signals), add comments and docstrings. It should be cleaner now
+
+2009-12-23  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/thumbnailview.py: More docstrings, finally this module is decently
+  documented
+
+  * danbooru/api.py: Support for ratings directly in the API. Also, get rid of
+  * imports, so I can track undefined names
+
+  * danbooru/thumbnailview.py: Pagination support + some docstrings, the code
+  is actually becoming a bit nicer like this
+
+  * danbooru/mainwindow.py: Skeleton support for API ratings
+
+  * danbooru/api.py: Rating support added to API. It doesn't really make sense
+  in the GUI...
+
+  * danbooru/thumbnailarea.py: Added thumbnail area to handle multi page setups
+
+  * danbooru/api.py: Forgot some changes
+
+  * danbooru/api.py: Support for pages in the API, and a bit more of docstrings
+  documentation.
+
+  * danbooru/mainwindow.py: Support in mainwindow for pagination
+
+2009-12-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui_src/fetchdialog.ui: Better UI file for fetch dialog
+
+  * danbooru/ui_src/fetchdialog.ui: Better UI file for fetch dialog
+
+2009-11-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui_src/poolwidget.ui: Interface for pools
+
+2009-11-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * po/danbooru_client.pot: Silence this
+
+  * danbooru/api.py: Add Pool URL
+
+2009-11-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui/ui_generalpage.py, danbooru/ui_src/generalpage_new.ui: Correct
+  maximum items
+
+2009-11-10  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/mainwindow.py, danbooru/thumbnailview.py: Now connecting to
+  different boards in a single session works OK. For some reason the API data
+  inside the thumbnailview is copied, rather than referenced, so update it (and
+  its signals) accordingly
+
 2009-11-08  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChangeLog updated
 
   * danbooru/mainwindow.py: Remove useless line
 

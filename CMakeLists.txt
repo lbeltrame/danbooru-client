@@ -11,3 +11,4 @@ include(PythonMacros)
 install ( FILES danbooru_client.desktop DESTINATION ${XDG_APPS_INSTALL_DIR} )
 
 add_subdirectory( danbooru )
+add_subdirectory( po )

@@ -32,6 +32,7 @@ from PyKDE4.kio import KIO, KRun, KFileDialog, KFile
 import danbooru2nepomuk
 from ui.ui_actiondialog import Ui_ActionDialog
 
+
 class ActionWidget(QWidget, Ui_ActionDialog):
 
     def __init__(self, url=None, pixmap=None, parent=None):
@@ -47,16 +48,23 @@ class ActionWidget(QWidget, Ui_ActionDialog):
 
     def action(self):
 
+        "Returns the selected action by the user."
+
         index = self.actionSelectComboBox.currentIndex()
         return self.actions[index]
 
+
 class ActionDialog(KDialog):
+
+    """Class that provides a dialog that prompts the user to choose an action
+    for the selected image."""
 
     def __init__(self, url, pixmap=None, preferences=None, parent=None):
 
         super(ActionDialog, self).__init__(parent)
 
         self.url = url
+        self.display = None
         self.tagging = preferences.nepomuk_enabled
         self.blacklist = preferences.tag_blacklist
         self.actionwidget = ActionWidget(self.url, pixmap, self)
@@ -74,6 +82,9 @@ class ActionDialog(KDialog):
 
     def view(self):
 
+        """Triggers the display of the image using the user's default image
+        viewer."""
+
         # Garbage collection ensues if we don't keep a reference around
         self.display = KRun(KUrl(self.url), self, 0, False, True, '')
         if self.display.hasError():
@@ -84,8 +95,12 @@ class ActionDialog(KDialog):
 
     def download(self):
 
+        """Function that triggers the download of the image to a user-supplied
+        directory."""
+
         start_name = KUrl(self.url).fileName()
         start_url = KUrl("kfiledialog:///danbooru/%s" % unicode(start_name))
+        # Get the mimetype to be passed to the save dialog
         mimetype_job = KIO.mimetype(KUrl(self.url), KIO.HideProgressInfo)
 
         # Small enough to be synchronous
@@ -119,6 +134,8 @@ class ActionDialog(KDialog):
 
     def download_slot(self, job):
 
+        "Slot called by the KJob handling the download."
+
         if job.error():
             job.ui().showErrorMessage()
             return
@@ -127,8 +144,8 @@ class ActionDialog(KDialog):
         download_name = job.destUrl().toLocalFile()
 
         if self.tagging:
-            ok = danbooru2nepomuk.nepomuk_running()
-            if ok:
+            result = danbooru2nepomuk.nepomuk_running()
+            if result:
 
                 # The user may select an arbitrary file name, so we tag
                 # using the original file name obtained from the URL
