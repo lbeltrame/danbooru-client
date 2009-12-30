@@ -1,0 +1,659 @@
+2009-12-30  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * README: Updated README
+
+  * po/danbooru_client.pot: Update catalog: new strings
+
+  * ChangeLog, TODO: Update ChangeLog
+
+  * danbooru/ui/ui_generalpage.py, danbooru/ui_src/generalpage_new.ui: New UI
+  for rating selection
+
+  * danbooru/mainwindow.py: Support for preferences for fetch dialog inserted
+  into main window code
+
+  * danbooru/preferences.py: Remove needless line
+
+  * danbooru/preferences.py: Support for saving the rating in the preferences,
+  using some hacks to workaround the absence of hashes in KConfigXT
+
+  * danbooru/fetchdialog.py: Remove stupid debug statement
+
+  * danbooru/preferences.py: Add maximum rating in the preferences
+
+  * danbooru/fetchdialog.py: Read in the maximum allowed rating from the
+  preferences
+
+  * danbooru/mainwindow.py: Forgot an import
+
+  * danbooru/fetchdialog.py: Adapt dialog to the UI changes
+
+  * danbooru/ui/ui_fetchdialog.py: New UI for fetching posts
+
+2009-12-29  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/actiondialog.py, danbooru/danbooru_client.py,
+  danbooru/fetchdialog.py, danbooru/hashes.py, po/danbooru_client.pot: More
+  PEP8 fixes and translation updates
+
+  * danbooru/thumbnailview.py: More PEP8 style fixes
+
+  * danbooru/preferences.py: Docstrings and PEP8 style fixes
+
+  * danbooru/mainwindow.py: Cleanups:  - use named imports - PEP8 style fixes -
+  More docstrings - Reword comments
+
+  * danbooru/danbooru_client.py: Better variable naming
+
+  * danbooru/danbooru2nepomuk.py: Named imports and more i18n strings
+
+  * danbooru/connectdialog.py: Docstrings, removal of dead code and some PEP8
+  cleanup
+
+  * danbooru/api.py: Style fixes
+
+  * danbooru/actiondialog.py: Docstrings and style fixes
+
+  * danbooru/thumbnailarea.py: More PEP8 fixes
+
+  * danbooru/thumbnailarea.py: PEP8 style fixes
+
+  * danbooru/thumbnailarea.py: Remove unneded code and add docstrings
+
+  * danbooru/thumbnailarea.py: Prevent races among tabs by disabling the button
+  until a tab has finished downloading
+
+2009-12-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: Last but not least, update ChangeLog!
+
+  * Messsages.sh: Cleanup
+
+  * po/it.po: Remove broken po file
+
+  * CMakeLists.txt, po/CMakeLists.txt, po/danbooru_client.pot: Install
+  translations if they are there
+
+  * Messsages.sh: Proper Messages.sh
+
+2009-12-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * po/index.lokalize, po/lokalize-scripts/scripts.rc: Remove cruft
+
+  * TODO: Update TODO
+
+  * danbooru/danbooru_client.py: Bump version to 0.5
+
+  * danbooru/ui_src/thumbnailarea.ui: And this one as well
+
+  * danbooru/ui/ui_thumbnailarea.py: Whoops, forgot this UI file
+
+  * danbooru/test_api.py: Updated tests, but they don't work without a local
+  event loop, hence they are disabled
+
+  * danbooru/mainwindow.py: Adapt to the pagination, and move functions around
+  so that they actually make sense
+
+  * danbooru/thumbnailview.py: A few changes: - remove dead code - update
+  docstrings - remove double connection - add rating to image information
+
+  * danbooru/fetchdialog.py: Remove dead code, update docstrings, and fix
+  behavior so that the fetch dialog is compatible with the new API rating
+
+  * danbooru/thumbnailarea.py: Massive refactoring of the code. Now empty pages
+  are labeled as such and no more bogus pages are created when not needed
+
+  * danbooru/ui/CMakeLists.txt: Forgot this...
+
+  * danbooru/CMakeLists.txt: Add new files
+
+  * danbooru/api.py: Documentation
+
+  * danbooru/thumbnailview.py: Added a signal to notify the completion of the
+  download. Also, general cleanup and documentation all around
+
+  * danbooru/thumbnailarea.py: Add new functions to update the data (and adjust
+  signals), add comments and docstrings. It should be cleaner now
+
+2009-12-23  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/thumbnailview.py: More docstrings, finally this module is decently
+  documented
+
+  * danbooru/api.py: Support for ratings directly in the API. Also, get rid of
+  * imports, so I can track undefined names
+
+  * danbooru/thumbnailview.py: Pagination support + some docstrings, the code
+  is actually becoming a bit nicer like this
+
+  * danbooru/mainwindow.py: Skeleton support for API ratings
+
+  * danbooru/api.py: Rating support added to API. It doesn't really make sense
+  in the GUI...
+
+  * danbooru/thumbnailarea.py: Added thumbnail area to handle multi page setups
+
+  * danbooru/api.py: Forgot some changes
+
+  * danbooru/api.py: Support for pages in the API, and a bit more of docstrings
+  documentation.
+
+  * danbooru/mainwindow.py: Support in mainwindow for pagination
+
+2009-12-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui_src/fetchdialog.ui: Better UI file for fetch dialog
+
+  * danbooru/ui_src/fetchdialog.ui: Better UI file for fetch dialog
+
+  * danbooru/ui_src/fetchdialog.ui: Better UI file for fetch dialog
+
+2009-11-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui_src/poolwidget.ui: Interface for pools
+
+2009-11-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * po/danbooru_client.pot: Silence this
+
+  * danbooru/api.py: Add Pool URL
+
+2009-11-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui/ui_generalpage.py, danbooru/ui_src/generalpage_new.ui: Correct
+  maximum items
+
+2009-11-10  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/mainwindow.py, danbooru/thumbnailview.py: Now connecting to
+  different boards in a single session works OK. For some reason the API data
+  inside the thumbnailview is copied, rather than referenced, so update it (and
+  its signals) accordingly
+
+2009-11-08  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChangeLog updated
+
+  * danbooru/mainwindow.py: Remove useless line
+
+  * danbooru/mainwindow.py: Fix the mess #2:  - Recycle the thumbnailview item
+  instead regenerating one at each fetch; - Disconnect the dataReady signal
+  when we clear, or it will get called multiple times; - Document why the API
+  object doesn't need to be explicitly updated in the thumbnailview.
+
+  * danbooru/thumbnailview.py: Fix the mess part #1: Reset column and row index
+  when cleared.
+
+2009-11-07  Luca Beltrame <einar@heavensinferno.net>
+
+  * CMakeLists.txt, danbooru/danbooru_client.py: Bump version
+
+  * ChangeLog, TODO: ChangeLog, TODO updates
+
+  * danbooru/ui/ui_fetchdialog.py, danbooru/ui_src/fetchdialog.ui: UI files to
+  support ratings
+
+  * danbooru/api.py: More API docs
+
+  * danbooru/mainwindow.py: Support for async post list retrieval
+
+  * danbooru/api.py: Now even the post list is retrieved asynchronously. Good
+  for slow connections. (also, add the ratings value to each DanbooruItem)
+
+  * danbooru/mainwindow.py: Support the ratings in the mainwindow code
+
+  * danbooru/fetchdialog.py: Rating support implemented. Now the user can
+  select the maximum rating of the images retrieved (default: Safe).
+
+2009-11-03  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/CMakeLists.txt: Fix logo installation
+
+2009-10-29  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChangeLog updated
+
+  * TODO: Updated TODO
+
+  * danbooru/mainwindow.py: Whitespace
+
+  * danbooru/danbooru_client.py: Bump version again
+
+  * CMakeLists.txt: Bump version
+
+  * danbooru/danbooruui.rc: Batch download action
+
+  * danbooru/danbooru_client.py: Bump version, add catalog
+
+  * danbooru/actiondialog.py: Switch to async download jobs when a user selects
+  to download an image.
+
+  * danbooru/thumbnailview.py: Support for selecting images through a checkbox
+  for each item. As for some reasons the various methods to access QTableWidget
+  items do not work, use an internal list
+
+  * danbooru/mainwindow.py: Support for batch downloads - unqueued as
+  KIO.Scheduler does not work with FileCopyJobs. Also, code cleanups
+
+2009-10-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChangeLog updated
+
+  * danbooru/api.py: Remove unused imports and update docstrings
+
+  * danbooru/thumbnailview.py: Remove some cruft
+
+  * danbooru/api.py: Slight modification to play nicer with unit tests
+
+  * danbooru/test_api.py: Update unit tests
+
+  * danbooru/mainwindow.py: Move from a KProgressDialog to a QProgressBar
+  embedded in the window. It's resized in a hackish way, but I found no other
+  way to make it smaller.
+
+  * danbooru/thumbnailview.py: Adapt to the new API format, and discard cache
+  (it's handled by the API now)
+
+  * danbooru/api.py: Huge rework in the API. Now it's based on QObject
+  (welcome, signals and slots!) and uses KIO.StoredGet to retrieve the posts,
+  emitting the dataDownloaded(KUrl, QString) signal. Along with this,
+  implemented a new custom collection for Danbooru items, since result( KJob*)
+  cannot give more than what the job has (url and data). With the new
+  collection, it's possible to retrieve a full item by giving the thumbnail or
+  image url using a dictionary-like syntax.
+
+2009-10-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/preferences.py, danbooru/ui/ui_generalpage.py,
+  danbooru/ui_src/generalpage_new.ui: Note to self: check the name of the
+  objects before saving them
+
+  * .gitignore: More ignores
+
+  * po/danbooru_client.pot: Regenerate it
+
+  * CMakeLists.txt: Copy .desktop file
+
+  * danbooru/mainwindow.py: Remove handbook menu entry for now
+
+  * danbooru_client.desktop: Desktop file for menu and other things. I need a
+  better icon, though.
+
+  * README: Basic README
+
+  * danbooru/mainwindow.py: Remove handbook for now
+
+  * danbooru/mainwindow.py: Remove help
+
+  * danbooru/CMakeLists.txt, po/index.lokalize, po/it.po,
+  po/lokalize-scripts/scripts.rc: Missing stuff, plus starts of (perhaps)
+  translation
+
+  * CMakeLists.txt, danbooru/danbooruui.rc, danbooru/ui/CMakeLists.txt,
+  danbooruui.rc: Final moves for cmake
+
+2009-10-24  Luca Beltrame <einar@heavensinferno.net>
+
+  * actiondialog.py, api.py, connectdialog.py, danbooru/actiondialog.py,
+  danbooru/api.py, danbooru/connectdialog.py, danbooru/danbooru2nepomuk.py,
+  danbooru/danbooru_client.py, danbooru/fetchdialog.py, danbooru/hashes.py,
+  danbooru/img/logo.png, danbooru/img/logo_resized.png, danbooru/mainwindow.py,
+  danbooru/preferences.py, danbooru/test_api.py, danbooru/thumbnailview.py,
+  danbooru/ui/ui_actiondialog.py, danbooru/ui/ui_connectdialog.py,
+  danbooru/ui/ui_danboorupage.py, danbooru/ui/ui_fetchdialog.py,
+  danbooru/ui/ui_generalpage.py, danbooru/ui/ui_nepomukpage.py,
+  danbooru/ui_src/actiondialog.ui, danbooru/ui_src/connectdialog.ui,
+  danbooru/ui_src/danboorupage.ui, danbooru/ui_src/fetchdialog.ui,
+  danbooru/ui_src/generalpage.ui, danbooru/ui_src/generalpage_new.ui,
+  danbooru/ui_src/nepomukpage.ui, danbooru2nepomuk.py, danbooru_client.py,
+  fetchdialog.py, hashes.py, img/logo.png, img/logo_resized.png, mainwindow.py,
+  preferences.py, test_api.py, thumbnailview.py, ui/ui_actiondialog.py,
+  ui/ui_connectdialog.py, ui/ui_danboorupage.py, ui/ui_fetchdialog.py,
+  ui/ui_generalpage.py, ui/ui_nepomukpage.py, ui_src/actiondialog.ui,
+  ui_src/connectdialog.ui, ui_src/danboorupage.ui, ui_src/fetchdialog.ui,
+  ui_src/generalpage.ui, ui_src/generalpage_new.ui, ui_src/nepomukpage.ui: Move
+  stuff around
+
+  * fetchdialog.py: Turn tags with spaces in underscores
+
+  * : Forgot this file
+
+  * TODO, actiondialog.py, connectdialog.py, fetchdialog.py, preferences.py,
+  ui/ui_actiondialog.py, ui/ui_connectdialog.py, ui/ui_danboorupage.py,
+  ui/ui_fetchdialog.py, ui/ui_generalpage.py, ui/ui_nepomukpage.py,
+  ui_actiondialog.py, ui_connectdialog.py, ui_danboorupage.py,
+  ui_fetchdialog.py, ui_generalpage.py, ui_nepomukpage.py: Move UI files to a
+  separate dir
+
+  * ui_src/izzo.ui: Leftovers
+
+  * ui/actiondialog.ui, ui/connectdialog.ui, ui/danboorupage.ui,
+  ui/fetchdialog.ui, ui/generalpage.ui, ui/generalpage_new.ui, ui/izzo.ui,
+  ui/nepomukpage.ui, ui_src/actiondialog.ui, ui_src/connectdialog.ui,
+  ui_src/danboorupage.ui, ui_src/fetchdialog.ui, ui_src/generalpage.ui,
+  ui_src/generalpage_new.ui, ui_src/izzo.ui, ui_src/nepomukpage.ui: Move things
+
+  * mainwindow.py: Properly disable actions if we aren't connected
+
+  * TODO: TODO updated
+
+  * connectdialog.py: Fix imports
+
+  * img/logo.png, img/logo_resized.png: Logos
+
+  * Messsages.sh, po/danbooru_client.pot: Skeletons for translations
+
+  * ui/danboorupage.ui, ui/generalpage_new.ui, ui/izzo.ui, ui/nepomukpage.ui:
+  UI files
+
+  * ui_danboorupage.py, ui_generalpage.py, ui_nepomukpage.py: Updated UI files
+
+  * mainwindow.py: - Load more preferences - Use the application logo - Support
+  the tagging feature
+
+  * thumbnailview.py: Pass the preferences object instead of values, easier
+
+  * actiondialog.py: Rejoice, tagging with Nepomuk works now!
+
+  * danbooru_client.py: Proper version and catalog name
+
+  * danbooru2nepomuk.py: Support for other tag blacklists if not used from
+  command line
+
+  * preferences.py: Fix broken imports
+
+  * preferences.py: Split up the configuration in three pages, and clean up
+  imports
+
+  * thumbnailview.py: Pass in the preferences object so that the action dialog
+  can use it; Fix imports to avoid the "from XXX to *".
+
+2009-10-23  Luca Beltrame <einar@heavensinferno.net>
+
+  * preferences.py: New preferences
+
+  * thumbnailview.py: Properly center images
+
+2009-10-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * ui_generalpage.py: Properly fix things now
+
+  * ui_generalpage.py: pykdeuic4 screwing up again...
+
+  * preferences.py: New preferences (no UI yet)
+
+  * danbooru_client.py, mainwindow.py: Create a smaller program that will
+  launch the main window. Also, some more docstrings
+
+  * danbooru_client.py, mainwindow.py: Split the mainwindow from the actual
+  application
+
+  * ChangeLog: ChangeLog updated.
+
+  * TODO: More TODO updates
+
+  * ui/danboorupage.ui, ui/generalpage_new.ui, ui/nepomukpage.ui: New UI files
+  for settings
+
+  * ui/generalpage.ui: Wrong
+
+2009-10-21  Luca Beltrame <einar@heavensinferno.net>
+
+  * TODO: TODO updated
+
+  * fetchdialog.py: Validation for tag line edit
+
+  * .gitignore, fetchdialog.py, ui/connectdialog.ui, ui_connectdialog.py: Final
+  changes in UI
+
+2009-10-20  Luca Beltrame <einar@heavensinferno.net>
+
+  * fetchdialog.py: Add the proper parameters in the initializer so we can get
+  the max post limit
+
+  * TODO: Update TODO
+
+  * ui/generalpage.ui, ui_generalpage.py: UI files for the general
+  configuration page
+
+  * danbooruui.rc: New cleanup action
+
+  * api.py: Add proper error handling so that the tempfile is removed in case
+  of an error.
+
+  * connectdialog.py: Adapt to the new UI file changes
+
+  * thumbnailview.py: More colums, for a start
+
+  * preferences.py: Complete preferences implementation
+
+  * danbooru_client.py: Move to KConfigXT, and properly i18n() strings for the
+  future.
+
+2009-10-18  Luca Beltrame <einar@heavensinferno.net>
+
+  * actiondialog.py, thumbnailview.py, ui/actiondialog.ui, ui_actiondialog.py:
+  Rework of the action dialog, now it shows pixmaps!
+
+  * ui/actiondialog.ui, ui_actiondialog.py: UI files for action dialog
+
+  * ChangeLog: ChangeLog updated
+
+  * TODO: TODO updated
+
+  * thumbnailview.py: No more silly output
+
+  * danbooru2nepomuk.py: Fix for file names
+
+  * actiondialog.py: Fully working saving and downloading
+
+  * thumbnailview.py: Add the logic to save/view the images.
+
+  * actiondialog.py: Displaying and saving images works mostly now
+
+  * actiondialog.py: Skeleton for a new dialog
+
+  * danbooru_client.py, thumbnailview.py: Various renames
+
+2009-10-17  Luca Beltrame <einar@heavensinferno.net>
+
+  * connect_dialog.py, connectdialog.py, imagewidget.py, thumbnailview.py:
+  Better naming
+
+  * ChangeLog: ChangeLog updated
+
+  * api.py: Implementation of a wait parameter to have a configured wait (not
+  less than 2 seconds) for each download query. Also, some docstrings have been
+  updated.
+
+  * imagewidget.py: No need for two timeouts
+
+  * imagewidget.py: No more enumerations, not needed
+
+  * test_api.py: Unused stuff -=
+
+  * api.py: Better check for the existence of an URL (KIO doesn't support that)
+  and also create URLs in a decent way (i.e. not by mindlessly mashing
+  strings!)
+
+  * test_api.py: Unit tests working again, yay!
+
+  * ChangeLog: ChangeLog updated.
+
+  * api.py: Verbose -=
+
+  * danbooru_client.py: Fix the progress bar update
+
+  * imagewidget.py: Change table item *again*, this time to something that
+  should works, and includes also some nice textual labels.
+
+2009-10-16  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: ChngeLog updated.
+
+  * danbooru_client.py: Adapt to the new API module
+
+  * imagewidget.py: Drop KUrlLabel, use a QTableWidget with a custom sizing
+  delegate
+
+  * api.py: API module overhauled. Now posts are loaded in a specific class
+  that keeps track of the various bits, which in turn leads to simpler code.
+
+2009-10-14  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru_client.py: Adapt to the changes in imagewidget.py
+
+  * imagewidget.py: Major rework using QTableWidget
+
+2009-10-12  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: Changelog update
+
+  * fetchdialog.py, ui/fetchdialog.ui, ui_fetchdialog.py: Dialog for fetching
+  posts.
+
+  * danbooru_client.py: Connect, progress and fetch dialogs. Also, a reset()
+  method to reset the central widget in case of multiple fetches.
+
+  * imagewidget.py: Get rid of cruft and bad layouting code.
+
+  * connect_dialog.py: QString does not equal to str() at least in Python 2.x
+
+  * api.py: Add a way to associate the full image URL with the thumbnail. Unit
+  tests need huge updates!
+
+2009-10-10  Luca Beltrame <einar@heavensinferno.net>
+
+  * connect_dialog.py: Stupid naming issue fixed
+
+  * api.py: Document why we use a sync call instead of async
+
+  * danbooru_client.py: License change and some fixes
+
+  * test_api.py: Updated unit tests for the API class.
+
+  * ui_connectdialog.py: uic-compiled file for connection dialog
+
+  * ui/connectdialog.ui: Raw UI file for connection dialog
+
+  * danbooruui.rc: Support for the fetch action
+
+  * api.py: Fixes and error reporting. Will need to migrate from
+  NetAccess.exists to custom code because it doesn't work reliably with HTTP
+  addresses.
+
+  * connect_dialog.py: First implementation of a connect dialog
+
+  * danbooru_client.py: Lots of changes. Config saving, and implementation of
+  the first actions
+
+2009-10-09  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru_client.py, imagewidget.py: Less cruft
+
+  * danbooru_client.py, imagewidget.py: Proper layouting was just a setter
+  away...
+
+  * api.py, danbooru_client.py, imagewidget.py: Layouting that works, still
+  ugly but it's a start.
+
+  * danbooru_client.py: Merge
+
+  * ChangeLog, api.py, danbooru_client.py, imagewidget.py, test_api.py: First
+  start of a proper visualization. However, QScrollArea doesn't work. Need to
+  investigate.
+
+2009-10-06  Luca Beltrame <einar@heavensinferno.net>
+
+  * preferences.py: Add skeleton for configuration dialog. UI file needs to be
+  done still.
+
+  * danbooru2nepomuk.py: Simpler code.
+
+  * danbooru2nepomuk.py: Simpler method to know whether Nepomuk is active or
+  not.
+
+2009-10-02  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru2nepomuk.py: Add a command line tagger. It will also be used to tag
+  the downloaded files.
+
+2009-09-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * test_api.py, testapi.py: Renames
+
+  * ChangeLog, danbooru_client.py: Don't forget some changes
+
+  * hashes.py: Add the hash calculation module
+
+  * testapi.py: Proper unit tests for the functions implemented so far.
+
+  * api.py: Some methods cleanup - thank goodness for unit tests!
+
+  * testapi.py: Stub for unit tests for the API.
+
+  * ChangeLog: ChangeLog updated
+
+  * api.py: Add a generic function to download images. Also, add stubs for most
+  of the API calls.
+
+  * TODO: Add TODO
+
+  * ChangeLog: Add automatically generated ChangeLog
+
+2009-09-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py: More error checking and URLs for the various API bits
+
+2009-07-30  Luca Beltrame <einar@heavensinferno.net>
+
+  * imagewidget.py: Move the download bits out of the image widget API
+
+  * api.py: Move the downloading mechanics to the API. The GUI should only
+  display, not perform lower level operations.
+
+2009-07-27  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py: Check also that the supplied URL exists.
+
+  * api.py: Re-add KIO support using the proper way (I should read API docs
+  better next time!). Thanks to Pino Toscano (pinotree) for the hint.
+
+2009-07-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru_client.py: Add a KStandardAction for preferences and make a simple
+  test. Start of KConfig usage, but I wonder if I should use KConfigXT, however
+  there are no real examples using PyKDE.
+
+  * danbooru_client.py: Support for KActions, with a connect action that does
+  nothing at the moment.
+
+  * danbooruui.rc: Add XML file for KActions support.
+
+  * api.py, danbooru_client.py, imagewidget.py: Add license information to the
+  files
+
+  * .gitignore: Remove unneded files
+
+  * danbooru_client.py, kioslave.py: Split up things. Made the API part almost
+  KDE independent (thinking about KUrls..). Now it's time to spice up the
+  application.
+
+2009-07-23  Luca Beltrame <einar@heavensinferno.net>
+
+  * api.py, imagewidget.py, kioslave.py: Various changes in the files, more
+  tests being done. Moved the API to a separte module
+
+2009-07-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * imagewidget.py: Add a proper widget file. Also, adjust KIO flags so they're
+  hidden.
+
+2009-07-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * kioslave.py: Port everything to synchronous download. I don't want to
+  overload the services.
+
+  * kioslave.py: Put this in so that next changes will be reverted if needed
