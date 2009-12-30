@@ -31,7 +31,6 @@ import os
 from PyQt4.QtCore import Qt, QSize, SIGNAL
 from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
                          QKeySequence)
-
 from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
 from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
                           KStandardAction, KIcon, KConfigDialog, KMessageBox)
@@ -233,7 +232,9 @@ class MainWindow(KXmlGuiWindow):
         if not self.api:
             return
 
-        dialog = fetchdialog.FetchDialog(self.max_retrieve, self)
+        dialog = fetchdialog.FetchDialog(self.max_retrieve,
+                                         preferences=self.preferences,
+                                         parent=self)
 
         if dialog.exec_():
             # Clear only if we pressed OK
