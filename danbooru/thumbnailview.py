@@ -27,7 +27,7 @@ from PyQt4.QtCore import pyqtSignal, Qt
 from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
                          QHeaderView, QPixmap, QCheckBox, QSizePolicy)
 
-from PyKDE4.kdecore import KUrl, i18n
+from PyKDE4.kdecore import KUrl, i18n, i18np, KGlobal,ki18np
 from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager
 
 import actiondialog
@@ -89,17 +89,22 @@ class ThumbnailViewItem(QWidget):
         "Adds information on the item stored, which will be then shown."
 
         if self.data is not None:
+
             height = self.data.height
             width = self.data.width
-            size = self.data.size / float(1024000)
+            file_size = self.data.size
             rating = self.data.rating
 
-            width = i18n("Width: %d pixels\n" % width)
-            size = i18n("Size: %1.2f Mb\n" % size)
-            height = i18n("Height: %d pixels\n" % height)
-            rating = i18n("Rating: %s" % rating)
+            # Properly format the strings according to the locale
 
-            text = width+height+size+rating
+            sizestr = ki18np("1 pixel", "%1 pixels")
+            image_size = i18n("Size: %1 x %2", sizestr.subs(width).toString(),
+                              sizestr.subs(height).toString())
+            file_size = i18n("File size: %1",
+                             KGlobal.locale().formatByteSize(file_size))
+            rating = i18n("Rating: %1", rating)
+
+            text = image_size + "\n" + file_size + "\n" + rating
         else:
             text = None
 
