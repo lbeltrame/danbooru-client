@@ -8,40 +8,41 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-30 15:41+0100\n"
+"POT-Creation-Date: 2009-12-30 17:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: build/danbooru/preferences.py:106 danbooru/preferences.py:149
+#: build/danbooru/preferences.py:149 danbooru/preferences.py:149
 msgid "Layout"
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/generalpage.ui:20
 #. i18n: ectx: property (title), widget (KEditListBox, kcfg_danbooruUrls)
-#: build/danbooru/preferences.py:110 danbooru/preferences.py:153 rc.py:105
+#: build/danbooru/preferences.py:153 danbooru/preferences.py:153 rc.py:105
 msgid "Danbooru URLs"
 msgstr ""
 
-#: build/danbooru/preferences.py:113 danbooru/preferences.py:156
+#: build/danbooru/preferences.py:156 danbooru/preferences.py:156
 msgid "Tagging"
 msgstr ""
 
-#: build/danbooru/test_api.py:34 build/danbooru/danbooru_client.py:36
+#: build/danbooru/test_api.py:34 build/danbooru/danbooru_client.py:37
 #: danbooru/test_api.py:34 danbooru/danbooru_client.py:37
 msgid "Danbooru Client"
 msgstr ""
 
-#: build/danbooru/test_api.py:36 build/danbooru/danbooru_client.py:38
+#: build/danbooru/test_api.py:36 build/danbooru/danbooru_client.py:39
 #: danbooru/test_api.py:36 danbooru/danbooru_client.py:39
 msgid "A client for Danbooru sites."
 msgstr ""
 
-#: build/danbooru/test_api.py:38 build/danbooru/danbooru2nepomuk.py:150
-#: build/danbooru/danbooru_client.py:40 danbooru/test_api.py:38
+#: build/danbooru/test_api.py:38 build/danbooru/danbooru2nepomuk.py:152
+#: build/danbooru/danbooru_client.py:41 danbooru/test_api.py:38
 #: danbooru/danbooru2nepomuk.py:152 danbooru/danbooru_client.py:41
 msgid "(C) 2009 Luca Beltrame"
 msgstr ""
@@ -50,85 +51,113 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
-#: build/danbooru/actiondialog.py:64 danbooru/actiondialog.py:72
+#: build/danbooru/actiondialog.py:72 danbooru/actiondialog.py:72
 msgid "Download or display image"
 msgstr ""
 
-#: build/danbooru/actiondialog.py:95 danbooru/actiondialog.py:110
+#: build/danbooru/actiondialog.py:110 danbooru/actiondialog.py:110
 msgid "Save image file"
 msgstr ""
 
-#: build/danbooru/thumbnailview.py:73 danbooru/thumbnailview.py:74
+#: build/danbooru/thumbnailview.py:74 danbooru/thumbnailview.py:74
 msgid "Select"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:83 danbooru/mainwindow.py:93
+#: build/danbooru/thumbnailview.py:97
+#, python-format
+msgid "Width: %d pixels\n"
+msgstr ""
+
+#: build/danbooru/thumbnailview.py:98
+#, python-format
+msgid "Size: %1.2f Mb\n"
+msgstr ""
+
+#: build/danbooru/thumbnailview.py:99
+#, python-format
+msgid "Height: %d pixels\n"
+msgstr ""
+
+#: build/danbooru/thumbnailview.py:100
+#, python-format
+msgid "Rating: %s"
+msgstr ""
+
+#: build/danbooru/mainwindow.py:93 danbooru/mainwindow.py:93
 msgid "Connect to a Danbooru board"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:85 danbooru/mainwindow.py:95
+#: build/danbooru/mainwindow.py:95 danbooru/mainwindow.py:95
 msgid "Fetch thumbnails from a Danbooru board"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:87 danbooru/mainwindow.py:97
+#: build/danbooru/mainwindow.py:97 danbooru/mainwindow.py:97
 msgid "Batch download images"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:92 danbooru/mainwindow.py:104
+#: build/danbooru/mainwindow.py:104 danbooru/mainwindow.py:104
 msgid "Connect"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:93 danbooru/mainwindow.py:105
+#: build/danbooru/mainwindow.py:105 danbooru/mainwindow.py:105
 msgid "Fetch"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:95 danbooru/mainwindow.py:107
+#: build/danbooru/mainwindow.py:107 danbooru/mainwindow.py:107
 msgid "Clear thumbnail cache"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:98 danbooru/mainwindow.py:110
+#: build/danbooru/mainwindow.py:110 danbooru/mainwindow.py:110
 msgid "Batch download"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:187 danbooru/mainwindow.py:208
+#: build/danbooru/mainwindow.py:208 danbooru/mainwindow.py:208
 #, python-format
 msgid "Connected to %s"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:205 danbooru/mainwindow.py:226
+#: build/danbooru/mainwindow.py:226 danbooru/mainwindow.py:226
 msgid "Error retrieving posts"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:238 danbooru/mainwindow.py:262
+#: build/danbooru/mainwindow.py:262 danbooru/mainwindow.py:262
 msgid "Select a directory to save the images to"
 msgstr ""
 
-#: build/danbooru/mainwindow.py:301 danbooru/mainwindow.py:326
+#: build/danbooru/mainwindow.py:326 danbooru/mainwindow.py:326
 msgid "Thumbnail cache cleared."
 msgstr ""
 
-#: build/danbooru/danbooru2nepomuk.py:146 danbooru/danbooru2nepomuk.py:148
+#: build/danbooru/danbooru2nepomuk.py:148 danbooru/danbooru2nepomuk.py:148
 msgid "danbooru2nepomuk"
 msgstr ""
 
-#: build/danbooru/danbooru2nepomuk.py:148 danbooru/danbooru2nepomuk.py:150
+#: build/danbooru/danbooru2nepomuk.py:150 danbooru/danbooru2nepomuk.py:150
 msgid "A tagger for files downloaded from Danbooru."
 msgstr ""
 
-#: build/danbooru/danbooru2nepomuk.py:151 danbooru/danbooru2nepomuk.py:153
+#: build/danbooru/danbooru2nepomuk.py:153 danbooru/danbooru2nepomuk.py:153
 msgid "An automatic Nepomuk tagger for Danbooru-downloaded images."
 msgstr ""
 
-#: build/danbooru/danbooru2nepomuk.py:180 danbooru/danbooru2nepomuk.py:182
+#: build/danbooru/danbooru2nepomuk.py:182 danbooru/danbooru2nepomuk.py:182
 msgid "File or directory to tag"
 msgstr ""
 
-#: build/danbooru/danbooru2nepomuk.py:181 danbooru/danbooru2nepomuk.py:183
+#: build/danbooru/danbooru2nepomuk.py:183 danbooru/danbooru2nepomuk.py:183
 msgid "Scan a directory recursively"
 msgstr ""
 
-#: build/danbooru/danbooru2nepomuk.py:202 danbooru/danbooru2nepomuk.py:205
+#: build/danbooru/danbooru2nepomuk.py:201 danbooru/danbooru2nepomuk.py:201
+msgid "Nepomuk service not running. Please check your installation."
+msgstr ""
+
+#: build/danbooru/danbooru2nepomuk.py:205 danbooru/danbooru2nepomuk.py:205
 msgid "Not enough arguments."
+msgstr ""
+
+#: build/danbooru/danbooru2nepomuk.py:217 danbooru/danbooru2nepomuk.py:217
+msgid "You need to specify either a file or a valid path."
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/actiondialog_new.ui:130
@@ -171,16 +200,53 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, thumbnalLabel)
 #. i18n: file: danbooru/ui_src/generalpage_new.ui:20
 #. i18n: ectx: property (text), widget (QLabel, thumbnalLabel)
-#: build/danbooru/ui/ui_generalpage.py:39 danbooru/ui/ui_generalpage.py:48
+#: build/danbooru/ui/ui_generalpage.py:48 danbooru/ui/ui_generalpage.py:48
 #: rc.py:111 rc.py:114
 msgid "Default number of thumbnails to retrieve"
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/generalpage_new.ui:40
 #. i18n: ectx: property (text), widget (QLabel, columnLabel)
-#: build/danbooru/ui/ui_generalpage.py:40 danbooru/ui/ui_generalpage.py:49
+#: build/danbooru/ui/ui_generalpage.py:49 danbooru/ui/ui_generalpage.py:49
 #: rc.py:117
 msgid "Number of columns to display"
+msgstr ""
+
+#. i18n: file: danbooru/ui_src/fetchdialog.ui:92
+#. i18n: ectx: property (text), widget (QRadioButton, safeRadioButton)
+#. i18n: file: danbooru/ui_src/generalpage_new.ui:58
+#. i18n: ectx: property (text), item, widget (KComboBox, kcfg_maxAllowedRating)
+#: build/danbooru/ui/ui_generalpage.py:50
+#: build/danbooru/ui/ui_fetchdialog.py:66 danbooru/ui/ui_generalpage.py:50
+#: danbooru/ui/ui_fetchdialog.py:66 rc.py:84 rc.py:120
+msgid "Safe"
+msgstr ""
+
+#. i18n: file: danbooru/ui_src/fetchdialog.ui:78
+#. i18n: ectx: property (text), widget (QRadioButton, questionableRadioButton)
+#. i18n: file: danbooru/ui_src/generalpage_new.ui:63
+#. i18n: ectx: property (text), item, widget (KComboBox, kcfg_maxAllowedRating)
+#: build/danbooru/ui/ui_generalpage.py:51
+#: build/danbooru/ui/ui_fetchdialog.py:64 danbooru/ui/ui_generalpage.py:51
+#: danbooru/ui/ui_fetchdialog.py:64 rc.py:78 rc.py:123
+msgid "Questionable"
+msgstr ""
+
+#. i18n: file: danbooru/ui_src/fetchdialog.ui:85
+#. i18n: ectx: property (text), widget (QRadioButton, explicitRadioButton)
+#. i18n: file: danbooru/ui_src/generalpage_new.ui:68
+#. i18n: ectx: property (text), item, widget (KComboBox, kcfg_maxAllowedRating)
+#: build/danbooru/ui/ui_generalpage.py:52
+#: build/danbooru/ui/ui_fetchdialog.py:65 danbooru/ui/ui_generalpage.py:52
+#: danbooru/ui/ui_fetchdialog.py:65 rc.py:81 rc.py:126
+msgid "Explicit"
+msgstr ""
+
+#. i18n: file: danbooru/ui_src/generalpage_new.ui:76
+#. i18n: ectx: property (text), widget (QLabel, ratingLabel)
+#: build/danbooru/ui/ui_generalpage.py:53 danbooru/ui/ui_generalpage.py:53
+#: rc.py:129
+msgid "Maximum allowed rating"
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/connectdialog.ui:23
@@ -218,40 +284,32 @@ msgstr ""
 msgid "Danbooru password (optional)"
 msgstr ""
 
-#: build/danbooru/ui/ui_fetchdialog.py:50
-msgid "Posts to retrieve"
-msgstr ""
-
 #. i18n: file: danbooru/ui_src/fetchdialog.ui:23
 #. i18n: ectx: property (toolTip), widget (KIntSpinBox, postSpinBox)
-#: build/danbooru/ui/ui_fetchdialog.py:51 danbooru/ui/ui_fetchdialog.py:56
+#: build/danbooru/ui/ui_fetchdialog.py:56 danbooru/ui/ui_fetchdialog.py:56
 #: rc.py:54
 msgid "Number of posts to retrieve (max 100)"
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/fetchdialog.ui:26
 #. i18n: ectx: property (whatsThis), widget (KIntSpinBox, postSpinBox)
-#: build/danbooru/ui/ui_fetchdialog.py:52 danbooru/ui/ui_fetchdialog.py:57
+#: build/danbooru/ui/ui_fetchdialog.py:57 danbooru/ui/ui_fetchdialog.py:57
 #: rc.py:57
 msgid ""
 "The number of posts to retrieve. Notice that Danbooru limits the maximum "
 "number of posts to 100."
 msgstr ""
 
-#: build/danbooru/ui/ui_fetchdialog.py:53
-msgid "Tags to include"
-msgstr ""
-
 #. i18n: file: danbooru/ui_src/fetchdialog.ui:45
 #. i18n: ectx: property (toolTip), widget (KLineEdit, tagLineEdit)
-#: build/danbooru/ui/ui_fetchdialog.py:54 danbooru/ui/ui_fetchdialog.py:58
+#: build/danbooru/ui/ui_fetchdialog.py:58 danbooru/ui/ui_fetchdialog.py:58
 #: rc.py:60
 msgid "Tags to include in search (optional)"
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/fetchdialog.ui:48
 #. i18n: ectx: property (whatsThis), widget (KLineEdit, tagLineEdit)
-#: build/danbooru/ui/ui_fetchdialog.py:55 danbooru/ui/ui_fetchdialog.py:59
+#: build/danbooru/ui/ui_fetchdialog.py:59 danbooru/ui/ui_fetchdialog.py:59
 #: rc.py:63
 msgid ""
 "Input here the tags that should be used when looking for posts. Separate "
@@ -260,50 +318,30 @@ msgstr ""
 
 #. i18n: file: danbooru/ui_src/fetchdialog.ui:51
 #. i18n: ectx: property (clickMessage), widget (KLineEdit, tagLineEdit)
-#: build/danbooru/ui/ui_fetchdialog.py:56 danbooru/ui/ui_fetchdialog.py:60
+#: build/danbooru/ui/ui_fetchdialog.py:60 danbooru/ui/ui_fetchdialog.py:60
 #: rc.py:66
 msgid "Tags, comma separated"
 msgstr ""
 
-#. i18n: file: danbooru/ui_src/generalpage_new.ui:76
-#. i18n: ectx: property (text), widget (QLabel, ratingLabel)
-#: build/danbooru/ui/ui_fetchdialog.py:57 danbooru/ui/ui_generalpage.py:53
-#: rc.py:129
-msgid "Maximum allowed rating"
+#. i18n: file: danbooru/ui_src/fetchdialog.ui:58
+#. i18n: ectx: property (text), widget (QLabel, tagLabel)
+#: build/danbooru/ui/ui_fetchdialog.py:61 danbooru/ui/ui_fetchdialog.py:61
+#: rc.py:69
+msgid "Tags:"
 msgstr ""
 
-#: build/danbooru/ui/ui_fetchdialog.py:58
-msgid ""
-"This selects the maximum ratings for the image. \"Safe\" images are intended "
-"for all audiences; \"Questionable\" images may contain suggestive but not "
-"explicit imagery; \"Explicit\" images contain very explicit content."
+#. i18n: file: danbooru/ui_src/fetchdialog.ui:65
+#. i18n: ectx: property (text), widget (QLabel, postLabel)
+#: build/danbooru/ui/ui_fetchdialog.py:62 danbooru/ui/ui_fetchdialog.py:62
+#: rc.py:72
+msgid "Posts to retrieve:"
 msgstr ""
 
-#. i18n: file: danbooru/ui_src/fetchdialog.ui:92
-#. i18n: ectx: property (text), widget (QRadioButton, safeRadioButton)
-#. i18n: file: danbooru/ui_src/generalpage_new.ui:58
-#. i18n: ectx: property (text), item, widget (KComboBox, kcfg_maxAllowedRating)
-#: build/danbooru/ui/ui_fetchdialog.py:59 danbooru/ui/ui_generalpage.py:50
-#: danbooru/ui/ui_fetchdialog.py:66 rc.py:84 rc.py:120
-msgid "Safe"
-msgstr ""
-
-#. i18n: file: danbooru/ui_src/fetchdialog.ui:78
-#. i18n: ectx: property (text), widget (QRadioButton, questionableRadioButton)
-#. i18n: file: danbooru/ui_src/generalpage_new.ui:63
-#. i18n: ectx: property (text), item, widget (KComboBox, kcfg_maxAllowedRating)
-#: build/danbooru/ui/ui_fetchdialog.py:60 danbooru/ui/ui_generalpage.py:51
-#: danbooru/ui/ui_fetchdialog.py:64 rc.py:78 rc.py:123
-msgid "Questionable"
-msgstr ""
-
-#. i18n: file: danbooru/ui_src/fetchdialog.ui:85
-#. i18n: ectx: property (text), widget (QRadioButton, explicitRadioButton)
-#. i18n: file: danbooru/ui_src/generalpage_new.ui:68
-#. i18n: ectx: property (text), item, widget (KComboBox, kcfg_maxAllowedRating)
-#: build/danbooru/ui/ui_fetchdialog.py:61 danbooru/ui/ui_generalpage.py:52
-#: danbooru/ui/ui_fetchdialog.py:65 rc.py:81 rc.py:126
-msgid "Explicit"
+#. i18n: file: danbooru/ui_src/fetchdialog.ui:72
+#. i18n: ectx: property (title), widget (KButtonGroup, kbuttongroup)
+#: build/danbooru/ui/ui_fetchdialog.py:63 danbooru/ui/ui_fetchdialog.py:63
+#: rc.py:75
+msgid "Maximum rating"
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/nepomukpage.ui:23
@@ -324,38 +362,30 @@ msgstr ""
 msgid "More results"
 msgstr ""
 
-#: build/danbooru/thumbnailarea.py:99 danbooru/thumbnailarea.py:128
+#: build/danbooru/thumbnailarea.py:128 danbooru/thumbnailarea.py:128
 msgid "No matching posts found for this page."
 msgstr ""
 
-#: build/danbooru/danbooru_client.py:41 danbooru/danbooru_client.py:42
+#: build/danbooru/danbooru_client.py:42 danbooru/danbooru_client.py:42
 msgid "Danbooru Client is a program to access Danbooru image boards."
 msgstr ""
 
-#: danbooru/danbooru2nepomuk.py:201
-msgid "Nepomuk service not running. Please check your installation."
+#: danbooru/thumbnailview.py:100
+msgid "1 pixel"
+msgid_plural "%1 pixels"
+msgstr[0] ""
+msgstr[1] ""
+
+#: danbooru/thumbnailview.py:101
+msgid "Size: %1 x %2"
 msgstr ""
 
-#: danbooru/danbooru2nepomuk.py:217
-msgid "You need to specify either a file or a valid path."
+#: danbooru/thumbnailview.py:103
+msgid "File size: %1"
 msgstr ""
 
-#. i18n: file: danbooru/ui_src/fetchdialog.ui:58
-#. i18n: ectx: property (text), widget (QLabel, tagLabel)
-#: danbooru/ui/ui_fetchdialog.py:61 rc.py:69
-msgid "Tags:"
-msgstr ""
-
-#. i18n: file: danbooru/ui_src/fetchdialog.ui:65
-#. i18n: ectx: property (text), widget (QLabel, postLabel)
-#: danbooru/ui/ui_fetchdialog.py:62 rc.py:72
-msgid "Posts to retrieve:"
-msgstr ""
-
-#. i18n: file: danbooru/ui_src/fetchdialog.ui:72
-#. i18n: ectx: property (title), widget (KButtonGroup, kbuttongroup)
-#: danbooru/ui/ui_fetchdialog.py:63 rc.py:75
-msgid "Maximum rating"
+#: danbooru/thumbnailview.py:105
+msgid "Rating: %1"
 msgstr ""
 
 #. i18n: file: danbooru/ui_src/thumbnailarea.ui:36
