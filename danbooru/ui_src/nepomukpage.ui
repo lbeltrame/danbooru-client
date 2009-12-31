@@ -19,6 +19,9 @@
      <property name="enabled">
       <bool>true</bool>
      </property>
+     <property name="whatsThis">
+      <string>Check this to enable semantic tagging of the downloaded images, using Nepomuk.</string>
+     </property>
      <property name="text">
       <string>Enable Nepomuk tagging</string>
      </property>
@@ -27,10 +30,13 @@
    <item>
     <widget class="KEditListBox" name="kcfg_tagBlacklist">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
+     </property>
+     <property name="whatsThis">
+      <string>Insert tags that you do not want to appear in your searches, regardless of the rating. They will also be excluded if the Nepomuk tagging is enabled.</string>
      </property>
      <property name="title">
-      <string>Tag blacklist</string>
+      <string>Blacklisted tags</string>
      </property>
      <property name="flat">
       <bool>true</bool>
