@@ -74,15 +74,18 @@ class Danbooru(QObject):
         if not result:
             raise IOError("The given URL does not exist.")
 
+        # Basic attributes
         self.url = api_url
         self.data = None
         self.cache = cache
+        # Login attributes
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
+        # Specific attributes for tags and updates
         self.__rating = None
-        # These are needed to update previous results
         self.__limit = None
         self.__tags = None
+        self.__blacklist = None
 
     def __http_exists(self, url):
 
@@ -103,6 +106,24 @@ class Danbooru(QObject):
 
         except httplib.HTTPException:
             return False
+
+    def _read_blacklist(self):
+
+        "Reads the current tag blacklist, if present."
+
+        if not self.__blacklist or not isinstance(self.__blacklist, list):
+            return
+
+        return self.__blacklist
+
+    def _write_blacklist(self, blacklist):
+
+        "Sets teh current tag blacklist."
+
+        if not isinstance(blacklist, list):
+            return
+
+        self.__blacklist = blacklist
 
     def _allowed_ratings(self):
 
@@ -210,6 +231,15 @@ class Danbooru(QObject):
 
         for item in decoded_data:
             item = DanbooruItem(item)
+            blacklisted_tags = None
+
+            # See if our items have blacklisted tags
+            if self.blacklist:
+                blacklisted_tags = [tag for tag in item.tags if tag in
+                                    self.blacklist]
+
+            if blacklisted_tags:
+                continue
 
             if item.rating in allowed_ratings:
                 self.data.append(item)
@@ -288,6 +318,7 @@ class Danbooru(QObject):
     # Properties
 
     selected_ratings = property(_allowed_ratings, _set_allowed_ratings)
+    blacklist = property(_read_blacklist, _write_blacklist)
 
 
 class DanbooruList(object):
