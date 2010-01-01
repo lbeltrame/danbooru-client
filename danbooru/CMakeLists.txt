@@ -11,7 +11,6 @@ set(DANBOORU_FILES
       	hashes.py
     	mainwindow.py
       	preferences.py
-     	test_api.py
 	thumbnailarea.py
       	thumbnailview.py
 )
@@ -32,3 +31,4 @@ INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -DTARGET=${PYTHON_SITE_PA
 
 
 add_subdirectory( ui )
+add_subdirectory( test )

@@ -205,6 +205,8 @@ class MainWindow(KXmlGuiWindow):
                 self.thumbnailarea.update_data(self.api)
 
             self.api.cache = self.cache
+            # Preferences gives us a QStringList, so convert
+            self.api.blacklist = list(self.preferences.tag_blacklist)
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)

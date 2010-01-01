@@ -118,7 +118,7 @@ class Danbooru(QObject):
 
     def _write_blacklist(self, blacklist):
 
-        "Sets teh current tag blacklist."
+        "Sets the current tag blacklist. The input must be a list."
 
         if not isinstance(blacklist, list):
             return
