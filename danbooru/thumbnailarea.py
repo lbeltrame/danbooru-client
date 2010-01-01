@@ -131,6 +131,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
             text = "Page %d (empty)" % self.__current_index
             index = self.thumbnailTabWidget.addTab(label, text)
             self.thumbnailTabWidget.setCurrentIndex(index)
+            self.nextPageButton.setDisabled(False)
             return
 
         if self.__firstpage:
