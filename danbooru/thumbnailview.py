@@ -44,10 +44,10 @@ class ThumbnailViewItem(QWidget):
 
     # Translated names for ratings
 
-    TRANSLATED_RATINGS = dict(Safe=ki18nc("Image for all audiences","Safe"),
-                              Questionable=ki18nc("Image with suggestive themes",
+    _TRANSLATED_RATINGS = dict(Safe=i18nc("Image for all audiences","Safe"),
+                              Questionable=i18nc("Image with suggestive themes",
                                                 "Questionable"),
-                              Explicit=ki18nc("Image with explicit content",
+                              Explicit=i18nc("Image with explicit content",
                                              "Explicit")
                              )
 
@@ -101,8 +101,8 @@ class ThumbnailViewItem(QWidget):
 
             height = self.data.height
             width = self.data.width
-            file_size = self.data.size
-            rating = self.TRANSLATED_RATINGS[self.data.rating]
+            file_size = int(self.data.size)
+            rating = self._TRANSLATED_RATINGS[self.data.rating]
 
             # Properly format the strings according to the locale
 
