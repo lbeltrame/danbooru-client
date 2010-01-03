@@ -25,6 +25,7 @@ import json
 import urlparse
 import urllib
 import httplib
+from xml.dom import minidom
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignal
 from PyQt4.QtGui import QPixmap
@@ -52,7 +53,7 @@ class Danbooru(QObject):
     filter items that are being retrieved depending on the maximum rating used
     (Safe, Questionable, or Explicit)."""
 
-    _POST_URL = "post/index.json"
+    _POST_URL = "post/index.xml"
     _TAG_URL = "tag/index.json"
     _POOL_URL = "pool/index.json"
     _ARTIST_URL = "pool/index.json"
@@ -223,7 +224,8 @@ class Danbooru(QObject):
             return
 
         job_data = job.data()
-        decoded_data = json.loads(unicode(job_data.data()))
+        parsed_data = minidom.parseString(unicode(job_data.data()))
+        decoded_data = parsed_data.getElementsByTagName("post")
 
         self.data = DanbooruList()
 
@@ -394,48 +396,46 @@ class DanbooruList(object):
 class DanbooruItem(object):
 
     """Class to store information about a Danbooru item retrieved via the REST
-    API. The various JSON-encoded fields can be accessed through properties."""
+    API. The various XML attributes can be accessed through properties."""
 
-    def __init__(self, json_data):
+    def __init__(self, post_data):
 
-        self.__data = json_data
+        self.__data = post_data.attributes
 
     def __getattr__(self, name):
-
-        print self.__data.keys()
 
         if name not in self.__data:
             return None
         else:
-            return self.__data[name]
+            return self.__data.attributes[name]
 
     @property
     def thumbnail_url(self):
 
         "URL of the thumbnail"
 
-        return self.__data["preview_url"]
+        return self.__data["preview_url"].value
 
     @property
     def full_url(self):
 
         "URL of the full image"
 
-        return self.__data["file_url"]
+        return self.__data["file_url"].value
 
     @property
     def size(self):
 
         "Size of the full image"
 
-        return self.__data["file_size"]
+        return self.__data["file_size"].value
 
     @property
     def tags(self):
 
         "Tags associated to the post. Returned as list."
 
-        tags = self.__data["tags"]
+        tags = self.__data["tags"].value
         tags = tags.split(" ")
         return tags
 
@@ -444,28 +444,28 @@ class DanbooruItem(object):
 
         "Width of the full image"
 
-        return self.__data["width"]
+        return self.__data["width"].value
 
     @property
     def height(self):
 
         "Height of the full image"
 
-        return self.__data["height"]
+        return self.__data["height"].value
 
     @property
     def post_id(self):
 
         "Danbooru unique post ID"
 
-        return self.__data["id"]
+        return self.__data["id"].value
 
     @property
     def source(self):
 
         "Original source for the image, if applicable."
 
-        return self.__data["source"]
+        return self.__data["source"].value
 
     @property
     def rating(self):
@@ -474,4 +474,4 @@ class DanbooruItem(object):
 
         ratings = dict(s="Safe", q="Questionable", e="Explicit")
 
-        return ratings[self.__data["rating"]]
+        return ratings[self.__data["rating"].value]
