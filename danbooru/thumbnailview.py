@@ -27,7 +27,7 @@ from PyQt4.QtCore import pyqtSignal, Qt
 from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
                          QHeaderView, QPixmap, QCheckBox, QSizePolicy)
 
-from PyKDE4.kdecore import KUrl, i18n, i18np, KGlobal,ki18np
+from PyKDE4.kdecore import KUrl, i18n, i18nc, KGlobal,ki18np
 from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager
 
 import actiondialog
@@ -41,6 +41,15 @@ class ThumbnailViewItem(QWidget):
     track of the URL of the full image, the DanbooruItem associated to it, and
     the actual iamge (a pixmap). It contains a QCheckBox that is used for
     selecting the image for batch download."""
+
+    # Translated names for ratings
+
+    TRANSLATED_RATINGS = dict(Safe=ki18nc("Image for all audiences","Safe"),
+                              Questionable=ki18nc("Image with suggestive themes",
+                                                "Questionable"),
+                              Explicit=ki18nc("Image with explicit content",
+                                             "Explicit")
+                             )
 
     def __init__(self, image=None, url=None, data=None):
 
@@ -93,7 +102,7 @@ class ThumbnailViewItem(QWidget):
             height = self.data.height
             width = self.data.width
             file_size = self.data.size
-            rating = self.data.rating
+            rating = self.TRANSLATED_RATINGS[self.data.rating]
 
             # Properly format the strings according to the locale
 
