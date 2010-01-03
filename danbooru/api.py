@@ -54,10 +54,10 @@ class Danbooru(QObject):
     (Safe, Questionable, or Explicit)."""
 
     _POST_URL = "post/index.xml"
-    _TAG_URL = "tag/index.json"
-    _POOL_URL = "pool/index.json"
-    _ARTIST_URL = "pool/index.json"
-    _POOL_INFO_URL = "pool/get.json"
+    _TAG_URL = "tag/index.xml"
+    _POOL_URL = "pool/index.xml"
+    _ARTIST_URL = "pool/index.xml"
+    _POOL_DATA_URL = "pool/show.xml"
 
     _RATINGS = ["Safe", "Questionable", "Explicit"]
 
