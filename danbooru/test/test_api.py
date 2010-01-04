@@ -111,9 +111,40 @@ class ApiTest(unittest.TestCase):
             print "Testing thumbnail/image retrieval...",
             self.assertFalse(pixmap.isNull())
         except AssertionError as error:
-            print "ERROR: %d" % error
+            print "ERROR: %s" % error
         else:
             print "OK"
+
+    def testPoolList(self):
+
+        self.api.poolDataReady.connect(self.pool_test)
+        self.api.get_pool_list()
+
+    def pool_test(self):
+
+        try:
+            print "Testing pool list retrieval...",
+            self.assertEqual(len(self.api.pool_data), 20)
+        except AssertionError as error:
+            print "ERROR: %s" % error
+        else:
+            print "OK"
+
+    def testPoolPosts(self):
+
+        self.api.dataReady.connect(self.pool_retrieval_test)
+        self.api.get_pool_data(pool_id=1193)
+
+    def pool_retrieval_test(self):
+
+        try:
+            print "Testing pool post retrieval...",
+            self.assertEqual(len(self.api.data), 24)
+        except AssertionError as error:
+            print "ERROR: %s" % error
+        else:
+            print "OK"
+
 
 class TestServer(SocketServer.TCPServer):
     allow_reuse_address = True
