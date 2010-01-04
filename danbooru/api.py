@@ -18,10 +18,9 @@
 
 """Module that provides a wrapper for Danbooru API calls. Items are stored as
 DanbooruItems, which enable easy extraction of information using attributes. To
-store lists of individual DanbooruItems, a special class called DanbooruList
+store lists of individual DanbooruItems, a special class called DanbooruPostList
 has also been provided."""
 
-import json
 import urlparse
 import urllib
 import httplib
@@ -48,6 +47,7 @@ class Danbooru(QObject):
         includes the KUrl pointing to the URL of the downloaded image, and the
         QPixmap of the image itself;
         - dataReady, when network operations are complete.
+        - poolDataReady, when pool retrieval operations are complete.
 
     The class also provides the selected_ratings attribute, which is used to
     filter items that are being retrieved depending on the maximum rating used
@@ -62,9 +62,11 @@ class Danbooru(QObject):
     _RATINGS = ["Safe", "Questionable", "Explicit"]
 
     # Signals
+    #TODO: Rename dataReady to postDataReady
 
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
     dataReady = pyqtSignal()
+    poolDataReady = pyqtSignal()
 
     def __init__(self, api_url, login=None, password=None, parent=None,
                 cache=None):
@@ -78,10 +80,13 @@ class Danbooru(QObject):
         # Basic attributes
         self.url = api_url
         self.data = None
+        self.pool_data = None
         self.cache = cache
+
         # Login attributes
         self.__login = login if login else None
         self.__pwhash = hashes.generate_hash(password) if password else None
+
         # Specific attributes for tags and updates
         self.__rating = None
         self.__limit = None
@@ -151,6 +156,23 @@ class Danbooru(QObject):
         elif rating == "Explicit":
             self.__rating = ["Safe", "Questionable", "Explicit"]
 
+    def danbooru_request_url(self, url, parameters=None):
+
+        "Creates and encodes a Danbooru URL appropriately."
+
+        if parameters:
+            url_parameters = urllib.urlencode(parameters)
+            # Danbooru doesn't want HTML-encoded pluses
+            url_parameters = urllib.unquote(url_parameters)
+            url_parameters = "?" + url_parameters
+
+        request_url = urlparse.urljoin(self.url, url)
+
+        if parameters:
+            request_url = urlparse.urljoin(request_url, url_parameters)
+
+        return request_url
+
     def validate_url(self, url):
 
         "Validates the input URL and returns the result (True/False)"
@@ -169,7 +191,7 @@ class Danbooru(QObject):
         """Method to get posts with specific tags and limits. There is a
         hardcoded limit of 100 posts in Danbooru, so limits > 100 will be
         ignored. If present, tags must be supplied as a list. Data are
-        stored as a DanbooruList of DanbooruItems. Different pages can
+        stored as a DanbooruPostList of DanbooruItems. Different pages can
         be accessed setting the page parameter."""
 
         if limit > 100:
@@ -178,7 +200,6 @@ class Danbooru(QObject):
         self.__limit = limit if not self.__limit else self.__limit
         self.__tags = tags if not self.__tags else self.__tags
 
-        limit_parameter = "limit=%d" % limit
         if tags:
             tags = "+".join(tags)
         else:
@@ -189,35 +210,31 @@ class Danbooru(QObject):
         if page:
             parameters["page"] = page
 
-        url_parameters = urllib.urlencode(parameters)
-        # Danbooru doesn't want HTML-encoded pluses
-        url_parameters = urllib.unquote(url_parameters)
-
-        url_parameters = "?" + url_parameters
-        request_url = urlparse.urljoin(self.url, self._POST_URL)
-        request_url = urlparse.urljoin(request_url, url_parameters)
+        request_url = self.danbooru_request_url(self._POST_URL, parameters)
 
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
 
         self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
-    def update(self, page=None):
+    def update(self, page=None, what="posts"):
 
         """Updates previously added results. This should be used to get the
         next page of the same batch."""
 
-        if not self.__limit and not self.__tags:
-            return
+        if what == "posts":
 
-        self.get_post_list(limit=self.__limit, tags=self.__tags, page=page)
+            if not self.__limit and not self.__tags:
+                return
+
+            self.get_post_list(limit=self.__limit, tags=self.__tags, page=page)
 
     def process_post_list(self, job):
 
         """Collects the data from the job and loads it into an object that can
-        be read by the JSON parser. Then each element of the data is converted
-        into a DanbooruItem and stored in a DanbooruList. Prior to inserting
-        the items in the list, they are checked for rating."""
+        be read by the XML parser. Then each element of the data is converted
+        into a DanbooruPostItem and stored in a DanbooruPostList. Prior to
+        inserting the items in the list, they are checked for rating."""
 
         if job.error():
             self.data = None
@@ -227,12 +244,12 @@ class Danbooru(QObject):
         parsed_data = minidom.parseString(unicode(job_data.data()))
         decoded_data = parsed_data.getElementsByTagName("post")
 
-        self.data = DanbooruList()
+        self.data = DanbooruPostList()
 
         allowed_ratings = self.selected_ratings
 
         for item in decoded_data:
-            item = DanbooruItem(item)
+            item = DanbooruPostItem(item)
             blacklisted_tags = None
 
             # See if our items have blacklisted tags
@@ -254,11 +271,69 @@ class Danbooru(QObject):
 
         pass
 
-    def get_pool_list(self):
+    def get_pool_list(self, page=None):
 
-        "Method to retrieve a list of pool IDs."
+        """Retrieves pool lists from the boards that support it. Additional
+        pages can be accessed by setting the page parameter."""
 
-        pass
+        if page:
+            parameters = dict(page=page)
+        else:
+            parameters = None
+
+        request_url = self.danbooru_request_url(self._POOL_URL, parameters)
+
+        job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
+                            KIO.HideProgressInfo)
+
+        self.connect(job, SIGNAL("result (KJob *)"), self.process_pool_list)
+
+    def get_pool_data(self, pool_id):
+
+        """Retrieves a list of posts associated with the pool ID. Does not work
+        on all Danbooru versions, unfortunately."""
+
+        parameters = dict(id=pool_id)
+        request_url = self.danbooru_request_url(self._POOL_DATA_URL, parameters)
+        result = self.validate_url(request_url)
+
+        if not result:
+            # If there's no URL, bail out
+            #TODO: Add a way to tell the user we're here
+            return
+
+        job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
+                            KIO.HideProgressInfo)
+
+        # They're just posts - so redirect to posts handling
+        self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
+
+    def process_pool_list(self, job):
+
+        """Collects the data from the pool job and loads it into an object
+        that can be read by the XML parser. Then each element of the data is
+        converted into a DanbooruPoolItem and stored in a list."""
+
+        if job.error():
+            self.pool_data = None
+            return
+
+        job_data = job.data()
+        response = unicode(job.data().data())
+
+        parsed_data = minidom.parseString(response)
+        decoded_data = parsed_data.getElementsByTagName("pool")
+
+        pool_list = list()
+
+        for item in decoded_data:
+
+            pool_item = DanbooruPoolItem(item)
+            pool_list.append(pool_item)
+
+        self.pool_data = pool_list
+
+        self.poolDataReady.emit()
 
     def get_artist_list(self):
 
@@ -323,9 +398,9 @@ class Danbooru(QObject):
     blacklist = property(_read_blacklist, _write_blacklist)
 
 
-class DanbooruList(object):
+class DanbooruPostList(object):
 
-    """Specialized container for Danbooru items. It contains a lists of
+    """Specialized container for Danbooru post items. It contains a lists of
     DanbooruItems and at the same time it also stores thumbnail and full image
     urls. The dictionaries are used to keep indices to the internal list, and
     they're used to return the corresponding item (standard index access is
@@ -395,47 +470,54 @@ class DanbooruList(object):
 
 class DanbooruItem(object):
 
-    """Class to store information about a Danbooru item retrieved via the REST
-    API. The various XML attributes can be accessed through properties."""
+    """Base class for item retrieved from Danbooru. Do not use directly. Use the
+    appropriate subclass for your type of data instead."""
 
     def __init__(self, post_data):
 
-        self.__data = post_data.attributes
+        self._data = post_data.attributes
 
     def __getattr__(self, name):
 
-        if name not in self.__data:
+        if name not in self._data:
             return None
         else:
-            return self.__data.attributes[name]
+            return self._data.attributes[name]
+
+
+class DanbooruPostItem(DanbooruItem):
+
+    """Class to store information about a Danbooru post item retrieved via the
+    REST API. The various XML attributes can be accessed through
+    properties."""
 
     @property
     def thumbnail_url(self):
 
         "URL of the thumbnail"
 
-        return self.__data["preview_url"].value
+        return self._data["preview_url"].value
 
     @property
     def full_url(self):
 
         "URL of the full image"
 
-        return self.__data["file_url"].value
+        return self._data["file_url"].value
 
     @property
     def size(self):
 
         "Size of the full image"
 
-        return self.__data["file_size"].value
+        return self._data["file_size"].value
 
     @property
     def tags(self):
 
         "Tags associated to the post. Returned as list."
 
-        tags = self.__data["tags"].value
+        tags = self._data["tags"].value
         tags = tags.split(" ")
         return tags
 
@@ -444,28 +526,28 @@ class DanbooruItem(object):
 
         "Width of the full image"
 
-        return self.__data["width"].value
+        return self._data["width"].value
 
     @property
     def height(self):
 
         "Height of the full image"
 
-        return self.__data["height"].value
+        return self._data["height"].value
 
     @property
     def post_id(self):
 
         "Danbooru unique post ID"
 
-        return self.__data["id"].value
+        return self._data["id"].value
 
     @property
     def source(self):
 
         "Original source for the image, if applicable."
 
-        return self.__data["source"].value
+        return self._data["source"].value
 
     @property
     def rating(self):
@@ -474,4 +556,35 @@ class DanbooruItem(object):
 
         ratings = dict(s="Safe", q="Questionable", e="Explicit")
 
-        return ratings[self.__data["rating"].value]
+        return ratings[self._data["rating"].value]
+
+
+class DanbooruPoolItem(DanbooruItem):
+
+    """Class to store information about a Danbooru pool item retrieved via the
+    REST API. The various XML attributes can be accessed through
+    properties."""
+
+    @property
+    def id(self):
+
+        "ID of the pool. Used for post retrieval purposes."
+
+        return int(self._data["id"].value)
+
+    @property
+    def name(self):
+
+        "Name of the pool."
+
+        name = self._data["name"]
+        name = name.replace("_"," ")
+
+        return name
+
+    @property
+    def post_count(self):
+
+        "Posts in the pool"
+
+        return int(self._data["post_count"].value)
