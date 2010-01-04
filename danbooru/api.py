@@ -46,7 +46,7 @@ class Danbooru(QObject):
         - dataDownloaded, for image data that has been downloaded, which
         includes the KUrl pointing to the URL of the downloaded image, and the
         QPixmap of the image itself;
-        - dataReady, when network operations are complete.
+        - postDataReady, when network operations are complete.
         - poolDataReady, when pool retrieval operations are complete.
 
     The class also provides the selected_ratings attribute, which is used to
@@ -62,10 +62,9 @@ class Danbooru(QObject):
     _RATINGS = ["Safe", "Questionable", "Explicit"]
 
     # Signals
-    #TODO: Rename dataReady to postDataReady
 
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
-    dataReady = pyqtSignal()
+    postDataReady = pyqtSignal()
     poolDataReady = pyqtSignal()
 
     def __init__(self, api_url, login=None, password=None, parent=None,
@@ -79,7 +78,7 @@ class Danbooru(QObject):
 
         # Basic attributes
         self.url = api_url
-        self.data = None
+        self.post_data = None
         self.pool_data = None
         self.cache = cache
 
@@ -237,14 +236,14 @@ class Danbooru(QObject):
         inserting the items in the list, they are checked for rating."""
 
         if job.error():
-            self.data = None
+            self.post_data = None
             return
 
         job_data = job.data()
         parsed_data = minidom.parseString(unicode(job_data.data()))
         decoded_data = parsed_data.getElementsByTagName("post")
 
-        self.data = DanbooruPostList()
+        self.post_data = DanbooruPostList()
 
         allowed_ratings = self.selected_ratings
 
@@ -261,9 +260,9 @@ class Danbooru(QObject):
                 continue
 
             if item.rating in allowed_ratings:
-                self.data.append(item)
+                self.post_data.append(item)
 
-        self.dataReady.emit()
+        self.postDataReady.emit()
 
     def get_tag_list(self):
 
@@ -482,7 +481,7 @@ class DanbooruItem(object):
         if name not in self._data:
             return None
         else:
-            return self._data.attributes[name]
+            return self._data[name]
 
 
 class DanbooruPostItem(DanbooruItem):
@@ -577,7 +576,7 @@ class DanbooruPoolItem(DanbooruItem):
 
         "Name of the pool."
 
-        name = self._data["name"]
+        name = self._data["name"].value
         name = name.replace("_"," ")
 
         return name
