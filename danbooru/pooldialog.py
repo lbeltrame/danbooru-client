@@ -32,7 +32,13 @@ from ui.ui_poolwidget import Ui_PoolWidget
 
 class PoolWidget(QWidget, Ui_PoolWidget):
 
+    "Widget that displays the current pools retrieved from the board."
+
     def __init__(self, pool_data, parent=None):
+
+        """Initialize a new widget instance. Upon initialization, the pool data
+        are immediately displayed in the table widget, after discarding pools
+        that have no data (they don't make any sense)"""
 
         super(PoolWidget, self).__init__(parent)
         self.setupUi(self)
@@ -44,6 +50,8 @@ class PoolWidget(QWidget, Ui_PoolWidget):
         self.populate_table()
 
     def populate_table(self):
+
+        "Populates the table widget."
 
         self.poolDataTable.setRowCount(len(self.data))
 
@@ -61,6 +69,8 @@ class PoolWidget(QWidget, Ui_PoolWidget):
 
     def current_id(self):
 
+        "Returns the current ID of the currently selected row."
+
         selection = self.poolDataTable.selectedItems()
 
         if not selection:
@@ -73,6 +83,8 @@ class PoolWidget(QWidget, Ui_PoolWidget):
 
 class PoolDialog(KDialog):
 
+    "Dialog that displays the pool selection widget."
+
     def __init__(self, pool_data, parent=None):
 
         super(PoolDialog, self).__init__(parent)
@@ -84,6 +96,8 @@ class PoolDialog(KDialog):
         self.setMainWidget(self.pool_widget)
 
     def selected_id(self):
+
+        "Returns the currently selected ID"
 
         return self.__selected_id
 
