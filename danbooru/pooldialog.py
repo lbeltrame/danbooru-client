@@ -25,6 +25,7 @@ Description: Dialog for selecting pools to download.
 
 from PyQt4.QtGui import QWidget, QTableWidgetItem
 from PyKDE4.kdeui import KDialog
+from PyKDE4.kdecore import i18n
 
 from ui.ui_poolwidget import Ui_PoolWidget
 
@@ -37,6 +38,7 @@ class PoolWidget(QWidget, Ui_PoolWidget):
         self.setupUi(self)
 
         self.data = pool_data
+        # Discard empty pools
         self.data = [item for item in pool_data if item.post_count != 0]
 
         self.populate_table()
@@ -57,6 +59,17 @@ class PoolWidget(QWidget, Ui_PoolWidget):
             self.poolDataTable.resizeColumnsToContents()
             self.poolDataTable.sortItems(0)
 
+    def current_id(self):
+
+        selection = self.poolDataTable.selectedItems()
+
+        if not selection:
+            return
+
+        selection_id = selection[0].text()
+        selection_id = int(selection_id)
+
+        return selection_id
 
 class PoolDialog(KDialog):
 
@@ -64,5 +77,17 @@ class PoolDialog(KDialog):
 
         super(PoolDialog, self).__init__(parent)
 
+        self.__selected_id = None
+
         self.pool_widget = PoolWidget(pool_data)
+        self.setCaption(i18n("Pool download"))
         self.setMainWidget(self.pool_widget)
+
+    def selected_id(self):
+
+        return self.__selected_id
+
+    def accept(self):
+
+        self.__selected_id = self.pool_widget.current_id()
+        KDialog.accept(self)
