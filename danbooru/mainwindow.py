@@ -40,7 +40,7 @@ import preferences
 import thumbnailarea
 import fetchdialog
 import connectdialog
-
+import pooldialog
 
 class MainWindow(KXmlGuiWindow):
 
@@ -108,6 +108,8 @@ class MainWindow(KXmlGuiWindow):
                                self)
         self.batch_download_action = KAction(KIcon("download"),
                                              i18n("Batch download"), self)
+        self.pool_download_action = KAction(KIcon("image-x-generic"),
+                                            i18n("Pools"), self)
 
         # Shortcuts
         connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
@@ -121,6 +123,7 @@ class MainWindow(KXmlGuiWindow):
         if not self.api:
             self.fetch_action.setEnabled(False)
             self.batch_download_action.setEnabled(False)
+            self.pool_download_action.setEnabled(False)
 
     def setup_actions(self):
 
@@ -136,6 +139,8 @@ class MainWindow(KXmlGuiWindow):
         self.actionCollection().addAction("clean", self.clean_action)
         self.actionCollection().addAction("batchDownload",
                                           self.batch_download_action)
+        self.actionCollection().addAction("poolDownload",
+                                          self.pool_download_action)
         KStandardAction.quit (self.close, self.actionCollection())
         KStandardAction.preferences(self.show_preferences,
                                     self.actionCollection())
@@ -145,6 +150,7 @@ class MainWindow(KXmlGuiWindow):
         self.fetch_action.triggered.connect(self.fetch)
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
+        self.pool_download_action.triggered.connect(self.pool_download)
         # Show tooltips in the status bar as well
         self.actionCollection().actionHovered.connect(self.action_tooltip)
 
@@ -199,6 +205,7 @@ class MainWindow(KXmlGuiWindow):
         if dialog.exec_():
             self.api = None
             self.api = dialog.danbooru_api()
+            self.api.poolDataReady.connect(self.pool_select)
 
             if self.thumbnailarea is not None:
                 # Update API reference in the thumbnailarea
@@ -210,6 +217,7 @@ class MainWindow(KXmlGuiWindow):
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)
+            self.pool_download_action.setEnabled(True)
 
     def retrieve(self, tags, limit):
 
@@ -250,6 +258,31 @@ class MainWindow(KXmlGuiWindow):
             self.retrieve(tags, limit)
         else:
             return
+
+    def pool_download(self, ok):
+
+        if not self.api:
+            return
+
+        self.api.get_pool_list()
+
+    def pool_select(self):
+
+        if not self.api.pool_data:
+            return
+
+        dialog = pooldialog.PoolDialog(self.api.pool_data, self)
+
+        if dialog.exec_():
+
+            selected_pool_id = dialog.selected_id()
+
+            if not self.thumbnailarea:
+                self.setup_area()
+            else:
+                self.thumbnailarea.clear()
+
+            self.api.get_pool_id(pool_id=selected_pool_id)
 
     def batch_download(self, ok):
 
