@@ -29,6 +29,7 @@ import re
 from PyQt4.QtCore import QRegExp
 from PyQt4.QtGui import QWidget, QRegExpValidator
 from PyKDE4.kdeui import KDialog
+from PyKDE4.kdecore import i18n
 
 from ui.ui_fetchdialog import Ui_FetchDialog
 
@@ -92,6 +93,7 @@ class FetchDialog(KDialog):
                                        parent=self)
 
         self.setMainWidget(self.fetchwidget)
+        self.setCaption(i18n("Download posts"))
 
     def tags(self):
 
