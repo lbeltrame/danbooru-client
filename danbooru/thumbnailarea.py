@@ -72,7 +72,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         self.nextPageButton.setDisabled(True)
 
         self.nextPageButton.clicked.connect(self.new_page)
-        self.api_data.dataReady.connect(self.fetch_posts)
+        self.api_data.postDataReady.connect(self.fetch_posts)
 
     def __iter__(self):
 
@@ -124,11 +124,13 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         """Slot used to fetch posts, calling the display_thumbnail of the
         thumbnail view corresponding to the current index."""
 
-        if not self.api_data.data:
+        if not self.api_data.post_data:
+
             label = QLabel(i18n("No matching posts found for this page."))
             label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.__current_index += 1
             text = "Page %d (empty)" % self.__current_index
+
             index = self.thumbnailTabWidget.addTab(label, text)
             self.thumbnailTabWidget.setCurrentIndex(index)
             self.nextPageButton.setDisabled(False)
@@ -175,4 +177,4 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         # As we changed object, the connection to the item points still to the
         # old one. Therefore, we need to re-connect the signal again
 
-        self.api_data.dataReady.connect(self.fetch_posts)
+        self.api_data.postDataReady.connect(self.fetch_posts)
