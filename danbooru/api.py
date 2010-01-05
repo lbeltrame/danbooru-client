@@ -287,19 +287,13 @@ class Danbooru(QObject):
 
         self.connect(job, SIGNAL("result (KJob *)"), self.process_pool_list)
 
-    def get_pool_data(self, pool_id):
+    def get_pool_id(self, pool_id):
 
         """Retrieves a list of posts associated with the pool ID. Does not work
         on all Danbooru versions, unfortunately."""
 
         parameters = dict(id=pool_id)
         request_url = self.danbooru_request_url(self._POOL_DATA_URL, parameters)
-        result = self.validate_url(request_url)
-
-        if not result:
-            # If there's no URL, bail out
-            #TODO: Add a way to tell the user we're here
-            return
 
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)

@@ -133,7 +133,7 @@ class ApiTest(unittest.TestCase):
     def testPoolPosts(self):
 
         self.api.dataReady.connect(self.pool_retrieval_test)
-        self.api.get_pool_data(pool_id=1193)
+        self.api.get_pool_id(pool_id=1193)
 
     def pool_retrieval_test(self):
 
