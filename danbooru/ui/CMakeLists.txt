@@ -9,7 +9,7 @@ set (UI_FILES
       	ui_danboorupage.py
      	ui_generalpage.py
 	ui_thumbnailarea.py
-	ui_pooldialog.py
+	ui_poolwidget.py
 )
 
 foreach ( _UI_FILE ${UI_FILES})
