@@ -30,6 +30,16 @@
     <enum>QLayout::SetDefaultConstraint</enum>
    </property>
    <item>
+    <widget class="QLabel" name="poolLabel">
+     <property name="text">
+      <string>Available pools</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTableWidget" name="poolDataTable">
      <property name="alternatingRowColors">
       <bool>false</bool>
