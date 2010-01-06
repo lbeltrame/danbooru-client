@@ -31,4 +31,3 @@ INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -DTARGET=${PYTHON_SITE_PA
 
 
 add_subdirectory( ui )
-add_subdirectory( test )
