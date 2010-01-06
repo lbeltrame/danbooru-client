@@ -2,7 +2,7 @@
 - Enable the donwload of the pictures on click - DONE
 - Figure out how to associate IDs to pictures - DONE
 - Support for ratings - DONE
-- Support for pools
+- Support for pools - DONE (need some tweaks)
 - Integrate Nepomuk - DONE
 - Multi-get downloads - DONE
 - Checkboxes for selection - DONE
@@ -16,4 +16,4 @@
 - Pagination support - DONE
 - Support for default rating - DONE
 - Usability for dialogs - IN PROGRESS
-- Support for tag blacklisting in the API
+- Support for tag blacklisting in the API - DONE
