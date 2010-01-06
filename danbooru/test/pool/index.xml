@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pools type="array">
+  <pool user_id="21085" is_public="true" post_count="86" name="Touhou_-_Love_Confessions_in_Gensoukyou" created_at="Sun Dec 06 16:13:30 -0500 2009" updated_at="Sun Jan 03 17:41:48 -0500 2010" id="1193">
+    <description>Pixiv image-response meme depicting Touhou characters' various reactions to receiving a confession of love, or what amounts to one.
+
+Images should all come from those marked with the &#21578;&#30333;&#24187;&#24819;&#37111; tag on pixiv:
+http://www.pixiv.net/response.php?illust_id=7079159
+The starter:
+http://www.pixiv.net/member_illust.php?mode=medium&amp;illust_id=7079159</description>
+  </pool>
+  <pool user_id="111615" is_public="true" post_count="13" name="Touhou_-_UFO_comic_by_Haruka_Akito" created_at="Wed Oct 07 10:59:39 -0400 2009" updated_at="Sun Jan 03 16:46:30 -0500 2010" id="1040">
+    <description>Japanese Title: 
+Artist: [[Haruka_Akito]]
+</description>
+  </pool>
+  <pool user_id="30466" is_public="true" post_count="83" name="Reitaisai_7_Picture_Gathering" created_at="Mon Dec 28 19:53:27 -0500 2009" updated_at="Sun Jan 03 15:53:02 -0500 2010" id="1250">
+    <description>A collaboration between Pixiv and Reitaisai.
+
+Artists draw a full-body portrait of a single character on a transparent background, in whatever pose they like. Images are to be a minimum of 1447x1447, 350dpi, [[transparent_background|PNG]] format.
+
+Images used for this purpose are tagged as "&#20363;&#22823;&#31085;7&#38598;&#21512;&#32117;".
+
+Info: "Here":http://www.pixiv.net/event_reitaisai7.php</description>
+  </pool>
+  <pool user_id="95873" is_public="true" post_count="254" name="Dat_Ass!" created_at="Mon Dec 14 13:18:53 -0500 2009" updated_at="Sun Jan 03 15:02:39 -0500 2010" id="1214">
+    <description>Specifically for pictures which present the 'derriere' in a particularly round and curvaceous manner.</description>
+  </pool>
+  <pool user_id="19599" is_public="true" post_count="215" name="Clever" created_at="Sat Sep 27 07:36:58 -0400 2008" updated_at="Sun Jan 03 14:57:22 -0500 2010" id="330">
+    <description>Posts that show an exceptional amount of wit, excel in originality, or just happen to be rather neat for some reason.</description>
+  </pool>
+  <pool user_id="52664" is_public="true" post_count="94" name="Nightmare_Fuel" created_at="Wed Oct 01 05:02:48 -0400 2008" updated_at="Sun Jan 03 14:39:01 -0500 2010" id="339">
+    <description>For posts that go beyond {{creepy}}. Those things that scared the pants off you as a kid, though they weren't meant to. It is something that was meant to amuse, entertain, or be only slightly scary to the audience. </description>
+  </pool>
+  <pool user_id="13506" is_public="true" post_count="5" name="Touhou_-_Kogasa_comic_(arutana)" created_at="Sat Dec 12 18:12:54 -0500 2009" updated_at="Sun Jan 03 13:51:00 -0500 2010" id="1208">
+    <description>Japanese title: "&#21776;&#20632;&#12501;&#12457;&#12540;&#12512;":http://www.pixiv.net/search.php?s_mode=s_tc&amp;word=%E5%94%90%E5%82%98%E3%83%95%E3%82%A9%E3%83%BC%E3%83%A0&amp;order=date</description>
+  </pool>
+  <pool user_id="75199" is_public="true" post_count="33" name="Nice_Knowing_You" created_at="Sat Dec 26 21:26:52 -0500 2009" updated_at="Sun Jan 03 12:29:24 -0500 2010" id="1246">
+    <description>Usage when a character is or was in a preventable situation where the character dies or its equivalent. More of a Foreshadow.
+Usually comedic.
+
+It is has less to do with 'You gonna get raped' and more of 'I have a bad feeling about this'</description>
+  </pool>
+  <pool user_id="17027" is_public="false" post_count="376" name="Hot_Legsz" created_at="Thu Nov 26 19:33:36 -0500 2009" updated_at="Sun Jan 03 12:26:32 -0500 2010" id="1168">
+    <description>Pictures of sexy, well drawn legs go here.</description>
+  </pool>
+  <pool user_id="21085" is_public="true" post_count="131" name="Heart-Warming" created_at="Wed Jun 10 02:26:57 -0400 2009" updated_at="Sun Jan 03 11:29:59 -0500 2010" id="756">
+    <description>For those images that leave warm and fuzzy feelings.
+
+Things that make you go, "awwww!"
+
+Posts that make you believe that Rousseau was right.</description>
+  </pool>
+  <pool user_id="12866" is_public="true" post_count="121" name="Learning_to_Draw" created_at="Fri Sep 19 10:26:11 -0400 2008" updated_at="Sun Jan 03 09:14:27 -0500 2010" id="322">
+    <description>A collection of images by various artists that help the budding artist with their drawing skill. These include [[how_to]] images with explicit instructions, as well as [[work_in_progress]] images, provided they give a clear idea of how an image came about and are helpful for someone trying to learn from it. 
+
+Also, images that have a [[making_of]]  video are included here.</description>
+  </pool>
+  <pool user_id="1137" is_public="true" post_count="23" name="Missing_thumbnails" created_at="Tue Dec 04 20:46:31 -0500 2007" updated_at="Sun Jan 03 08:50:49 -0500 2010" id="81">
+    <description>For posts that do not have the thumbnails they are supposed to.
+
+Note that a thumbnail is not necessarily "missing" just because it is blank or odd looking: [[transparent background]]s display as black, sometimes resulting in solid black thumbnails.  The first frames of gifs may themselves be responsible for oddities, as well.
+
+See also:
+
+* pool #84 - Missing images
+* pool #279 - Missing samples
+</description>
+  </pool>
+  <pool user_id="18031" is_public="true" post_count="8" name="Nurikabe_Kogasa-chan" created_at="Wed Dec 23 08:26:31 -0500 2009" updated_at="Sun Jan 03 07:35:34 -0500 2010" id="1237">
+    <description>by [[yanagi_(artist)|Yanagi]]</description>
+  </pool>
+  <pool user_id="36510" is_public="true" post_count="52" name="Touhou_-_Gensoukyou_Post-Office_(gensokoumuten_11)" created_at="Sat Sep 05 15:09:28 -0400 2009" updated_at="Sun Jan 03 05:43:13 -0500 2010" id="958">
+    <description>Japanese Title: &#24187;&#24819;&#37111;&#37109;&#20415;&#23616;
+Artist: [[gensokoumuten]]
+Artist's pixiv: Here
+
+The local postman interacting with the denizens of Gensoukyou</description>
+  </pool>
+  <pool user_id="111615" is_public="true" post_count="28" name="Touhou_4-koma_(iwatobihiro)" created_at="Mon Jul 13 12:18:34 -0400 2009" updated_at="Sun Jan 03 03:42:03 -0500 2010" id="823">
+    <description>Japanese Title: &#26481;&#26041;&#65300;&#12467;&#12510;
+Artist: {{iwatobihiro}}
+
+Sanae is off youkai hunting in UFO, Kanako is worried while Suwako sits the house. Moriya family hi-jinx ensue.</description>
+  </pool>
+  <pool user_id="110146" is_public="true" post_count="100" name="Charisma_Break" created_at="Mon Oct 26 21:07:39 -0400 2009" updated_at="Sun Jan 03 02:04:55 -0500 2010" id="1083">
+    <description>characters that normally show lots of charisma, having it broken showing their complete opposite. Remilia Scarlet for example.</description>
+  </pool>
+  <pool user_id="13506" is_public="true" post_count="44" name="Brother-sister_incest_(gotou_kenji)" created_at="Mon May 25 18:18:00 -0400 2009" updated_at="Sun Jan 03 01:43:09 -0500 2010" id="723">
+    <description>[[Brother and sister]] [[incest]] sequence, by [[gotou kenji]].</description>
+  </pool>
+  <pool user_id="13506" is_public="true" post_count="15" name="Mother-son_incest_(gotou_kenji)" created_at="Mon May 25 17:59:52 -0400 2009" updated_at="Sun Jan 03 00:01:49 -0500 2010" id="722">
+    <description>[[Mother and son]] [[incest]] sequence, by [[gotou kenji]].</description>
+  </pool>
+  <pool user_id="36510" is_public="true" post_count="9" name="Touhou_-_Chocolate_(ao_usagi)" created_at="Wed Nov 04 06:49:58 -0500 2009" updated_at="Sat Jan 02 23:59:44 -0500 2010" id="1102">
+    <description>Japanese Title: &#12481;&#12519;&#12467;&#12524;&#12540;&#12488;
+Artist: [[ao_usagi]]
+
+Reimu, Marisa, and valentines chocolate.</description>
+  </pool>
+  <pool user_id="47806" is_public="true" post_count="223" name="Squeezable_x" created_at="Wed Jul 22 15:53:36 -0400 2009" updated_at="Sat Jan 02 23:28:34 -0500 2010" id="847">
+    <description>Dumping ground for the former [[squeezable]] tag.
+
+Pictures that make you think that you would have to be blind, stupid, and possibly dead to not want a handful of.</description>
+  </pool>
+</pools>
