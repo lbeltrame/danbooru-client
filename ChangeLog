@@ -1,4 +1,115 @@
+2010-01-06  Luca Beltrame <einar@heavensinferno.net>
+
+  * po/danbooru_client.pot: Updated strings
+
+  * danbooru/ui/CMakeLists.txt: Fix name
+
+  * danbooru/CMakeLists.txt, danbooru/ui/CMakeLists.txt: Add pool dialog to
+  installed files
+
+  * danbooru/CMakeLists.txt: Don't install tests
+
+  * danbooru/test/pool/index.xml, danbooru/test/pool/show.xml: Pool data for
+  unit test
+
+  * TODO: Update TODO
+
+  * danbooru/mainwindow.py: Docstrings
+
+  * danbooru/ui/ui_poolwidget.py, danbooru/ui_src/poolwidget.ui: Improved UI
+  for pool widget
+
+2010-01-05  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/pooldialog.py: Docstrings
+
+  * danbooru/fetchdialog.py: Proper caption for fetch dialog
+
+  * danbooru/danbooruui.rc, danbooru/mainwindow.py: Support for pools in main
+  window
+
+  * danbooru/api.py, danbooru/test/test_api.py: Rename "get_pool_data" to
+  "get_pool_id"
+
+  * danbooru/ui/ui_poolwidget.py, danbooru/ui_src/poolwidget.ui: UI files for
+  pool dialog
+
+  * danbooru/pooldialog.py: Add a method to return the selected pool's ID
+
+  * danbooru/thumbnailarea.py, danbooru/thumbnailview.py: Port to new API
+  container for post data
+
+2010-01-04  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/pooldialog.py: A new dialog to download pools
+
+  * danbooru/api.py: Rename data to post_data (for consistency) and fix a
+  problem in the *Item classes.
+
+  * danbooru/api.py: Changes to the API:  - Use a convenience function to
+  create URLs - Create functions to handle pools - Create a new signal called
+  poolDataReady to indicate when pool data is ready  Now I need to change
+  self.data to post_data and rename all signals...
+
+  * danbooru/test/test_api.py: Proper unit tests for pools too
+
+2010-01-03  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/test/post/index.xml: XML file for unit tests
+
+  * danbooru/thumbnailview.py: Fix brokenness caused by not testing things
+  first
+
+  * danbooru/api.py: Move all URLs to XML equivalents
+
+  * danbooru/api.py: Switch over to XML based replies, as they're better
+  supported by Danbooru boards
+
+  * danbooru/thumbnailview.py, po/danbooru_client.pot: First attempt at
+  translating ratings
+
+2010-01-01  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/thumbnailarea.py: Re-enable next page when no results are found
+
+  * danbooru/CMakeLists.txt, danbooru/api.py, danbooru/mainwindow.py,
+  danbooru/test/CMakeLists.txt: Include support for blacklisting tags when
+  downloading posts. Also, enable building and installing the unit test
+  component
+
+2009-12-31  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api.py: Poperly set tag blacklists
+
+  * danbooru/test/post/index.json, danbooru/test_api.py: New files required for
+  unit testing
+
+  * danbooru/test/test_api.py: Finally, proper unit testing for the API!
+
+  * po/danbooru_client.pot: Updated strings
+
+  * danbooru/preferences.py: Do not inactivate blacklist anymore, we need it
+  for other things
+
+  * danbooru/ui/ui_nepomukpage.py, danbooru/ui_src/nepomukpage.ui: Adjusted the
+  preferences page
+
 2009-12-30  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/thumbnailview.py: Proper localization of the item strings (thanks
+  to pinotree for the help)
+
+  * danbooru/thumbnailview.py: Translate some more strings
+
+  * danbooru/ChangeLog: Update ChangeLog
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * README: Updated README
+
+  * po/danbooru_client.pot: Update catalog: new strings
+
+  * ChangeLog, TODO: Update ChangeLog
 
   * danbooru/ui/ui_generalpage.py, danbooru/ui_src/generalpage_new.ui: New UI
   for rating selection
