@@ -261,12 +261,17 @@ class MainWindow(KXmlGuiWindow):
 
     def pool_download(self, ok):
 
+        "Calls the download of all available pools."
+
         if not self.api:
             return
 
         self.api.get_pool_list()
 
     def pool_select(self):
+
+        """Slot called when the pool data have been downloaded. It constructs
+        the pool dialog and then starts the download of the images."""
 
         if not self.api.pool_data:
             return
