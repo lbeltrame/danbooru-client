@@ -10,6 +10,7 @@ set(DANBOORU_FILES
       	fetchdialog.py
       	hashes.py
     	mainwindow.py
+	pooldialog.py
       	preferences.py
 	thumbnailarea.py
       	thumbnailview.py
