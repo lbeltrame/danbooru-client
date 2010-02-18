@@ -23,7 +23,6 @@ has also been provided."""
 
 import urlparse
 import urllib
-import httplib
 from xml.dom import minidom
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignal
@@ -41,13 +40,15 @@ class Danbooru(QObject):
     QObject and makes use of KDE's KIO to handle network operations
     asynchronously.
 
-    This class provides two custom signals:
+    This class provides the following custom signals:
 
         - dataDownloaded, for image data that has been downloaded, which
         includes the KUrl pointing to the URL of the downloaded image, and the
         QPixmap of the image itself;
-        - postDataReady, when network operations are complete.
-        - poolDataReady, when pool retrieval operations are complete.
+        - postDataReady, when network operations are complete;
+        - poolDataReady, when pool retrieval operations are complete;
+        - checkCompleted, when the check for the existence of the page is
+        completed.
 
     The class also provides the selected_ratings attribute, which is used to
     filter items that are being retrieved depending on the maximum rating used
@@ -66,15 +67,17 @@ class Danbooru(QObject):
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
     postDataReady = pyqtSignal()
     poolDataReady = pyqtSignal()
+    checkCompleted = pyqtSignal()
+
 
     def __init__(self, api_url, login=None, password=None, parent=None,
                 cache=None):
 
-        super(Danbooru, self).__init__(parent)
-        result = self.validate_url(api_url)
 
-        if not result:
-            raise IOError("The given URL does not exist.")
+        super(Danbooru, self).__init__(parent)
+        self.__error = False
+
+        self.validate_url(api_url)
 
         # Basic attributes
         self.url = api_url
@@ -92,25 +95,30 @@ class Danbooru(QObject):
         self.__tags = None
         self.__blacklist = None
 
+    def __check_response(self, job):
+
+        """Checks the HTTP response from the job, and sets self.__error to true
+        in case of an error."""
+
+        if job.error():
+            self.__error = True
+            self.checkCompleted.emit()
+            return
+
+        # Get the HTTP response
+        response = unicode(job.queryMetaData("responsecode"))
+
+        if response != "200":
+            self.__error = True
+
+        self.checkCompleted.emit()
+
     def __http_exists(self, url):
 
-        """Check whether a given URL exists. Returns True if found, False if
-        otherwise. Adapted from http://code.activestate.com/recipes/286225/"""
+        "Check whether a given URL exists, using KIO asynchronously."
 
-        host, path = urlparse.urlsplit(url)[1:3]
-        try:
-            ## Make HTTPConnection Object
-            connection = httplib.HTTPConnection(host)
-            connection.request("HEAD", path)
-            ## Grab HTTPResponse Object
-            responseOb = connection.getresponse()
-            if responseOb.status == 200:
-                return True
-            else:
-                return False
-
-        except httplib.HTTPException:
-            return False
+        check_job = KIO.get(KUrl(url), KIO.NoReload, KIO.HideProgressInfo)
+        self.connect(check_job, SIGNAL("result (KJob *)"), self.__check_response)
 
     def _read_blacklist(self):
 
@@ -213,6 +221,8 @@ class Danbooru(QObject):
 
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
+
+        print "Job fired"
 
         self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
@@ -389,6 +399,11 @@ class Danbooru(QObject):
 
     selected_ratings = property(_allowed_ratings, _set_allowed_ratings)
     blacklist = property(_read_blacklist, _write_blacklist)
+
+    @property
+    def error(self):
+        return self.__error
+
 
 
 class DanbooruPostList(object):
