@@ -217,6 +217,10 @@ class ThumbnailView(QTableWidget):
         parameters asked by the user are upheld. It emits thumbnailDownloaded
         once each item has been added."""
 
+        # For some reason cellWidget(row, col) returns None, so we keep an
+        # internal list of items
+        self.__items.append(thumbnail_item)
+
         if self.__column_index >= self.__max_columns:
             self.__row_index += 1
             self.__column_index = 0
@@ -229,10 +233,6 @@ class ThumbnailView(QTableWidget):
         self.resizeColumnsToContents()
         thumbnail_item.label.leftClickedUrl.connect(self.retrieve_url)
 
-        # For some reason cellWidget(row, col) returns None, so we keep an
-        # internal list of items
-
-        self.__items.append(thumbnail_item)
         self.thumbnailDownloaded.emit()
 
     def clear_items(self):
@@ -293,8 +293,8 @@ class ThumbnailView(QTableWidget):
         # item, so that the data won't be sent to all thumbnailviews
 
         if self.api_data.post_data[-1] == post_data:
-            self.api_data.dataDownloaded.disconnect()
             self.downloadCompleted.emit()
+            self.api_data.dataDownloaded.disconnect()
 
     def display_thumbnails(self):
 
