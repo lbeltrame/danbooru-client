@@ -4,7 +4,7 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, under 
+#   it under the terms of the GNU General Public License, under
 #   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,
@@ -75,6 +75,7 @@ class ConnectDialog(KDialog):
         super(ConnectDialog, self).__init__(parent)
 
         self.__danbooru = None
+        self.__error =False
 
         self.connect_widget = ConnectWidget(urls, self)
         self.setMainWidget(self.connect_widget)
@@ -82,26 +83,16 @@ class ConnectDialog(KDialog):
         self.setCaption("Enter a Danbooru URL")
         self.adjustSize()
 
+    def _response(self):
+
+        "Checks if there's an error prior to accepting the dialog."
+
+        if self.__danbooru.error:
+            return
+        else:
+            KDialog.accept(self)
+
     def accept(self):
-
-        result = self.validate()
-        if not result:
-            return
-        KDialog.accept(self)
-
-    def danbooru_api(self):
-
-        "Returns the Danbooru object retrieved."
-
-        if self.__danbooru is None:
-            return
-
-        return self.__danbooru
-
-    def validate(self):
-
-        """Validates the URL, and returns if it is either empty or it is not
-        working."""
 
         url = self.connect_widget.url()
         login = self.connect_widget.username()
@@ -113,10 +104,16 @@ class ConnectDialog(KDialog):
         if url.isEmpty():
             return
 
-        try:
-            danbooru = api.Danbooru(unicode(url), login=login, password=password)
-        except IOError, error:
+        self.__danbooru = api.Danbooru(unicode(url), login=login,
+                                       password=password)
+        self.__danbooru.checkCompleted.connect(self._response)
+
+    def danbooru_api(self):
+
+        "Returns the Danbooru object retrieved."
+
+        if self.__danbooru is None:
             return
-        else:
-            self.__danbooru = danbooru
-            return True
+
+        return self.__danbooru
+
