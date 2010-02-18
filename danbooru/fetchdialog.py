@@ -50,7 +50,7 @@ class FetchWidget(QWidget, Ui_FetchDialog):
 
         self.postSpinBox.setValue(limit)
         # Allow only letters, numbers, commas and underscores
-        regexp = QRegExp(r"^[a-zA-Z,_0-9]+$")
+        regexp = QRegExp(r"^[a-zA-Z,_0-9:]+$")
         self.validator = QRegExpValidator(regexp, self)
         self.tagLineEdit.setValidator(self.validator)
 
