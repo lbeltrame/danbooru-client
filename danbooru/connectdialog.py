@@ -75,7 +75,6 @@ class ConnectDialog(KDialog):
         super(ConnectDialog, self).__init__(parent)
 
         self.__danbooru = None
-        self.__error =False
 
         self.connect_widget = ConnectWidget(urls, self)
         self.setMainWidget(self.connect_widget)
