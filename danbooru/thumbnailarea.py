@@ -45,13 +45,13 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
     This class provides the following custom signals:
 
-        - downloadCompleted - used to relay the downloadCompleted signal from
+        - downloadDone - used to relay the downloadCompleted signal from
         the ThumbnailView;
-        - thumbnailDownloaded - used to rely the thumbnailDownloaded signal from
+        - thumbnailRetrieved - used to rely the thumbnailDownloaded signal from
         the ThumbnailView."""
 
-    downloadCompleted = pyqtSignal()
-    thumbnailDownloaded = pyqtSignal()
+    downloadDone = pyqtSignal()
+    thumbnailRetrieved = pyqtSignal()
 
     def __init__(self, api_data=None, preferences=None, parent=None):
 
@@ -94,6 +94,14 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
             self.nextPageButton.setDisabled(True)
             self.api_data.update(page=self.__current_index + 1)
 
+    def thumbnail_retrieved(self):
+
+        self.thumbnailRetrieved.emit()
+
+    def download_done(self):
+
+        self.downloadDone.emit()
+
     def create_tab(self):
 
         """Creates a new tab in the tab widget, and adds it to the internal
@@ -105,17 +113,18 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         enable_button = partial(self.nextPageButton.setDisabled, False)
 
         view = thumbnailview.ThumbnailView(self.api_data, self.preferences)
-        view.thumbnailDownloaded.connect(self.thumbnailDownloaded.emit)
-        view.downloadCompleted.connect(self.downloadCompleted.emit)
-        view.downloadCompleted.connect(enable_button)
-
-        index = self.thumbnailTabWidget.addTab(view, page_name)
 
         # PyKDE4 suffers from garbage collection issues with widgets like
         # KPageWidget or KTabWidget. Therefore, we add the item to a list to
         # keep a reference of it around
 
         self.__pages.append(view)
+
+        view.thumbnailDownloaded.connect(self.thumbnail_retrieved)
+        view.downloadCompleted.connect(self.download_done)
+        view.downloadCompleted.connect(enable_button)
+
+        index = self.thumbnailTabWidget.addTab(view, page_name)
 
         return view, index
 
