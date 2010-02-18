@@ -23,7 +23,7 @@ Author: Luca Beltrame
 Description: Preferences module for the Danbooru client.
 '''
 
-from PyQt4.QtCore import QStringList, QSize, QRegExp, Qt
+from PyQt4.QtCore import QStringList, QSize, QRegExp
 from PyQt4.QtGui import QWidget, QRegExpValidator
 from PyKDE4.kdeui import KConfigSkeleton, KConfigDialog, KIcon, KDialog
 from PyKDE4.kdecore import i18n
