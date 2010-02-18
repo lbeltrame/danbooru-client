@@ -324,8 +324,8 @@ class MainWindow(KXmlGuiWindow):
                                                          self)
 
         self.setCentralWidget(self.thumbnailarea)
-        self.thumbnailarea.thumbnailDownloaded.connect(self.update_progress)
-        self.thumbnailarea.downloadCompleted.connect(self.download_finished)
+        self.thumbnailarea.thumbnailRetrieved.connect(self.update_progress)
+        self.thumbnailarea.downloadDone.connect(self.download_finished)
 
     def download_finished(self):
 
