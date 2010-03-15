@@ -48,7 +48,7 @@ class Danbooru(QObject):
         - postDataReady, when network operations are complete;
         - poolDataReady, when pool retrieval operations are complete;
         - checkCompleted, when the check for the existence of the page is
-        completed.
+        completed, and returns a bool indicating success or not.
 
     The class also provides the selected_ratings attribute, which is used to
     filter items that are being retrieved depending on the maximum rating used
@@ -67,7 +67,7 @@ class Danbooru(QObject):
     dataDownloaded = pyqtSignal(KUrl, QPixmap)
     postDataReady = pyqtSignal()
     poolDataReady = pyqtSignal()
-    checkCompleted = pyqtSignal()
+    checkCompleted = pyqtSignal(bool)
 
 
     def __init__(self, api_url, login=None, password=None, parent=None,
@@ -75,7 +75,6 @@ class Danbooru(QObject):
 
 
         super(Danbooru, self).__init__(parent)
-        self.__error = False
 
         self.validate_url(api_url)
 
@@ -101,17 +100,17 @@ class Danbooru(QObject):
         in case of an error."""
 
         if job.error():
-            self.__error = True
-            self.checkCompleted.emit()
+            self.checkCompleted.emit(False)
             return
 
         # Get the HTTP response
         response = unicode(job.queryMetaData("responsecode"))
 
-        if response != "200":
-            self.__error = True
+        if response != "200" or response != "304":
+            self.checkCompleted.emit(False)
+            return
 
-        self.checkCompleted.emit()
+        self.checkCompleted.emit(True)
 
     def __http_exists(self, url):
 
@@ -399,10 +398,6 @@ class Danbooru(QObject):
 
     selected_ratings = property(_allowed_ratings, _set_allowed_ratings)
     blacklist = property(_read_blacklist, _write_blacklist)
-
-    @property
-    def error(self):
-        return self.__error
 
 
 

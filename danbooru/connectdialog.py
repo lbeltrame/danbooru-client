@@ -23,9 +23,10 @@ Author: Luca Beltrame
 Description: File to handle connections to Danbooru sites.
 '''
 
-from PyQt4.QtGui import QWidget
-from PyKDE4.kdecore import KUrl
-from PyKDE4.kdeui import KDialog
+from PyQt4.QtCore import QSize
+from PyQt4.QtGui import QWidget, QPixmap
+from PyKDE4.kdecore import KUrl, KGlobal, KComponentData
+from PyKDE4.kdeui import KDialog, KNotification, KIcon
 
 import api
 from  ui.ui_connectdialog import Ui_connectForm
@@ -82,11 +83,11 @@ class ConnectDialog(KDialog):
         self.setCaption("Enter a Danbooru URL")
         self.adjustSize()
 
-    def _response(self):
+    def _response(self, result):
 
         "Checks if there's an error prior to accepting the dialog."
 
-        if self.__danbooru.error:
+        if not result:
             return
         else:
             KDialog.accept(self)
