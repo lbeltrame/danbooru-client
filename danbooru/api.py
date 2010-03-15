@@ -68,7 +68,7 @@ class Danbooru(QObject):
     postDataReady = pyqtSignal()
     poolDataReady = pyqtSignal()
     checkCompleted = pyqtSignal(bool)
-
+    tagsRetrieved = pyqtSignal()
 
     def __init__(self, api_url, login=None, password=None, parent=None,
                 cache=None):
@@ -203,8 +203,8 @@ class Danbooru(QObject):
         if limit > 100:
             limit = 100
 
-        self.__limit = limit if not self.__limit else self.__limit
-        self.__tags = tags if not self.__tags else self.__tags
+        self.__limit = limit if limit else self.__limit
+        self.__tags = tags if tags else self.__tags
 
         if tags:
             tags = "+".join(tags)
@@ -273,11 +273,31 @@ class Danbooru(QObject):
 
         self.postDataReady.emit()
 
-    def get_tag_list(self):
+    def get_tag_list(self, limit=10, pattern=""):
 
         "Method to retrieve a list of tags."
 
-        pass
+        parameters = dict(name=pattern, limit=limit)
+
+        request_url = self.danbooru_request_url(self._TAG_URL, parameters)
+
+        job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
+                            KIO.HideProgressInfo)
+
+        self.connect(job, SIGNAL("result (KJob *)"), self.process_tag_list)
+
+    def process_tag_list(self, job):
+
+        if job.error():
+            self.post_data = None
+            return
+
+        job_data = job.data()
+        parsed_data = minidom.parseString(unicode(job_data.data()))
+        decoded_data = parsed_data.getElementsByTagName("tag")
+
+        self.similar_tag_elements = decoded_data
+        self.tagsRetrieved.emit()
 
     def get_pool_list(self, page=None):
 
