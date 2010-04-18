@@ -39,12 +39,14 @@ def main():
     description = ki18n("A client for Danbooru sites.")
     license = KAboutData.License_GPL
     copyright = ki18n("(C) 2009 Luca Beltrame")
-    text = ki18n("Danbooru Client is a program to access Danbooru image boards.")
+    text = ki18n("Danbooru Client is a program to"
+                 " access Danbooru image boards.")
     home_page = "http://www.dennogumi.org"
     bug_email = "einar@heavensinferno.net"
 
-    about_data = KAboutData(app_name, catalog, program_name, version, description,
-                        license, copyright, text, home_page, bug_email)
+    about_data = KAboutData(app_name, catalog, program_name, version,
+                            description, license, copyright, text, home_page,
+                            bug_email)
 
     about_data.setProgramIconName("internet-web-browser")
 
