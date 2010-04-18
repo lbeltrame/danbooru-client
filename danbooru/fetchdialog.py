@@ -75,13 +75,18 @@ class FetchWidget(QWidget, Ui_FetchDialog):
         elif self.explicitRadioButton.isChecked():
             return "Explicit"
 
+    def set_tags(self, taglist):
+
+        self.tagLineEdit.setText(taglist)
+
+
 
 class FetchDialog(KDialog):
 
     """Class that provides a dialog to set parameters for fetching posts from a
     Danbooru board."""
 
-    def __init__(self, default_limit, preferences=None, parent=None):
+    def __init__(self, default_limit, preferences=None, tags="", parent=None):
 
         super(FetchDialog, self).__init__(parent)
 
@@ -91,6 +96,7 @@ class FetchDialog(KDialog):
         self.fetchwidget = FetchWidget(default_limit,
                                        preferences.max_allowed_rating,
                                        parent=self)
+        self.fetchwidget.set_tags(tags)
 
         self.setMainWidget(self.fetchwidget)
         self.setCaption(i18n("Download posts"))

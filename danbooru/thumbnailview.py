@@ -23,12 +23,12 @@ Author: Luca Beltrame
 Description: Main widget to display and download thumbnails
 '''
 
-from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtCore import pyqtSignal, Qt,  QString
 from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
                          QHeaderView, QPixmap, QCheckBox, QSizePolicy)
 
 from PyKDE4.kdecore import KUrl, i18n, i18nc, KGlobal,ki18np
-from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager
+from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager,  KMessageBox
 
 import actiondialog
 
@@ -138,6 +138,7 @@ class ThumbnailView(QTableWidget):
 
     thumbnailDownloaded = pyqtSignal()
     downloadCompleted = pyqtSignal()
+    fetchTags = pyqtSignal(QString)
 
     def __init__(self, api_data, preferences, parent=None):
 
@@ -186,9 +187,16 @@ class ThumbnailView(QTableWidget):
         dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
                                            preferences=self.__preferences,
                                            parent=self)
+        dialog.fetchTags.connect(self.reemit_fetch_tags)
 
         if not dialog.exec_():
             return
+
+    def reemit_fetch_tags(self,  tags):
+
+        "Propagates the tags selected from the dialog."
+
+        self.fetchTags.emit(tags)
 
     def create_image_item(self, pixmap=None, item=None):
 

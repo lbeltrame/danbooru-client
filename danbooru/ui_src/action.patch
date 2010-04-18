@@ -1,0 +1,60 @@
+diff --git a/danbooru/ui_src/actiondialog.ui b/danbooru/ui_src/actiondialog.ui
+index b83afe3..fd53e94 100644
+--- a/danbooru/ui_src/actiondialog.ui
++++ b/danbooru/ui_src/actiondialog.ui
+@@ -6,8 +6,8 @@
+    <rect>
+     <x>0</x>
+     <y>0</y>
+-    <width>178</width>
+-    <height>71</height>
++    <width>287</width>
++    <height>151</height>
+    </rect>
+   </property>
+   <property name="windowTitle">
+@@ -24,7 +24,7 @@
+      </property>
+     </widget>
+    </item>
+-   <item row="2" column="0">
++   <item row="4" column="0">
+     <widget class="QLabel" name="actionSelectLabel">
+      <property name="text">
+       <string>Actions </string>
+@@ -34,7 +34,7 @@
+      </property>
+     </widget>
+    </item>
+-   <item row="2" column="1">
++   <item row="4" column="1">
+     <widget class="KComboBox" name="actionSelectComboBox">
+      <item>
+       <property name="text">
+@@ -58,6 +58,26 @@
+      </property>
+     </widget>
+    </item>
++   <item row="1" column="2">
++    <widget class="QListWidget" name="tagList"/>
++   </item>
++   <item row="0" column="2">
++    <widget class="QLabel" name="label">
++     <property name="text">
++      <string>Tags:</string>
++     </property>
++    </widget>
++   </item>
++   <item row="2" column="2">
++    <widget class="QLabel" name="label_2">
++     <property name="text">
++      <string>url:</string>
++     </property>
++    </widget>
++   </item>
++   <item row="3" column="2">
++    <widget class="QLineEdit" name="urlEdit"/>
++   </item>
+   </layout>
+  </widget>
+  <customwidgets>

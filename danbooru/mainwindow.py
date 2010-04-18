@@ -41,6 +41,7 @@ import thumbnailarea
 import fetchdialog
 import connectdialog
 import pooldialog
+import danbooru2nepomuk
 
 class MainWindow(KXmlGuiWindow):
 
@@ -147,7 +148,10 @@ class MainWindow(KXmlGuiWindow):
 
         # Connect signals
         self.connect_action.triggered.connect(self.connect_danbooru)
-        self.fetch_action.triggered.connect(self.fetch)
+        # We call the "dummy" function perform_fetch instead of fetch directly
+        # because otherwise we may get the triggered (bool) parameter sent
+        # to the fetch function, causing problems
+        self.fetch_action.triggered.connect(self.perform_fetch)
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
         self.pool_download_action.triggered.connect(self.pool_download)
@@ -224,6 +228,7 @@ class MainWindow(KXmlGuiWindow):
         "Retrieves posts from the currently connected Danbooru board."
 
         try:
+            self.api.get_tag_list(limit=20, pattern=tags[0])
             self.api.get_post_list(limit=limit, tags=tags)
         except ValueError, error:
             first_line = "Could not download information from the specified board."
@@ -235,7 +240,11 @@ class MainWindow(KXmlGuiWindow):
             KMessageBox.error(self, i18n(message),
                               i18n("Error retrieving posts"))
 
-    def fetch(self, ok):
+    def perform_fetch(self,  ok):
+
+        self.fetch()
+
+    def fetch(self, tags=""):
 
         "Fetches the actual data from the connected Danbooru board."
 
@@ -244,6 +253,7 @@ class MainWindow(KXmlGuiWindow):
 
         dialog = fetchdialog.FetchDialog(self.max_retrieve,
                                          preferences=self.preferences,
+                                         tags=tags,
                                          parent=self)
 
         if dialog.exec_():
@@ -324,6 +334,7 @@ class MainWindow(KXmlGuiWindow):
                                                          self)
 
         self.setCentralWidget(self.thumbnailarea)
+        self.thumbnailarea.fetchTags.connect(self.fetch)
         self.thumbnailarea.thumbnailRetrieved.connect(self.update_progress)
         self.thumbnailarea.downloadDone.connect(self.download_finished)
 
@@ -369,3 +380,7 @@ class MainWindow(KXmlGuiWindow):
 
         if job.error():
             job.ui().showErrorMessage()
+        else:
+            tags = danbooru2nepomuk.extract_tags(job.srcUrl().fileName(),
+                    blacklist=self.preferences.tag_blacklist)
+            danbooru2nepomuk.tag_file(job.destUrl().path(), tags)

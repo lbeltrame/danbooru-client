@@ -4,7 +4,7 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, under 
+#   it under the terms of the GNU General Public License, under
 #   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,
@@ -23,7 +23,7 @@ Author: Luca Beltrame
 Description: Widget and dialog to display and download images from Danbooru.
 '''
 
-from PyQt4.QtCore import SIGNAL
+from PyQt4.QtCore import SIGNAL, QString, pyqtSignal
 from PyQt4.QtGui import QWidget
 from PyKDE4.kdecore import KUrl, i18n
 from PyKDE4.kdeui import KDialog, KMessageBox
@@ -42,6 +42,7 @@ class ActionWidget(QWidget, Ui_ActionDialog):
 
         self.actions = ["view", "download"]
         self.fname = KUrl(url).fileName()
+        self.urlEdit.setText(KUrl(url).prettyUrl())
 
         if not pixmap.isNull():
             self.pictureLabel.setPixmap(pixmap)
@@ -59,18 +60,23 @@ class ActionDialog(KDialog):
     """Class that provides a dialog that prompts the user to choose an action
     for the selected image."""
 
+    fetchTags = pyqtSignal(QString)
+
     def __init__(self, url, pixmap=None, preferences=None, parent=None):
 
         super(ActionDialog, self).__init__(parent)
 
         self.url = url
         self.display = None
+        self.preferences = preferences
         self.tagging = preferences.nepomuk_enabled
         self.blacklist = preferences.tag_blacklist
         self.actionwidget = ActionWidget(self.url, pixmap, self)
         self.setMainWidget(self.actionwidget)
         self.setCaption(i18n("Download or display image"))
-
+        self.actionwidget.tagList.addItems(danbooru2nepomuk.extract_tags(
+            KUrl(self.url).fileName(), self.blacklist))
+        self.actionwidget.tagList.itemDoubleClicked.connect(self.fetch)
         self.__actions = dict(view=self.view, download=self.download)
 
     def accept(self):
@@ -79,6 +85,13 @@ class ActionDialog(KDialog):
         self.__actions[action]()
 
         KDialog.accept(self)
+
+    def fetch(self, item):
+
+        "Fetches the related tags from the user's selection."
+
+        self.fetchTags.emit(item.text())
+        self.reject()
 
     def view(self):
 

@@ -26,10 +26,10 @@ ThumbnailViews using a tabbed interface.
 
 from functools import partial
 
-from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtCore import pyqtSignal, Qt,  QString
 from PyQt4.QtGui import QWidget, QLabel
 from PyKDE4.kdecore import i18n
-from PyKDE4.kdeui import KAcceleratorManager
+from PyKDE4.kdeui import KAcceleratorManager,  KMessageBox
 
 import thumbnailview
 from ui.ui_thumbnailarea import Ui_ThumbnailArea
@@ -52,6 +52,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
     downloadDone = pyqtSignal()
     thumbnailRetrieved = pyqtSignal()
+    fetchTags = pyqtSignal(QString)
 
     def __init__(self, api_data=None, preferences=None, parent=None):
 
@@ -73,6 +74,8 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         self.nextPageButton.clicked.connect(self.new_page)
         self.api_data.postDataReady.connect(self.fetch_posts)
+        self.api_data.tagsRetrieved.connect(self.show_tags)
+        self.tagList.itemDoubleClicked.connect(self.fetch)
 
     def __iter__(self):
 
@@ -80,6 +83,23 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         for item in self.__pages:
             yield item
+
+    def fetch(self,  item):
+
+        "Emits the fetch tags signal."
+
+        self.emit_fetch_tags(item.text())
+
+
+    def emit_fetch_tags(self, tags):
+        # hack to prevent new fetches from happening when currently fetching
+        if not self.nextPageButton.isEnabled():
+            KMessageBox.error(self, i18n("The current page is still retrieving."
+                                         " Please wait until retrieving is done."
+                                         ),
+                              i18n("Unable to fetch"))
+            return
+        self.fetchTags.emit(tags)
 
     def new_page(self):
 
@@ -113,6 +133,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         enable_button = partial(self.nextPageButton.setDisabled, False)
 
         view = thumbnailview.ThumbnailView(self.api_data, self.preferences)
+        view.fetchTags.connect(self.fetch)
 
         # PyKDE4 suffers from garbage collection issues with widgets like
         # KPageWidget or KTabWidget. Therefore, we add the item to a list to
@@ -128,6 +149,14 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         return view, index
 
+    def show_tags(self):
+        if not self.api_data.similar_tag_elements:
+            print("Failed to retrieve tags")
+        else:
+            self.tagList.clear()
+            for item in self.api_data.similar_tag_elements:
+                self.tagList.addItem(item.getAttribute("name"))
+
     def fetch_posts(self):
 
         """Slot used to fetch posts, calling the display_thumbnail of the
@@ -136,6 +165,8 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         if not self.api_data.post_data:
 
             label = QLabel(i18n("No matching posts found for this page."))
+            label = QLabel(i18n("No matching posts found for this page."
+                                "\nWere you looking for a tag in the sidebar?"))
             label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.__current_index += 1
             text = "Page %d (empty)" % self.__current_index
