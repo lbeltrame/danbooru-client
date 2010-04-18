@@ -48,7 +48,8 @@ class Danbooru(QObject):
         - postDataReady, when network operations are complete;
         - poolDataReady, when pool retrieval operations are complete;
         - checkCompleted, when the check for the existence of the page is
-        completed, and returns a bool indicating success or not.
+        completed, and returns a bool indicating success or not;
+        - tagsRetrieved, when tags have been retrieved.
 
     The class also provides the selected_ratings attribute, which is used to
     filter items that are being retrieved depending on the maximum rating used
@@ -93,11 +94,11 @@ class Danbooru(QObject):
         self.__limit = None
         self.__tags = None
         self.__blacklist = None
+        self.similar_tag_elements = None
 
     def __check_response(self, job):
 
-        """Checks the HTTP response from the job, and sets self.__error to true
-        in case of an error."""
+        "Checks the HTTP response from the job."
 
         if job.error():
             self.checkCompleted.emit(False)
@@ -106,18 +107,12 @@ class Danbooru(QObject):
         # Get the HTTP response
         response = unicode(job.queryMetaData("responsecode"))
 
-        if response != "200" or response != "304":
+        if response == "200" or response == "304":
+            self.checkCompleted.emit(True)
+        else:
             self.checkCompleted.emit(False)
             return
 
-        self.checkCompleted.emit(True)
-
-    def __http_exists(self, url):
-
-        "Check whether a given URL exists, using KIO asynchronously."
-
-        check_job = KIO.get(KUrl(url), KIO.NoReload, KIO.HideProgressInfo)
-        self.connect(check_job, SIGNAL("result (KJob *)"), self.__check_response)
 
     def _read_blacklist(self):
 
@@ -162,6 +157,13 @@ class Danbooru(QObject):
         elif rating == "Explicit":
             self.__rating = ["Safe", "Questionable", "Explicit"]
 
+    def validate_url(self, url):
+
+        "Check whether a given URL exists, using KIO asynchronously."
+
+        check_job = KIO.get(KUrl(url), KIO.NoReload, KIO.HideProgressInfo)
+        self.connect(check_job, SIGNAL("result (KJob *)"), self.__check_response)
+
     def danbooru_request_url(self, url, parameters=None):
 
         "Creates and encodes a Danbooru URL appropriately."
@@ -178,19 +180,6 @@ class Danbooru(QObject):
             request_url = urlparse.urljoin(request_url, url_parameters)
 
         return request_url
-
-    def validate_url(self, url):
-
-        "Validates the input URL and returns the result (True/False)"
-
-        result = self.__http_exists(url)
-        return result
-
-    def process_tags(self, tags):
-
-        "Method that validates and processes tags."
-
-        pass
 
     def get_post_list(self, limit=5, tags=None, page=None):
 
@@ -220,8 +209,6 @@ class Danbooru(QObject):
 
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
-
-        print "Job fired"
 
         self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
@@ -287,6 +274,8 @@ class Danbooru(QObject):
         self.connect(job, SIGNAL("result (KJob *)"), self.process_tag_list)
 
     def process_tag_list(self, job):
+
+        "Method that processes tags from the XML."
 
         if job.error():
             self.post_data = None
