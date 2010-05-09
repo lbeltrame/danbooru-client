@@ -88,7 +88,11 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         "Emits the fetch tags signal."
 
-        self.emit_fetch_tags(item.text())
+        if hasattr(item, "text"):
+            item_text = item.text()
+        else:
+            item_text = item
+        self.emit_fetch_tags(item)
 
 
     def emit_fetch_tags(self, tags):
@@ -99,7 +103,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
                                          ),
                               i18n("Unable to fetch"))
             return
-        self.fetchTags.emit(tags)
+        self.fetchTags.emit(tags.text())
 
     def new_page(self):
 
