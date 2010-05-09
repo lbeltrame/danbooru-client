@@ -42,7 +42,9 @@ class ActionWidget(QWidget, Ui_ActionDialog):
 
         self.actions = ["view", "download"]
         self.fname = KUrl(url).fileName()
-        self.urlEdit.setText(KUrl(url).prettyUrl())
+        self.linkLabel.setText("<a href='%s'>Direct image link</a>" % url)
+        pretty_url = KUrl(url).prettyUrl()
+        self.linkLabel.setToolTip(pretty_url)
 
         if not pixmap.isNull():
             self.pictureLabel.setPixmap(pixmap)
