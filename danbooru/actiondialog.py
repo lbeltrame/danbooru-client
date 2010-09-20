@@ -143,9 +143,7 @@ class ActionDialog(KDialog):
                 return
 
             download_job = KIO.file_copy(KUrl(self.url), filename, -1)
-
-            self.connect(download_job, SIGNAL("result( KJob *)"),
-                                              self.download_slot)
+            download_job.result.connect(self.download_slot)
 
     def download_slot(self, job):
 
