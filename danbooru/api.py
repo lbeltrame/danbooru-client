@@ -162,7 +162,8 @@ class Danbooru(QObject):
         "Check whether a given URL exists, using KIO asynchronously."
 
         check_job = KIO.get(KUrl(url), KIO.NoReload, KIO.HideProgressInfo)
-        self.connect(check_job, SIGNAL("result (KJob *)"), self.__check_response)
+        check_job.result.connect(self.__check_response)
+        #self.connect(check_job, SIGNAL("result (KJob *)"), self.__check_response)
 
     def danbooru_request_url(self, url, parameters=None):
 
@@ -210,7 +211,8 @@ class Danbooru(QObject):
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
 
-        self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
+        job.result.connect(self.process_post_list)
+        #self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
     def update(self, page=None, what="posts"):
 
@@ -407,7 +409,6 @@ class Danbooru(QObject):
 
     selected_ratings = property(_allowed_ratings, _set_allowed_ratings)
     blacklist = property(_read_blacklist, _write_blacklist)
-
 
 
 class DanbooruPostList(object):
