@@ -323,7 +323,7 @@ class MainWindow(KXmlGuiWindow):
             file_name = file_url.fileName()
             destination.addPath(file_name)
             job = KIO.file_copy(KUrl(item), destination, -1)
-            self.connect(job, SIGNAL("result (KJob *)"), self.job_slot_result)
+            job.result.connect(self.job_slot_result)
 
     def setup_area(self):
 
