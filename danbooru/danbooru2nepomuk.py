@@ -4,7 +4,7 @@
 #   Copyright 2009 Luca Beltrame <einar@heavensinferno.net>
 #
 #   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License, under 
+#   it under the terms of the GNU General Public License, under
 #   version 2 of the License, or (at your option) any later version.
 #
 #   This program is distributed in the hope that it will be useful,
@@ -34,6 +34,7 @@ from PyKDE4.kdecore import (KAboutData, KCmdLineArgs, KCmdLineOptions, i18n,
                             ki18n)
 from PyKDE4.nepomuk import Nepomuk
 from PyKDE4.kdeui import KApplication
+from PyKDE4.kdecore import KUrl
 
 
 # Regexp to filter out the board name and post ID from the filename
@@ -58,14 +59,14 @@ def tag_directory(path,recursive=False):
             files = contents.entryInfoList()
 
             for filename in files:
-                tag(filename.absoluteFilePath())
+                tag(filename)
     else:
         contents = QDir(path)
         contents.setFilter(QDir.Files)
         files = contents.entryInfoList()
 
         for filename in files:
-            tag(filename.absoluteFilePath())
+            tag(filename)
 
 def tag(filename):
 
@@ -73,20 +74,6 @@ def tag(filename):
 
     tags = extract_tags(filename)
     tag_file(filename, tags=tags)
-
-def all_tags():
-
-    """Function to query Nepomuk for available tags. Returns a list of all
-   available tags."""
-
-    tags = Nepomuk.Tag.allTags()
-    named_tags = list()
-
-    for tag in tags:
-        tagname = unicode(tag.label())
-        named_tags.append(tagname)
-
-    return named_tags
 
 def extract_tags(filename, blacklist=TAGS_BLACKLIST):
 
@@ -102,11 +89,11 @@ def extract_tags(filename, blacklist=TAGS_BLACKLIST):
         data = match.groups()[1]
     else:
         # Skip non-matching files
-        print "Skipping file %s" % filename
-        return
+         return
 
     data = data.split()
-    data = [item for item in data if item not in blacklist]
+    # Remove empty tags
+    data = [item for item in data if item and item not in blacklist]
 
     return data
 
@@ -116,28 +103,14 @@ def tag_file(filename, tags=None):
     present in Nepomuk, they are added automatically. "tags" must be a Python
     list of strings, one item for each tag."""
 
-    NEPOMUK_TAGS = all_tags()
-    if tags is None:
-        return
-
-    absolute_path = QFileInfo(filename).filePath()
-    # To work, this needs QUrl
-    resource = Nepomuk.Resource(QUrl(absolute_path))
-
-    taglist = list()
+    absolute_path = QFileInfo(filename).absoluteFilePath()
+    resource = Nepomuk.Resource(KUrl(absolute_path))
 
     for tag in tags:
 
-        if tag not in NEPOMUK_TAGS:
-            newtag = Nepomuk.Tag(tag)
-            newtag.setLabel(tag)
-            newtag.addIdentifier(tag)
-        else:
-            newtag = Nepomuk.Tag(tag)
-
-        taglist.append(newtag)
-    resource.addTag(newtag)
-    resource.setTags(taglist)
+        newtag = Nepomuk.Tag(tag)
+        newtag.setLabel(tag)
+        resource.addTag(newtag)
 
 def setup_kapplication():
 
