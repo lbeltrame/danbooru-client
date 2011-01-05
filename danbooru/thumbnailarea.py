@@ -159,7 +159,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         else:
             self.tagList.clear()
             for item in self.api_data.similar_tag_elements:
-                self.tagList.addItem(item.getAttribute("name"))
+                self.tagList.addItem(item.attrib.get("name"))
 
     def fetch_posts(self):
 

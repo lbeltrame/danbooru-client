@@ -23,7 +23,7 @@ has also been provided."""
 
 import urlparse
 import urllib
-from xml.dom import minidom
+from xml.etree import ElementTree
 
 from PyQt4.QtCore import QObject, SIGNAL, pyqtSignal
 from PyQt4.QtGui import QPixmap
@@ -162,7 +162,6 @@ class Danbooru(QObject):
 
         check_job = KIO.get(KUrl(url), KIO.NoReload, KIO.HideProgressInfo)
         check_job.result.connect(self.__check_response)
-        #self.connect(check_job, SIGNAL("result (KJob *)"), self.__check_response)
 
     def danbooru_request_url(self, url, parameters=None):
 
@@ -236,14 +235,15 @@ class Danbooru(QObject):
             return
 
         job_data = job.data()
-        parsed_data = minidom.parseString(unicode(job_data.data()))
-        decoded_data = parsed_data.getElementsByTagName("post")
+        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        decoded_data = parsed_data.getiterator("post")
 
         self.post_data = DanbooruPostList()
 
         allowed_ratings = self.selected_ratings
 
         for item in decoded_data:
+            print item.attrib
             item = DanbooruPostItem(item)
             blacklisted_tags = None
 
@@ -271,7 +271,7 @@ class Danbooru(QObject):
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
 
-        self.connect(job, SIGNAL("result (KJob *)"), self.process_tag_list)
+        job.result.connect(self.process_tag_list)
 
     def process_tag_list(self, job):
 
@@ -282,8 +282,8 @@ class Danbooru(QObject):
             return
 
         job_data = job.data()
-        parsed_data = minidom.parseString(unicode(job_data.data()))
-        decoded_data = parsed_data.getElementsByTagName("tag")
+        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        decoded_data = parsed_data.getiterator("tag")
 
         self.similar_tag_elements = decoded_data
         self.tagsRetrieved.emit()
@@ -332,8 +332,8 @@ class Danbooru(QObject):
         job_data = job.data()
         response = unicode(job.data().data())
 
-        parsed_data = minidom.parseString(response)
-        decoded_data = parsed_data.getElementsByTagName("pool")
+        parsed_data = ElementTree.XML(response)
+        decoded_data = parsed_data.getiterator("pool")
 
         pool_list = list()
 
@@ -486,7 +486,7 @@ class DanbooruItem(object):
 
     def __init__(self, post_data):
 
-        self._data = post_data.attributes
+        self._data = post_data.attrib
 
     def __getattr__(self, name):
 
@@ -507,28 +507,28 @@ class DanbooruPostItem(DanbooruItem):
 
         "URL of the thumbnail"
 
-        return self._data["preview_url"].value
+        return self._data["preview_url"]
 
     @property
     def full_url(self):
 
         "URL of the full image"
 
-        return self._data["file_url"].value
+        return self._data["file_url"]
 
     @property
     def size(self):
 
         "Size of the full image"
 
-        return self._data["file_size"].value
+        return self._data["file_size"]
 
     @property
     def tags(self):
 
         "Tags associated to the post. Returned as list."
 
-        tags = self._data["tags"].value
+        tags = self._data["tags"]
         tags = tags.split(" ")
         return tags
 
@@ -537,28 +537,28 @@ class DanbooruPostItem(DanbooruItem):
 
         "Width of the full image"
 
-        return self._data["width"].value
+        return self._data["width"]
 
     @property
     def height(self):
 
         "Height of the full image"
 
-        return self._data["height"].value
+        return self._data["height"]
 
     @property
     def post_id(self):
 
         "Danbooru unique post ID"
 
-        return self._data["id"].value
+        return self._data["id"]
 
     @property
     def source(self):
 
         "Original source for the image, if applicable."
 
-        return self._data["source"].value
+        return self._data["source"]
 
     @property
     def rating(self):
@@ -567,7 +567,7 @@ class DanbooruPostItem(DanbooruItem):
 
         ratings = dict(s="Safe", q="Questionable", e="Explicit")
 
-        return ratings[self._data["rating"].value]
+        return ratings[self._data["rating"]]
 
 
 class DanbooruPoolItem(DanbooruItem):
@@ -581,14 +581,14 @@ class DanbooruPoolItem(DanbooruItem):
 
         "ID of the pool. Used for post retrieval purposes."
 
-        return int(self._data["id"].value)
+        return int(self._data["id"])
 
     @property
     def name(self):
 
         "Name of the pool."
 
-        name = self._data["name"].value
+        name = self._data["name"]
         name = name.replace("_"," ")
 
         return name
@@ -598,4 +598,4 @@ class DanbooruPoolItem(DanbooruItem):
 
         "Posts in the pool"
 
-        return int(self._data["post_count"].value)
+        return int(self._data["post_count"])
