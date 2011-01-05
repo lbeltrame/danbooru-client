@@ -74,7 +74,6 @@ class Danbooru(QObject):
     def __init__(self, api_url, login=None, password=None, parent=None,
                 cache=None):
 
-
         super(Danbooru, self).__init__(parent)
 
         self.validate_url(api_url)
@@ -212,7 +211,6 @@ class Danbooru(QObject):
                             KIO.HideProgressInfo)
 
         job.result.connect(self.process_post_list)
-        #self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
 
     def update(self, page=None, what="posts"):
 
@@ -305,7 +303,7 @@ class Danbooru(QObject):
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
 
-        self.connect(job, SIGNAL("result (KJob *)"), self.process_pool_list)
+        job.result.connect(self.process_pool_list)
 
     def get_pool_id(self, pool_id):
 
@@ -319,7 +317,7 @@ class Danbooru(QObject):
                             KIO.HideProgressInfo)
 
         # They're just posts - so redirect to posts handling
-        self.connect(job, SIGNAL("result (KJob *)"), self.process_post_list)
+        job.result.connect(self.process_post_list)
 
     def process_pool_list(self, job):
 
@@ -382,8 +380,8 @@ class Danbooru(QObject):
         job = KIO.storedGet(image_url, KIO.NoReload, flags)
         # Schedule: we don't want to overload servers
         KIO.Scheduler.scheduleJob(job)
+        job.result.connect(self.job_download)
 
-        self.connect(job, SIGNAL("result (KJob *)"), self.job_download)
 
     def job_download(self, job):
 

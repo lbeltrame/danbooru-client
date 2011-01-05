@@ -47,11 +47,12 @@ class MainWindow(KXmlGuiWindow):
 
     "Class which displays the main Danbooru Client window."
 
-    def __init__(self):
+    def __init__(self,  *args):
 
         "Initialize a new main window."
 
-        KXmlGuiWindow.__init__(self)
+        super(MainWindow,  self).__init__(*args)
+        #KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
         self.preferences = preferences.Preferences()
 
