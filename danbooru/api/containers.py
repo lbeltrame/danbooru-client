@@ -36,10 +36,10 @@ class DanbooruPost(object):
 
     def __getattr__(self, value):
 
-        if value not in self.__data:
+        if value not in self.__data.attrib:
             return None
         else:
-            return self._data.attrib[name].text
+            return self.__data.attrib[value]
 
     @property
     def pixmap(self):
@@ -69,3 +69,33 @@ class DanbooruPost(object):
         ratings = dict(s="Safe", q="Questionable", e="Explicit")
 
         return ratings[self.__data.attrib["rating"]]
+
+
+class DanbooruTag(object):
+
+    """A class representing a Danbooru tag."""
+
+    _TYPES = dict(0="General", 1="artist", 3="copyright",
+                  4="character")
+
+    def __init__(self, data):
+
+        self.__data = data
+
+    def __getattr__(self, value):
+
+        if value not in self.__data.attrib:
+            return None
+        else:
+            return self.__data.attrib[value]
+
+    @property
+    def type(self):
+
+        """The type of the tag, among "General", "artist",
+        "copyright" and "character"."""
+
+        tag_type = int(self._data.attrib["type"])
+        return _TYPES[tag_type]
+
+

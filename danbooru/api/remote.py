@@ -19,7 +19,10 @@
 
 __all__ = ["DanbooruService"]
 
+from xml.etree import ElementTree
+
 import PyQt4.QtCore as QtCore
+import PyQt4.QtGui as QtGui
 import PyKDE4.kdecore as kdecore
 from PyKDE4.kio import KIO
 
@@ -31,13 +34,20 @@ TAG_URL = "tag/index.xml"
 POOL_URL = "pool/index.xml"
 ARTIST_URL = "pool/index.xml"
 POOL_DATA_URL = "pool/show.xml"
-
+MAX_RATINGS = dict(Safe=("Safe"), Questionable=("Safe", "Questionable"),
+                   Explicit=("Safe", "Questionable", "Explicit"))
 
 class DanbooruService(QtCore.QObject):
 
-    postRetrieved = QtCore.pyqtSignal(containers.DanbooruPost)
+    """A class which provides a wrapper around Danbooru's RESTful API.
 
-    def __init__(self, board_url, username=None, password=None, parent=None):
+    """
+
+    postRetrieved = QtCore.pyqtSignal(containers.DanbooruPost)
+    tagRetrieved = QtCore.pyQtSignal(containers.DanbooruTag)
+
+    def __init__(self, board_url, username=None, password=None, cache=None,
+                 parent=None):
 
         super(DanbooruService, self).__init__(parent)
 
@@ -45,12 +55,122 @@ class DanbooruService(QtCore.QObject):
         self.username = username
         self.password = password
         self.tag_blacklist = None
+        self.cache = cache
 
-    def __process_post_list(self, job):
+    def __slot_process_post_list(self, job):
 
-        pass
+        """Slot called from :meth:`get_post_list`."""
 
-    def get_post_list(self, page=0, tags=None, limit=100, rating="Safe"):
+        if job.error():
+            return
+
+        job_data = job.data()
+
+        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        decoded_data = parsed_data.getiterator("post")
+
+        allowed_rating = job.property("ratings").toPyObject()
+
+        if allowed_rating is not None:
+            allowed_ratings = MAX_RATINGS[allowed_rating]
+        else:
+            allowed_ratings = None
+
+        blacklisted_tags = job.property("blacklisted_tags").toPyObject()
+
+        for item in decoded_data:
+            item = containers.DanbooruPost(item)
+
+            if blacklisted_tags is not None and blacklisted_tags:
+                if any((tag in blacklisted_tags for tag in item.tags)):
+                    continue
+
+            # Same for ratings
+            if (allowed_ratings is not None
+                and item.rating not in allowed_ratings):
+                continue
+
+            self.download_thumbnail(item)
+
+    def __slot_download_thumbnail(self, job):
+
+        """Slot called from :meth:`download_thumbnail`."""
+
+        img = QtGui.QPixmap()
+        name = job.url()
+
+        if job.error():
+            return
+
+        img.loadFromData(job.data())
+
+        if self.cache is not None:
+            self.cache.insert(job.url().fileName(), img)
+
+        danbooru_item = job.property("danbooru_item").toPyObject()
+        danbooru_item.pixmap = img
+
+        self.postRetrieved.emit(danbooru_item)
+
+
+    def download_thumbnail(self, danbooru_item):
+
+        """Retrieve a thumbnail for a specific Danbooru item.
+
+        KIO.storedGet is used for asyncrhonous download. Jobs are scheduled
+        to prevent server overload.
+
+        :param danbooru_item: An instance of
+                              :class:`DanbooruItem <danbooru.api.containers.DanbooruItem>`
+
+        """
+
+        image_url = kdecore.KUrl(danbooru_item.preview_url)
+        flags = KIO.JobFlags(KIO.HideProgressInfo)
+
+        pixmap = QtGui.QPixmap()
+        name = image_url.fileName()
+
+        # No need to download if in cache
+
+        if self.cache is not None:
+            if self.cache.find(name, pixmap):
+                danbooru_item.pixmap = pixmap
+                self.postRetrieved.emit(danbooru_item)
+                return
+
+        job = KIO.storedGet(image_url, KIO.NoReload, flags)
+        job.setProperty("danbooru_item", QtCore.QVariant(danbooru_item))
+
+        # Schedule: we don't want to overload servers
+        KIO.Scheduler.scheduleJob(job)
+        job.result.connect(self.__slot_download_thumbnail)
+
+
+    def get_post_list(self, page=0, tags=None, limit=100, rating="Safe",
+                      blacklist=None):
+
+        """
+        Retrieve posts from the Danbooru board.
+
+        There is a fixed limit of 100 posts a time, imposed by the Danbooru
+        API: larger numbers are ignored. The limitation can be worked around by
+        specifying the "page" to view, like in the web version.
+
+        If the *tags* parameter is set, only posts with these tags will be
+        retrieved. Likewise, setting *blacklist* will skip posts whose tags
+        are contained in such a blacklist.
+
+        Ratings can be controlled with the *rating* parameter.
+
+        :param page: The page to view (default: 0)
+        :param tags: A list of tags to include (if None, use all tags)
+        :param limit: The maximum number of items to retrieve (up to 100)
+        :param rating: The maximum allowed rating for items, between "Safe",
+                       "Questionable", and "Explicit".
+        :param blacklist: A blacklist of tags
+
+        """
 
         if limit > 100:
             limit = 100
@@ -65,17 +185,26 @@ class DanbooruService(QtCore.QObject):
         if page is not None:
             parameters["page"] = page
 
-        request_url = utils.danbooru_request_url(POST_URL, parameters)
+        request_url = utils.danbooru_request_url(self.url, POST_URL,
+                                                 parameters)
 
-        job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
+        request_url = kdecore.KUrl(self.url)
+        request_url.addPath(POST_URL)
+        request_url.addQueryItem("page", str(page))
+        request_url.addQueryItem("limit", str(limit))
+
+        job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
 
-        job.result.connect(self.__process_post_list)
+        job.setProperty("ratings", QtCore.QVariant(rating))
+        job.setProperty("blacklisted_tags", QtCore.QVariant(blacklist))
+
+        job.result.connect(self.__slot_process_post_list)
 
     def get_tag_list(self, page=0):
         pass
 
-    def get_thumbnails(self, post_list):
+    def get_pool_list(self):
         pass
 
     def get_image(self, image_url):

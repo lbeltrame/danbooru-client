@@ -21,7 +21,7 @@ import urllib
 import urlparse
 
 
-def danbooru_request_url(url, parameters=None):
+def danbooru_request_url(board_url, api_url, parameters=None):
 
     """Create an appropriately-encoded Danbooru URL.
 
@@ -29,7 +29,8 @@ def danbooru_request_url(url, parameters=None):
     for the plus sign("+") which is kept literal as otherwise it wouldn't be
     understood by the Danbooru API.
 
-    :param url: The base URL for generation
+    :param board_url: The base URL for generation
+    :param api_url: The specific API path
     :param parameters: a dictionary holding the parameters to be added
 
     :return: A properly encoded Danbooru URL
@@ -42,7 +43,7 @@ def danbooru_request_url(url, parameters=None):
         url_parameters = urllib.unquote(url_parameters)
         url_parameters = "?" + url_parameters
 
-    request_url = urlparse.urljoin(self.url, url)
+    request_url = urlparse.urljoin(board_url, api_url)
 
     if parameters:
         request_url = urlparse.urljoin(request_url, url_parameters)
