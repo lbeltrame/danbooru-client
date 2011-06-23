@@ -97,5 +97,3 @@ class DanbooruTag(object):
 
         tag_type = int(self._data.attrib["type"])
         return _TYPES[tag_type]
-
-

@@ -44,6 +44,7 @@ class DanbooruService(QtCore.QObject):
     """
 
     postRetrieved = QtCore.pyqtSignal(containers.DanbooruPost)
+    postDownloadFinished = QtCore.pyqtSignal()
     tagRetrieved = QtCore.pyQtSignal(containers.DanbooruTag)
 
     def __init__(self, board_url, username=None, password=None, cache=None,
@@ -56,6 +57,7 @@ class DanbooruService(QtCore.QObject):
         self.password = password
         self.tag_blacklist = None
         self.cache = cache
+        self.__data = None
 
     def __slot_process_post_list(self, job):
 
@@ -65,6 +67,7 @@ class DanbooruService(QtCore.QObject):
             return
 
         job_data = job.data()
+        self.__data = set()
 
         parsed_data = ElementTree.XML(unicode(job_data.data()))
         decoded_data = parsed_data.getiterator("post")
@@ -89,15 +92,16 @@ class DanbooruService(QtCore.QObject):
             if (allowed_ratings is not None
                 and item.rating not in allowed_ratings):
                 continue
-
+            self.__data.add(item)
             self.download_thumbnail(item)
+
+            #FIXME: Add a download completed signal
 
     def __slot_download_thumbnail(self, job):
 
         """Slot called from :meth:`download_thumbnail`."""
 
         img = QtGui.QPixmap()
-        name = job.url()
 
         if job.error():
             return
@@ -111,6 +115,11 @@ class DanbooruService(QtCore.QObject):
         danbooru_item.pixmap = img
 
         self.postRetrieved.emit(danbooru_item)
+        self.__data.remove(danbooru_item)
+
+        if not self.__data:
+            self.__data = None
+            self.postDownloadFinished.emit()
 
 
     def download_thumbnail(self, danbooru_item):

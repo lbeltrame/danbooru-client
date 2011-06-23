@@ -17,75 +17,61 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-'''
-File: thumbnailview.py
-Author: Luca Beltrame
-Description: Main widget to display and download thumbnails
-'''
+import PyQt4.QtCore as QtCore
+import PyQt4.QtGui as QtGui
 
-from PyQt4.QtCore import pyqtSignal, Qt,  QString
-from PyQt4.QtGui import (QLabel, QWidget, QTableWidget, QVBoxLayout,
-                         QHeaderView, QPixmap, QCheckBox, QSizePolicy)
-
-from PyKDE4.kdecore import KUrl, i18n, i18nc, KGlobal,ki18np
-from PyKDE4.kdeui import KUrlLabel, KAcceleratorManager,  KMessageBox
+import PyKDE4.kdecore as kdecore
+import PyKDE4.kdeui as kdeui
 
 import actiondialog
 
+_TRANSLATED_RATINGS = dict(
+    Safe=kdecore.i18nc("Image for all audiences", "Safe"),
+    Questionable=kdecore.i18nc("Image with suggestive themes", "Questionable"),
+                          Explicit=kdecore.i18nc("Image with explicit content",
+                              "Explicit")
+    )
 
-#TODO: Switch to model/view
 
-class ThumbnailViewItem(QWidget):
+class DanbooruPostWidget(QtGui.QWidget):
 
-    """Class that handles the thumbnails. It is a modified QWidget that keeps
-    track of the URL of the full image, the DanbooruItem associated to it, and
-    the actual iamge (a pixmap). It contains a QCheckBox that is used for
-    selecting the image for batch download."""
+    """Widget that displays a DanbooruPost."""
 
-    # Translated names for ratings
+    def __init__(self, danbooru_post, parent=None):
 
-    _TRANSLATED_RATINGS = dict(Safe=i18nc("Image for all audiences","Safe"),
-                              Questionable=i18nc("Image with suggestive themes",
-                                                "Questionable"),
-                              Explicit=i18nc("Image with explicit content",
-                                             "Explicit")
-                             )
+        super(DanbooruPostWidget, self).__init__(parent)
 
-    def __init__(self, image=None, url=None, data=None):
+        self.data = danbooru_post
 
-        super(ThumbnailViewItem, self).__init__()
+        self.__url_label = kdeui.KUrlLabel()
+        self.__text_label = QtGui.QLabel()
 
-        self.label = KUrlLabel()
-
-        self.data = data
         label_text = self.label_text()
-        self.label.setUrl(url)
 
-        if image is not None:
-            self.label.setPixmap(image)
+        self.__url_label.setUrl(self.data.preview_url)
 
-        self.label.setUseTips(True)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.label.setTipText(KUrl(self.data.full_url).fileName())
+        full_url = kdecore.KUrl(self.data.file_url).fileName()
+        self.__url_label.setUseTips(True)
+        self.__url_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.__url_label.setTipText(full_url)
 
-        self.__text_label = QLabel()
-
-        self.layout = QVBoxLayout(self)
+        self.layout = QtGui.QVBoxLayout(self)
         self.layout.addStretch()
-        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.__url_label)
 
         if label_text is not None:
             self.__text_label.setText(label_text)
             self.layout.addWidget(self.__text_label)
 
-        self.checkbox = QCheckBox()
+        self.checkbox = QtGui.QCheckBox()
         self.checkbox.setChecked(False)
-        self.checkbox.setText(i18n("Select"))
+        self.checkbox.setText(kdecore.i18n("Select"))
 
         # Remove the accelerator, we don't want it
-        KAcceleratorManager.setNoAccel(self.checkbox)
-        self.checkbox.setSizePolicy(QSizePolicy.Fixed,
-                                    QSizePolicy.Fixed)
+        kdeui.KAcceleratorManager.setNoAccel(self.checkbox)
+
+        self.checkbox.setSizePolicy(QtGui.QSizePolicy.Fixed,
+                                    QtGui.QSizePolicy.Fixed)
         self.layout.addWidget(self.checkbox)
 
         # FIXME: Hack to make sure there's enough space around the image,
@@ -95,32 +81,29 @@ class ThumbnailViewItem(QWidget):
 
     def label_text(self):
 
-        "Adds information on the item stored, which will be then shown."
+        "Format the text of the item for display."
 
-        if self.data is not None:
+        height = self.data.height
+        width = self.data.width
+        file_size = int(self.data.file_size)
+        rating = _TRANSLATED_RATINGS[self.data.rating]
 
-            height = self.data.height
-            width = self.data.width
-            file_size = int(self.data.size)
-            rating = self._TRANSLATED_RATINGS[self.data.rating]
+        # Properly format the strings according to the locale
 
-            # Properly format the strings according to the locale
+        sizestr = kdecore.ki18np("1 pixel", "%1 pixels")
+        image_size = kdecore.i18n("Size: %1 x %2",
+                                  sizestr.subs(width).toString(),
+                                  sizestr.subs(height).toString())
+        file_size = kdecore.i18n("File size: %1",
+                kdecore.KGlobal.locale().formatByteSize(file_size))
+        rating = kdecore.i18n("Rating: %1", rating)
 
-            sizestr = ki18np("1 pixel", "%1 pixels")
-            image_size = i18n("Size: %1 x %2", sizestr.subs(width).toString(),
-                              sizestr.subs(height).toString())
-            file_size = i18n("File size: %1",
-                             KGlobal.locale().formatByteSize(file_size))
-            rating = i18n("Rating: %1", rating)
-
-            text = image_size + "\n" + file_size + "\n" + rating
-        else:
-            text = None
+        text = image_size + "\n" + file_size + "\n" + rating
 
         return text
 
 
-class ThumbnailView(QTableWidget):
+class DanbooruPostView(QtGui.QTableWidget):
 
     """Class used to show the thumbnails retrieved from a Danbooru board. It is
     a subclass of QTableWidget, with some modifications. The number of columns
@@ -136,9 +119,7 @@ class ThumbnailView(QTableWidget):
 
     # Signals
 
-    thumbnailDownloaded = pyqtSignal()
-    downloadCompleted = pyqtSignal()
-    fetchTags = pyqtSignal(QString)
+    fetchTags = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, api_data, preferences, parent=None):
 
@@ -146,14 +127,7 @@ class ThumbnailView(QTableWidget):
         Danbooru object, preferences a reference to the KConfigXT
         instance."""
 
-        super(ThumbnailView, self).__init__(parent)
-
-        self.setColumnCount(preferences.column_no)
-        self.verticalHeader().hide()
-        self.horizontalHeader().hide()
-        self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
-        self.verticalHeader().setResizeMode(QHeaderView.ResizeToContents)
-        self.setShowGrid(False)
+        super(DanbooruPostView, self).__init__(parent)
 
         self.__max_columns = preferences.column_no
         self.__column_index = 0
@@ -163,8 +137,18 @@ class ThumbnailView(QTableWidget):
         self.api_data = api_data
         self.__items = list()
 
+        self.setColumnCount(self.__max_columns)
+        self.verticalHeader().hide()
+        self.horizontalHeader().hide()
+
+        resize_mode = QtGui.QHeaderView.ResizeToContents
+        self.horizontalHeader().setResizeMode(resize_mode)
+        self.verticalHeader().setResizeMode(resize_mode)
+        self.setShowGrid(False)
+        self.setDisabled(True)
+
         self.itemClicked.connect(self.retrieve_url)
-        self.api_data.dataDownloaded.connect(self.process_thumbnails)
+        self.api.postRetrieved.connect(self.create_post)
 
     def __len__(self):
 
@@ -198,60 +182,6 @@ class ThumbnailView(QTableWidget):
 
         self.fetchTags.emit(tags)
 
-    def create_image_item(self, pixmap=None, item=None):
-
-        """This function creates, starting from a DanbooruItem object and a
-        pixmap (retrieved from the service), a ThumbnailViewItem that is then
-        returned to be added into the table widget of the ThumbnailView. If the
-        item or the pixmap are invalid, None is returned."""
-
-        pixmap = QPixmap() if not pixmap else pixmap
-
-        if pixmap.isNull():
-            return
-
-        if item is None:
-            return
-
-        full_img_url = item.full_url
-        item = ThumbnailViewItem(image=pixmap, url=full_img_url,
-                                 data=item)
-        return item
-
-    def insert_items(self, thumbnail_item):
-
-        """Function that inserts ThumbnailViewItems into the ThumbnailView's
-        table widget. Columns and rows index are tracked so that the specific
-        parameters asked by the user are upheld. It emits thumbnailDownloaded
-        once each item has been added."""
-
-        # For some reason cellWidget(row, col) returns None, so we keep an
-        # internal list of items
-        self.__items.append(thumbnail_item)
-
-        if self.__column_index >= self.__max_columns:
-            self.__row_index += 1
-            self.__column_index = 0
-
-        self.setCellWidget(self.__row_index, self.__column_index,
-                           thumbnail_item)
-
-        self.__column_index += 1
-        self.resizeRowsToContents()
-        self.resizeColumnsToContents()
-        thumbnail_item.label.leftClickedUrl.connect(self.retrieve_url)
-
-        self.thumbnailDownloaded.emit()
-
-    def clear_items(self):
-
-        """Clears the internal list of items. Not needed anymore since the
-        addition of pagination support."""
-
-        self.__items = list()
-        self.__row_index = 0
-        self.__column_index = 0
-
     def items(self):
 
         """Generator function that yields each ThumbnailViewItem stored in the
@@ -262,21 +192,7 @@ class ThumbnailView(QTableWidget):
         for item in self.__items:
             yield item
 
-    def setup_rows(self, item_no):
-
-        """Sets up the proper number of rows depending on the items that have
-        been stored in the API data object."""
-
-        max_columns = self.__max_columns
-
-        if len(self.api_data.post_data) <= max_columns:
-            max_columns = item_no
-            self.setRowCount(1)
-        else:
-            result = item_no // max_columns
-            self.setRowCount(result + 1)
-
-    def process_thumbnails(self, url, pixmap):
+    def create_post(self, data):
 
         """Function that processes thumbnails and creates ThumbnailViewItems
         that wil be later inserted into the table widget. It is actually a slot
@@ -286,34 +202,27 @@ class ThumbnailView(QTableWidget):
         signal is disconnected, because otherwise even data sent to other
         thumbnailviews (multi-page setting) would be displayed."""
 
-        # Empty data is worthless: skip!
-        if url.isEmpty() or pixmap.isNull():
-            return
+        item = DanbooruPostWidget(data)
+        self.__items.append(item)
 
-        item_url = unicode(url.prettyUrl())
-        name = url.fileName()
-        post_data = self.api_data.post_data[item_url]
+        if self.currentRow() == -1:
+            self.insertRow(self.rowCount())
+            self.setCurrentCell(0, 0, QtGui.QItemSelectionModel.NoUpdate)
 
-        item = self.create_image_item(pixmap, post_data)
-        self.insert_items(item)
 
-        # To support pagination, disconnect after we have reached the last
-        # item, so that the data won't be sent to all thumbnailviews
+        if self.__column_index >= self.columnCount():
+            self.__column_index = 0
+            self.insertRow(self.rowCount())
+            self.setCurrentCell(self.currentRow(), 0,
+                                QtGui.QItemSelectionModel.NoUpdate)
 
-        if self.api_data.post_data[-1] == post_data:
-            self.downloadCompleted.emit()
-            self.api_data.dataDownloaded.disconnect()
+        self.setCellWidget(self.currentRow(), self.__column_index, item)
+        self.__column_index += 1
 
-    def display_thumbnails(self):
+        self.resizeRowsToContents()
+        self.resizeColumnsToContents()
 
-        """This function starts the thumbnail retrieval and display. First it
-        sets up the right rows in the widget, depending on the data, then it
-        gets every image from the thumbnail URLs."""
-
-        self.setup_rows(len(self.api_data.post_data))
-
-        for item in self.api_data.post_data:
-            self.api_data.get_image(item.thumbnail_url)
+        item.label.leftClickedUrl.connect(self.retrieve_url)
 
     def selected_images(self):
 
@@ -323,11 +232,7 @@ class ThumbnailView(QTableWidget):
         if not self.__items:
             return
 
-        selected_items = list()
-
-        for item in self.items():
-
-            if item.checkbox.isChecked():
-                selected_items.append(item.data.full_url)
+        selected_items = [item for item in self.items()
+                          if item.checkbox.isChecked()]
 
         return selected_items

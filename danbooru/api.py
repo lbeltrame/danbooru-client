@@ -205,6 +205,7 @@ class Danbooru(QObject):
             parameters["page"] = page
 
         request_url = self.danbooru_request_url(self._POST_URL, parameters)
+        print request_url
 
         job = KIO.storedGet(KUrl(request_url), KIO.NoReload,
                             KIO.HideProgressInfo)
