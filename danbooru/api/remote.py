@@ -45,7 +45,8 @@ class DanbooruService(QtCore.QObject):
 
     postRetrieved = QtCore.pyqtSignal(containers.DanbooruPost)
     postDownloadFinished = QtCore.pyqtSignal()
-    tagRetrieved = QtCore.pyQtSignal(containers.DanbooruTag)
+    tagRetrieved = QtCore.pyqtSignal(containers.DanbooruTag)
+    poolRetrieved = QtCore.pyqtSignal(containers.DanbooruPool)
 
     def __init__(self, board_url, username=None, password=None, cache=None,
                  parent=None):
@@ -58,6 +59,7 @@ class DanbooruService(QtCore.QObject):
         self.tag_blacklist = None
         self.cache = cache
         self.__data = None
+        self._current_tags = None
 
     def __slot_process_post_list(self, job):
 
@@ -75,7 +77,7 @@ class DanbooruService(QtCore.QObject):
         allowed_rating = job.property("ratings").toPyObject()
 
         if allowed_rating is not None:
-            allowed_ratings = MAX_RATINGS[allowed_rating]
+            allowed_ratings = MAX_RATINGS[unicode(allowed_rating)]
         else:
             allowed_ratings = None
 
@@ -92,10 +94,16 @@ class DanbooruService(QtCore.QObject):
             if (allowed_ratings is not None
                 and item.rating not in allowed_ratings):
                 continue
+
             self.__data.add(item)
             self.download_thumbnail(item)
 
-            #FIXME: Add a download completed signal
+        if not self.__data:
+            self.postDownloadFinished.emit()
+            return
+
+    def __slot_download_pool(self, job):
+        pass
 
     def __slot_download_thumbnail(self, job):
 
@@ -121,6 +129,12 @@ class DanbooruService(QtCore.QObject):
             self.__data = None
             self.postDownloadFinished.emit()
 
+    @property
+    def current_tags(self):
+
+        """The tags from the last search. Used to update results."""
+
+        return self._current_tags
 
     def download_thumbnail(self, danbooru_item):
 
@@ -155,8 +169,10 @@ class DanbooruService(QtCore.QObject):
         KIO.Scheduler.scheduleJob(job)
         job.result.connect(self.__slot_download_thumbnail)
 
+    def get_pool(self, pool_id, page=None):
+        pass
 
-    def get_post_list(self, page=0, tags=None, limit=100, rating="Safe",
+    def get_post_list(self, page=None, tags=None, limit=100, rating="Safe",
                       blacklist=None):
 
         """
@@ -187,6 +203,7 @@ class DanbooruService(QtCore.QObject):
         if tags is None:
             tags = ""
         else:
+            self._current_tags = tags
             tags = "+".join(tags)
 
         parameters = dict(tags=tags, limit=limit)
@@ -197,10 +214,7 @@ class DanbooruService(QtCore.QObject):
         request_url = utils.danbooru_request_url(self.url, POST_URL,
                                                  parameters)
 
-        request_url = kdecore.KUrl(self.url)
-        request_url.addPath(POST_URL)
-        request_url.addQueryItem("page", str(page))
-        request_url.addQueryItem("limit", str(limit))
+        request_url = kdecore.KUrl(request_url)
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
@@ -210,11 +224,37 @@ class DanbooruService(QtCore.QObject):
 
         job.result.connect(self.__slot_process_post_list)
 
-    def get_tag_list(self, page=0):
-        pass
+    def get_tag_list(self, page=None, limit=10, pattern=""):
 
-    def get_pool_list(self):
-        pass
+        parameters = dict(name=pattern, limit=limit)
+
+        request_url = utils.danbooru_request_url(self.url, TAG_URL, parameters)
+        request_url = kdecore.KUrl(request_url)
+
+        job = KIO.storedGet(request_url, KIO.NoReload,
+                            KIO.HideProgressInfo)
+
+        job.result.connect(self.process_tag_list)
+
+    def get_pool_list(self, page=None):
+
+        """Get a list of available pools.
+
+        :param page: The page of the list to browse
+        """
+
+        if page is not None:
+            parameters = dict(page=page)
+        else:
+            parameters = None
+
+        request_url = utils.danbooru_request_url(self.url, POOL_URL, parameters)
+        request_url = kdecore.KUrl(request_url)
+
+        job = KIO.storedGet(request_url, KIO.NoReload,
+                            KIO.HideProgressInfo)
+
+        job.result.connect(self.__slot_download_pool)
 
     def get_image(self, image_url):
         pass
