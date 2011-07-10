@@ -17,6 +17,8 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+from functools import partial
+
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 
@@ -43,21 +45,22 @@ class DanbooruPostWidget(QtGui.QWidget):
 
         self.data = danbooru_post
 
-        self.__url_label = kdeui.KUrlLabel()
+        self.url_label = kdeui.KUrlLabel()
         self.__text_label = QtGui.QLabel()
 
         label_text = self.label_text()
 
-        self.__url_label.setUrl(self.data.preview_url)
+        self.url_label.setUrl(self.data.preview_url)
+        self.url_label.setPixmap(self.data.pixmap)
 
         full_url = kdecore.KUrl(self.data.file_url).fileName()
-        self.__url_label.setUseTips(True)
-        self.__url_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.__url_label.setTipText(full_url)
+        self.url_label.setUseTips(True)
+        self.url_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.url_label.setTipText(full_url)
 
         self.layout = QtGui.QVBoxLayout(self)
         self.layout.addStretch()
-        self.layout.addWidget(self.__url_label)
+        self.layout.addWidget(self.url_label)
 
         if label_text is not None:
             self.__text_label.setText(label_text)
@@ -123,10 +126,6 @@ class DanbooruPostView(QtGui.QTableWidget):
 
     def __init__(self, api_data, preferences, parent=None):
 
-        """Initialize a new ThumbnailView. api_data is a reference to a
-        Danbooru object, preferences a reference to the KConfigXT
-        instance."""
-
         super(DanbooruPostView, self).__init__(parent)
 
         self.__max_columns = preferences.column_no
@@ -147,8 +146,13 @@ class DanbooruPostView(QtGui.QTableWidget):
         self.setShowGrid(False)
         self.setDisabled(True)
 
+        enable_ = partial(self.setDisabled, False)
+
         self.itemClicked.connect(self.retrieve_url)
-        self.api.postRetrieved.connect(self.create_post)
+        self.api_data.postRetrieved.connect(self.create_post)
+        self.api_data.postDownloadFinished.connect(enable_)
+        self.api_data.postDownloadFinished.connect(
+            self.api_data.postRetrieved.disconnect)
 
     def __len__(self):
 
@@ -176,12 +180,6 @@ class DanbooruPostView(QtGui.QTableWidget):
         if not dialog.exec_():
             return
 
-    def reemit_fetch_tags(self,  tags):
-
-        "Propagates the tags selected from the dialog."
-
-        self.fetchTags.emit(tags)
-
     def items(self):
 
         """Generator function that yields each ThumbnailViewItem stored in the
@@ -205,24 +203,21 @@ class DanbooruPostView(QtGui.QTableWidget):
         item = DanbooruPostWidget(data)
         self.__items.append(item)
 
-        if self.currentRow() == -1:
-            self.insertRow(self.rowCount())
-            self.setCurrentCell(0, 0, QtGui.QItemSelectionModel.NoUpdate)
-
+        if self.rowCount() == 0:
+            self.insertRow(0)
 
         if self.__column_index >= self.columnCount():
             self.__column_index = 0
+            self.__row_index += 1
             self.insertRow(self.rowCount())
-            self.setCurrentCell(self.currentRow(), 0,
-                                QtGui.QItemSelectionModel.NoUpdate)
 
-        self.setCellWidget(self.currentRow(), self.__column_index, item)
+        self.setCellWidget(self.__row_index, self.__column_index, item)
         self.__column_index += 1
 
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
 
-        item.label.leftClickedUrl.connect(self.retrieve_url)
+        item.url_label.leftClickedUrl.connect(self.retrieve_url)
 
     def selected_images(self):
 
