@@ -35,24 +35,14 @@ import thumbnailview
 from ui.ui_thumbnailarea import Ui_ThumbnailArea
 
 
-class ThumbnailArea(QWidget, Ui_ThumbnailArea):
+class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
 
     """Class that provides an area where individual ThumbnailViews (from
     thumbnailview.py) can be placed in, using a tabbed interface. The class uses
     an internal list for each page added, to avoid garbage collection issues.
     Methods to create tabs are not called directly, but are instead slots called
     upon by signal.
-
-    This class provides the following custom signals:
-
-        - downloadDone - used to relay the downloadCompleted signal from
-        the ThumbnailView;
-        - thumbnailRetrieved - used to rely the thumbnailDownloaded signal from
-        the ThumbnailView."""
-
-    downloadDone = pyqtSignal()
-    thumbnailRetrieved = pyqtSignal()
-    fetchTags = pyqtSignal(QString)
+    """
 
     def __init__(self, api_data=None, preferences=None, parent=None):
 
@@ -60,7 +50,7 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         Danbooru object, while preferences is a reference to a
         KConfigXT instance."""
 
-        super(ThumbnailArea, self).__init__(parent)
+        super(DanbooruTabWidget, self).__init__(parent)
         self.setupUi(self)
 
         self.preferences = preferences
@@ -72,10 +62,12 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         KAcceleratorManager.setNoAccel(self.thumbnailTabWidget)
         self.nextPageButton.setDisabled(True)
 
-        self.nextPageButton.clicked.connect(self.new_page)
-        self.api_data.postDataReady.connect(self.fetch_posts)
-        self.api_data.tagsRetrieved.connect(self.show_tags)
-        self.tagList.itemDoubleClicked.connect(self.fetch)
+        button_toggle = partial(self.nextPageButton.setDisabled, False)
+
+        self.api_data.postDownloadFinished.connect(button_toggle)
+        self.api_data.postDownloadFinished.connect(self.__check)
+        self.nextPageButton.clicked.connect(self.update_search_results)
+
 
     def __iter__(self):
 
@@ -84,47 +76,38 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
         for item in self.__pages:
             yield item
 
-    def fetch(self,  item):
+    def __check(self):
 
-        "Emits the fetch tags signal."
+        """Check whether results were received or not."""
 
-        if hasattr(item, "text"):
-            item_text = item.text()
-        else:
-            item_text = item
-        self.emit_fetch_tags(item)
+        current_index = self.thumbnailTabWidget.currentIndex()
 
+        widget = self.thumbnailTabWidget.widget(current_index)
 
-    def emit_fetch_tags(self, tags):
-        # hack to prevent new fetches from happening when currently fetching
-        if not self.nextPageButton.isEnabled():
-            KMessageBox.error(self, i18n("The current page is still retrieving."
-                                         " Please wait until retrieving is done."
-                                         ),
-                              i18n("Unable to fetch"))
-            return
-        self.fetchTags.emit(tags.text())
+        if not widget:
+
+            self.setUpdatesEnabled(False)
+            self.thumbnailTabWidget.removeTab(current_index)
+            label = QLabel(i18n("No matching posts found for this page."
+                                "\nWere you looking for a tag in the sidebar?"))
+            label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            text = i18n("Page %1 (empty)", current_index + 1)
+
+            index = self.thumbnailTabWidget.addTab(label, text)
+            self.thumbnailTabWidget.setCurrentIndex(index)
+            self.nextPageButton.setDisabled(False)
+            self.setUpdatesEnabled(True)
 
     def new_page(self):
 
         "Slot used to create a new page."
 
         if self.__firstpage:
-            view, index = self.create_tab()
-            view.display_thumbnails()
+            self.create_tab()
             self.__firstpage = False
         else:
-            self.__current_index += 1
+            self.create_tab()
             self.nextPageButton.setDisabled(True)
-            self.api_data.update(page=self.__current_index + 1)
-
-    def thumbnail_retrieved(self):
-
-        self.thumbnailRetrieved.emit()
-
-    def download_done(self):
-
-        self.downloadDone.emit()
 
     def create_tab(self):
 
@@ -133,59 +116,16 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         current_page = self.thumbnailTabWidget.currentIndex() + 1
         next_page = 1 if current_page == 0 else current_page + 1
-        page_name = "Page %d" % next_page
-        enable_button = partial(self.nextPageButton.setDisabled, False)
+        page_name = i18n("Page %1", next_page)
 
-        view = thumbnailview.ThumbnailView(self.api_data, self.preferences)
-        view.fetchTags.connect(self.fetch)
+        view = thumbnailview.DanbooruPostView(self.api_data, self.preferences)
 
-        # PyKDE4 suffers from garbage collection issues with widgets like
-        # KPageWidget or KTabWidget. Therefore, we add the item to a list to
-        # keep a reference of it around
+        # We add the item to a list to keep a reference of it around
 
         self.__pages.append(view)
 
-        view.thumbnailDownloaded.connect(self.thumbnail_retrieved)
-        view.downloadCompleted.connect(self.download_done)
-        view.downloadCompleted.connect(enable_button)
-
         index = self.thumbnailTabWidget.addTab(view, page_name)
-
-        return view, index
-
-    def show_tags(self):
-        if not self.api_data.similar_tag_elements:
-            print("Failed to retrieve tags")
-        else:
-            self.tagList.clear()
-            for item in self.api_data.similar_tag_elements:
-                self.tagList.addItem(item.attrib.get("name"))
-
-    def fetch_posts(self):
-
-        """Slot used to fetch posts, calling the display_thumbnail of the
-        thumbnail view corresponding to the current index."""
-
-        if not self.api_data.post_data:
-
-            label = QLabel(i18n("No matching posts found for this page."))
-            label = QLabel(i18n("No matching posts found for this page."
-                                "\nWere you looking for a tag in the sidebar?"))
-            label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            self.__current_index += 1
-            text = "Page %d (empty)" % self.__current_index
-
-            index = self.thumbnailTabWidget.addTab(label, text)
-            self.thumbnailTabWidget.setCurrentIndex(index)
-            self.nextPageButton.setDisabled(False)
-            return
-
-        if self.__firstpage:
-            self.new_page()
-        else:
-            view, index = self.create_tab()
-            view.display_thumbnails()
-            self.thumbnailTabWidget.setCurrentIndex(index)
+        self.thumbnailTabWidget.setCurrentIndex(index)
 
     def clear(self):
 
@@ -212,13 +152,17 @@ class ThumbnailArea(QWidget, Ui_ThumbnailArea):
 
         return images
 
-    def update_data(self, api_data):
+    def update_search_results(self):
 
-        "Updates the API data."
+        """Update the search results using the same parameters as originally
+        supplied."""
 
-        self.api_data = api_data
+        self.nextPageButton.setDisabled(True)
+        self.new_page()
+        current_page = self.thumbnailTabWidget.currentIndex() + 1
 
-        # As we changed object, the connection to the item points still to the
-        # old one. Therefore, we need to re-connect the signal again
-
-        self.api_data.postDataReady.connect(self.fetch_posts)
+        self.api_data.get_post_list(limit=self.preferences.thumbnail_no,
+                                    tags=self.api_data.current_tags,
+                                    page=current_page,
+                                    blacklist=self.preferences.tag_blacklist,
+                                    rating=self.preferences.max_allowed_rating)
