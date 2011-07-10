@@ -75,8 +75,8 @@ class DanbooruTag(object):
 
     """A class representing a Danbooru tag."""
 
-    _TYPES = dict(0="General", 1="artist", 3="copyright",
-                  4="character")
+    _TYPES = {0: "General", 1: "artist", 3: "copyright",
+              4: "character"}
 
     def __init__(self, data):
 
@@ -96,4 +96,8 @@ class DanbooruTag(object):
         "copyright" and "character"."""
 
         tag_type = int(self._data.attrib["type"])
-        return _TYPES[tag_type]
+        return self._TYPES[tag_type]
+
+
+class DanbooruPool(object):
+    pass
