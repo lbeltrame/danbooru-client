@@ -23,17 +23,17 @@ Author: Luca Beltrame
 Description: Widget and dialog to display and download images from Danbooru.
 '''
 
-from PyQt4.QtCore import SIGNAL, QString, pyqtSignal
-from PyQt4.QtGui import QWidget
-from PyKDE4.kdecore import KUrl, i18n
-from PyKDE4.kdeui import KDialog, KMessageBox
-from PyKDE4.kio import KIO, KRun, KFileDialog, KFile
+import PyQt4.QtCore as QtCore
+
+import PyKDE4.kdecore as kdecore
+import PyKDE4.kdeui as kdeui
+import PyKDE4.kio as kio
 
 import danbooru2nepomuk
 from ui.ui_actiondialog import Ui_ActionDialog
 
 
-class ActionWidget(QWidget, Ui_ActionDialog):
+class ActionWidget(QtCore.QWidget, Ui_ActionDialog):
 
     def __init__(self, url=None, pixmap=None, parent=None):
 
@@ -41,9 +41,11 @@ class ActionWidget(QWidget, Ui_ActionDialog):
         self.setupUi(self)
 
         self.actions = ["view", "download"]
-        self.fname = KUrl(url).fileName()
-        self.linkLabel.setText("<a href='%s'>Direct image link</a>" % url)
-        pretty_url = KUrl(url).prettyUrl()
+        self.fname = kdecore.KUrl(url).fileName()
+        label_text = kdecore.i18n("<a href='%s'>Direct image link</a>" % url)
+        self.linkLabel.setText(label_text)
+
+        pretty_url = kdecore.KUrl(url).prettyUrl()
         self.linkLabel.setToolTip(pretty_url)
 
         if not pixmap.isNull():
@@ -57,14 +59,15 @@ class ActionWidget(QWidget, Ui_ActionDialog):
         return self.actions[index]
 
 
-class ActionDialog(KDialog):
+class ActionDialog(kdeui.KDialog):
 
     """Class that provides a dialog that prompts the user to choose an action
     for the selected image."""
 
-    fetchTags = pyqtSignal(QString)
+    fetchTags = QtCore.pyqtSignal(QtCore.QString)
 
-    def __init__(self, url, pixmap=None, preferences=None, parent=None):
+    def __init__(self, url, pixmap=None, tags=None, preferences=None,
+                 parent=None):
 
         super(ActionDialog, self).__init__(parent)
 
@@ -73,11 +76,14 @@ class ActionDialog(KDialog):
         self.preferences = preferences
         self.tagging = preferences.nepomuk_enabled
         self.blacklist = preferences.tag_blacklist
+
         self.actionwidget = ActionWidget(self.url, pixmap, self)
         self.setMainWidget(self.actionwidget)
-        self.setCaption(i18n("Download or display image"))
-        self.actionwidget.tagList.addItems(danbooru2nepomuk.extract_tags(
-            KUrl(self.url).fileName(), self.blacklist))
+        self.setCaption(kdecore.i18n("Download or display image"))
+
+        self.tags = [item for item in tags if item not in self.blacklist]
+
+        self.actionwidget.tagList.addItems(self.tags)
         self.actionwidget.tagList.itemDoubleClicked.connect(self.fetch)
         self.__actions = dict(view=self.view, download=self.download)
 
@@ -86,7 +92,7 @@ class ActionDialog(KDialog):
         action = self.actionwidget.action()
         self.__actions[action]()
 
-        KDialog.accept(self)
+        kdeui.KDialog.accept(self)
 
     def fetch(self, item):
 
@@ -101,49 +107,49 @@ class ActionDialog(KDialog):
         viewer."""
 
         # Garbage collection ensues if we don't keep a reference around
-        self.display = KRun(KUrl(self.url), self, 0, False, True, '')
+        self.display = kio.KRun(kdecore.KUrl(self.url), self, 0,
+                                False, True, '')
+
         if self.display.hasError():
-            KMessageBox.error(self,
-                             "An error occurred while downloading the image.",
-                             "Download error")
-            self.reject(self)
+
+            messagewidget = kdeui.KMessageWidget(self)
+            messagewidget.setMessageType(kdeui.KMessageWidget.Error)
+            text = kdecore.i18n("An error occurred while "
+                                "downloading the image.")
+            messagewidget.setText(text)
 
     def download(self):
 
         """Function that triggers the download of the image to a user-supplied
         directory."""
 
-        start_name = KUrl(self.url).fileName()
-        start_url = KUrl("kfiledialog:///danbooru/%s" % unicode(start_name))
+        start_name = kdecore.KUrl(self.url).fileName()
+        start_url = kdecore.KUrl("kfiledialog:///danbooru/%s" %
+                                 unicode(start_name))
+
         # Get the mimetype to be passed to the save dialog
-        mimetype_job = KIO.mimetype(KUrl(self.url), KIO.HideProgressInfo)
+        mimetype_job = kio.KIO.mimetype(kdecore.KUrl(self.url),
+                                        kio.KIO.HideProgressInfo)
 
         # Small enough to be synchronous
-        if KIO.NetAccess.synchronousRun(mimetype_job, self):
+        if kio.KIO.NetAccess.synchronousRun(mimetype_job, self):
             mimetype = mimetype_job.mimetype()
 
-        caption = i18n("Save image file")
+        caption = kdecore.i18n("Save image file")
 
-        # Build the save dialog
-        save_dialog = KFileDialog(start_url, mimetype, self)
-        save_dialog.setOperationMode(KFileDialog.Saving)
-        modes = KFile.Modes(KFile.File | KFile.LocalOnly)
+        enable_previews = kio.KFileDialog.ShowInlinePreview
+        confirm_overwrite = kio.KFileDialog.ConfirmOverwrite
+        options = kio.KFileDialog.Option(enable_previews | confirm_overwrite)
 
-        # Set the parameters
-        save_dialog.setMode(modes)
-        save_dialog.setConfirmOverwrite(True)
-        save_dialog.setInlinePreviewShown(True)
-        save_dialog.setCaption(caption)
+        filename = kio.KFileDialog.getSaveFileName(start_url,
+            mimetype, self, caption, options)
 
-        if save_dialog.exec_():
+        if not filename:
+            return
 
-            filename = save_dialog.selectedUrl()
-
-            if not filename:
-                return
-
-            download_job = KIO.file_copy(KUrl(self.url), filename, -1)
-            download_job.result.connect(self.download_slot)
+        download_url = kdecore.KUrl(self.url)
+        download_job = kio.KIO.file_copy(download_url, filename, -1)
+        download_job.result.connect(self.download_slot)
 
     def download_slot(self, job):
 
@@ -153,17 +159,7 @@ class ActionDialog(KDialog):
             job.ui().showErrorMessage()
             return
 
-        start_name = job.srcUrl().fileName()
         download_name = job.destUrl().toLocalFile()
 
         if self.tagging:
-            result = danbooru2nepomuk.nepomuk_running()
-            if result:
-
-                # The user may select an arbitrary file name, so we tag
-                # using the original file name obtained from the URL
-                tags = danbooru2nepomuk.extract_tags(start_name,
-                                                     blacklist=self.blacklist)
-                # danbooru2nepomuk wants strings or QStrings
-                danbooru2nepomuk.tag_file(download_name, tags)
-
+            danbooru2nepomuk.tag_danbooru_item(download_name, self.tags)
