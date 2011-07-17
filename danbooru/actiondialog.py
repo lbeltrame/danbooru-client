@@ -24,6 +24,7 @@ Description: Widget and dialog to display and download images from Danbooru.
 '''
 
 import PyQt4.QtCore as QtCore
+import PyQt4.QtGui as QtGui
 
 import PyKDE4.kdecore as kdecore
 import PyKDE4.kdeui as kdeui
@@ -33,7 +34,7 @@ import danbooru2nepomuk
 from ui.ui_actiondialog import Ui_ActionDialog
 
 
-class ActionWidget(QtCore.QWidget, Ui_ActionDialog):
+class ActionWidget(QtGui.QWidget, Ui_ActionDialog):
 
     def __init__(self, url=None, pixmap=None, parent=None):
 
@@ -148,6 +149,7 @@ class ActionDialog(kdeui.KDialog):
             return
 
         download_url = kdecore.KUrl(self.url)
+        filename = kdecore.KUrl(filename)
         download_job = kio.KIO.file_copy(download_url, filename, -1)
         download_job.result.connect(self.download_slot)
 
@@ -156,7 +158,11 @@ class ActionDialog(kdeui.KDialog):
         "Slot called by the KJob handling the download."
 
         if job.error():
-            job.ui().showErrorMessage()
+            messagewidget = kdeui.KMessageWidget(self)
+            messagewidget.setMessageType(kdeui.KMessageWidget.Error)
+            text = job.errorText()
+            messagewidget.setText(text)
+
             return
 
         download_name = job.destUrl().toLocalFile()
