@@ -44,7 +44,8 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
     upon by signal.
     """
 
-    def __init__(self, api_data=None, preferences=None, parent=None):
+    def __init__(self, api_data=None, preferences=None, post_limit=None,
+                 parent=None):
 
         """Initialize a new ThumbnailArea. api_data is a reference to a
         Danbooru object, while preferences is a reference to a
@@ -58,6 +59,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.__pages = list()
         self.__firstpage = True
         self.__current_index = 0
+        self.post_limit = post_limit
 
         KAcceleratorManager.setNoAccel(self.thumbnailTabWidget)
         self.nextPageButton.setDisabled(True)
@@ -67,6 +69,8 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.api_data.postDownloadFinished.connect(button_toggle)
         self.api_data.postDownloadFinished.connect(self.__check)
         self.nextPageButton.clicked.connect(self.update_search_results)
+
+        self.new_page()
 
 
     def __iter__(self):
@@ -137,6 +141,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.__firstpage = True
         self.__current_index = 0
         self.nextPageButton.setDisabled(True)
+        self.new_page()
 
     def selected_images(self):
 
@@ -162,7 +167,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.new_page()
         current_page = self.__current_index + 1
 
-        self.api_data.get_post_list(limit=self.preferences.thumbnail_no,
+        self.api_data.get_post_list(limit=self.post_limit,
                                     tags=self.api_data.current_tags,
                                     page=current_page,
                                     blacklist=self.preferences.tag_blacklist,
