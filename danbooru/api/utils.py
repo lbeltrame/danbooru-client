@@ -19,7 +19,8 @@
 
 import PyKDE4.kdecore as kdecore
 
-def danbooru_request_url(board_url, api_url, parameters=None):
+def danbooru_request_url(board_url, api_url, parameters=None, username=None,
+                         password=None):
 
     """Create an appropriately-encoded Danbooru URL.
 
@@ -45,5 +46,9 @@ def danbooru_request_url(board_url, api_url, parameters=None):
             danbooru_url.addEncodedQueryItem(key, value)
 
         danbooru_url.addQueryItem(key, unicode(value))
+
+    if username is not None and password is not None:
+        danbooru_url.setUserName(username)
+        danbooru_url.setPassword(password)
 
     return danbooru_url

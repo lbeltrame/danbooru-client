@@ -37,6 +37,7 @@ POOL_DATA_URL = "pool/show.xml"
 MAX_RATINGS = dict(Safe=("Safe"), Questionable=("Safe", "Questionable"),
                    Explicit=("Safe", "Questionable", "Explicit"))
 
+
 class DanbooruService(QtCore.QObject):
 
     """A class which provides a wrapper around Danbooru's RESTful API.
@@ -212,7 +213,8 @@ class DanbooruService(QtCore.QObject):
             parameters["page"] = page
 
         request_url = utils.danbooru_request_url(self.url, POST_URL,
-                                                 parameters)
+                                                 parameters, self.username,
+                                                 self.password)
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
@@ -233,7 +235,8 @@ class DanbooruService(QtCore.QObject):
 
         parameters = dict(name=pattern, limit=limit)
 
-        request_url = utils.danbooru_request_url(self.url, TAG_URL, parameters)
+        request_url = utils.danbooru_request_url(self.url, TAG_URL, parameters,
+                                                 self.username, self.password)
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
@@ -252,7 +255,8 @@ class DanbooruService(QtCore.QObject):
         else:
             parameters = None
 
-        request_url = utils.danbooru_request_url(self.url, POOL_URL, parameters)
+        request_url = utils.danbooru_request_url(self.url, POOL_URL, parameters,
+                                                 self.username, self.passwordrd)
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
