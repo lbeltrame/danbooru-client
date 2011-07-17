@@ -63,6 +63,7 @@ class FetchWidget(QWidget, Ui_FetchDialog):
         if rating in self.__rating_mappings:
             self.__rating_mappings[rating].setChecked(True)
 
+    @property
     def selected_rating(self):
 
         """Returns the user's selected rating, depending on the checked radio
@@ -101,18 +102,21 @@ class FetchDialog(KDialog):
         self.setMainWidget(self.fetchwidget)
         self.setCaption(i18n("Download posts"))
 
+    @property
     def tags(self):
 
         "Returns the user selected tags."
 
         return self.__tags
 
+    @property
     def limit(self):
 
         "Returns the post limit (maximum 100) selected by the user."
 
         return self.__limit
 
+    @property
     def max_rating(self):
 
         "Returns the maximum allowed rating chosen by the user."

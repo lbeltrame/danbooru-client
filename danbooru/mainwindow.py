@@ -125,6 +125,8 @@ class MainWindow(KXmlGuiWindow):
 
     def setup_action_collection(self):
 
+        """Set up the action collection by adding the actions."""
+
         action_collection = self.actionCollection()
 
         # Addition to the action collection
@@ -181,7 +183,7 @@ class MainWindow(KXmlGuiWindow):
 
     def setup_action_tooltip(self, action):
 
-        "Slot to show statusbar help when actions are hovered."
+        "Show statusbar help when actions are hovered."
 
         if action.isEnabled():
             self.statusBar().showMessage(action.toolTip(), 2000)
@@ -201,13 +203,13 @@ class MainWindow(KXmlGuiWindow):
 
     def connect(self, ok):
 
-        "Connects to a Danbooru board."
+        "Connect to a Danbooru board."
 
         dialog = connectdialog.ConnectDialog(self.url_list, self)
 
         if dialog.exec_():
             self.api = None
-            self.api = dialog.danbooru_api()
+            self.api = dialog.danbooru_connection
             self.api.cache = self.cache
 
             if self.thumbnailarea is not None:
@@ -224,7 +226,7 @@ class MainWindow(KXmlGuiWindow):
 
     def get_posts(self, ok):
 
-        "Fetches the actual data from the connected Danbooru board."
+        "Get posts from the connected Danbooru board."
 
         if not self.api:
             return
@@ -236,10 +238,9 @@ class MainWindow(KXmlGuiWindow):
         if dialog.exec_():
 
             self.clear()
-            tags = dialog.tags()
-            limit = dialog.limit()
-
-            max_rating = dialog.max_rating()
+            tags = dialog.tags
+            limit = dialog.limit
+            max_rating = dialog.max_rating
 
             if not self.thumbnailarea:
                 self.setup_area()

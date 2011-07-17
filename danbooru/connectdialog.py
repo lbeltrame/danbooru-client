@@ -46,18 +46,21 @@ class ConnectWidget(QWidget, Ui_connectForm):
             for index, item in enumerate(urls):
                 self.danbooruUrlComboBox.insertUrl(index, KUrl(item))
 
+    @property
     def url(self):
 
         "Returns the currently selected Danbooru URL."
 
         return self.danbooruUrlComboBox.currentText()
 
+    @property
     def username(self):
 
         "Returns the inserted username."
 
         return self.userLineEdit.text()
 
+    @property
     def password(self):
 
         "Returns the inserted password."
@@ -75,7 +78,7 @@ class ConnectDialog(KDialog):
 
         super(ConnectDialog, self).__init__(parent)
 
-        self.__danbooru = None
+        self.connection__connection = None
 
         self.connect_widget = ConnectWidget(urls, self)
         self.setMainWidget(self.connect_widget)
@@ -94,9 +97,9 @@ class ConnectDialog(KDialog):
 
     def accept(self):
 
-        url = self.connect_widget.url()
-        login = self.connect_widget.username()
-        password = self.connect_widget.password()
+        url = self.connect_widget.url
+        login = self.connect_widget.username
+        password = self.connect_widget.password
 
         username = None if login.isEmpty() else login
         password = None if password.isEmpty() else password
@@ -104,17 +107,17 @@ class ConnectDialog(KDialog):
         if url.isEmpty():
             return
 
-        self.__danbooru = remote.DanbooruService(unicode(url), username,
+        self.__connection = remote.DanbooruService(unicode(url), username,
                                               password=password)
 
         KDialog.accept(self)
 
-    def danbooru_api(self):
+    @property
+    def danbooru_connection(self):
 
         "Returns the Danbooru object retrieved."
 
-        if self.__danbooru is None:
+        if self.__connection is None:
             return
 
-        return self.__danbooru
-
+        return self.__connection
