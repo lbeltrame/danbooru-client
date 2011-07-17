@@ -28,12 +28,12 @@ from __future__ import division
 import sys
 import os
 
-from PyQt4.QtCore import Qt, QSize, SIGNAL
+from PyQt4.QtCore import Qt, QSize, QVariant
 from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
                          QKeySequence)
 from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
 from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
-                          KStandardAction, KIcon, KConfigDialog, KMessageBox)
+                          KStandardAction, KIcon, KConfigDialog)
 from PyKDE4.kio import KFileDialog, KIO
 
 import preferences
@@ -61,13 +61,6 @@ class MainWindow(KXmlGuiWindow):
         self.url_list = self.preferences.boards_list
         self.max_retrieve = self.preferences.thumbnail_no
 
-        self.welcome = QLabel()
-        pix = QPixmap(KStandardDirs.locate("appdata","logo.png"))
-
-        self.welcome.setPixmap(pix)
-        self.welcome.setAlignment(Qt.AlignCenter)
-        self.setCentralWidget(self.welcome)
-
         self.statusbar = self.statusBar()
         self.progress = QProgressBar()
         self.thumbnailarea = None
@@ -78,11 +71,23 @@ class MainWindow(KXmlGuiWindow):
         self.statusbar.addPermanentWidget(self.progress)
         self.progress.hide()
 
+        self.setup_welcome_widget()
         self.setup_actions()
+
+    def setup_welcome_widget(self):
+
+        """Load the welcome widget at startup."""
+
+        welcome = QLabel()
+        pix = QPixmap(KStandardDirs.locate("appdata","logo.png"))
+
+        welcome.setPixmap(pix)
+        welcome.setAlignment(Qt.AlignCenter)
+        self.setCentralWidget(welcome)
 
     def setup_tooltips(self):
 
-        "Sets tooltips for the actions."
+        """Set tooltips for the actions."""
 
         self.connect_action.setToolTip(i18n("Connect to a Danbooru board"))
         self.fetch_action.setToolTip(
@@ -92,7 +97,7 @@ class MainWindow(KXmlGuiWindow):
 
     def create_actions(self):
 
-        "Creates actions for the main window."
+        """Create actions for the main window."""
 
         self.connect_action = KAction(KIcon("document-open-remote"),
                                  i18n("Connect"), self)
@@ -108,24 +113,17 @@ class MainWindow(KXmlGuiWindow):
         # Shortcuts
         connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
         connect_active = KAction.ShortcutTypes(KAction.ActiveShortcut)
+
         self.connect_action.setShortcut(QKeySequence.Open,
                                    connect_default | connect_active)
         self.fetch_action.setShortcut(QKeySequence.Find,
                                  connect_default | connect_active)
 
-        # No sense in enabling fetch and batch at start
-        if self.api is None:
-            self.fetch_action.setEnabled(False)
-            self.batch_download_action.setEnabled(False)
-            self.pool_download_action.setEnabled(False)
+        self.fetch_action.setEnabled(False)
+        self.batch_download_action.setEnabled(False)
+        self.pool_download_action.setEnabled(False)
 
-    def setup_actions(self):
-
-        """Wrapper function that creates actions, setups tooltips, adds actions
-        to the action collection, and connects relevant signals."""
-
-        self.create_actions()
-        self.setup_tooltips()
+    def setup_action_collection(self):
 
         action_collection = self.actionCollection()
 
@@ -142,18 +140,31 @@ class MainWindow(KXmlGuiWindow):
         KStandardAction.preferences(self.show_preferences,
                                     action_collection)
 
+        action_collection.removeAction(
+            action_collection.action("help_contents"))
+        action_collection.actionHovered.connect(self.setup_action_tooltip)
+
+    def setup_actions(self):
+
+        """Set up the relevant actions, tooltips, and load the RC file."""
+
+        self.create_actions()
+        self.setup_tooltips()
+        self.setup_action_collection()
+
         # Connect signals
-        self.connect_action.triggered.connect(self.connect_danbooru)
-        self.fetch_action.triggered.connect(self.fetch)
+        self.connect_action.triggered.connect(self.connect)
+        self.fetch_action.triggered.connect(self.get_posts)
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
         self.pool_download_action.triggered.connect(self.pool_download)
-        # Show tooltips in the status bar as well
-        action_collection.actionHovered.connect(self.action_tooltip)
+
+        window_options = self.StandardWindowOption(self.ToolBar| self.Keys |
+                                                   self.Create | self.Save |
+                                                   self.StatusBar)
 
         setupGUI_args = [
-            QSize(500, 400), self.StandardWindowOption(
-                self.ToolBar | self.Keys | self.Create | self.Save | self.StatusBar)
+            QSize(500, 400), self.StandardWindowOption(window_options)
         ]
 
         #Check first in standard locations for danbooruui.rc
@@ -161,21 +172,14 @@ class MainWindow(KXmlGuiWindow):
         rc_file = KStandardDirs.locate("appdata", "danbooruui.rc")
 
         if rc_file.isEmpty():
-            # Not found, check elsewhere
             setupGUI_args.append(os.path.join(sys.path [0],
-                                                   "danbooruui.rc"))
+                                              "danbooruui.rc"))
         else:
             setupGUI_args.append(rc_file)
 
         self.setupGUI(*setupGUI_args)
 
-        # Remove handbook menu entry: the call needs to be put later than
-        # setupGUI or the action won't exist, leading to no effect
-
-        action_collection.removeAction(
-            action_collection.action("help_contents"))
-
-    def action_tooltip(self, action):
+    def setup_action_tooltip(self, action):
 
         "Slot to show statusbar help when actions are hovered."
 
@@ -184,7 +188,7 @@ class MainWindow(KXmlGuiWindow):
 
     def show_preferences(self):
 
-        "Shows the preferences dialog."
+        "Show the preferences dialog."
 
         if KConfigDialog.showDialog("Preferences dialog"):
             return
@@ -192,9 +196,10 @@ class MainWindow(KXmlGuiWindow):
             dialog = preferences.PreferencesDialog(self, "Preferences dialog",
                                                    self.preferences)
             dialog.show()
+            #FIXME: Needed?
             dialog.settingsChanged.connect(self.read_config)
 
-    def connect_danbooru(self, ok):
+    def connect(self, ok):
 
         "Connects to a Danbooru board."
 
@@ -206,18 +211,18 @@ class MainWindow(KXmlGuiWindow):
             self.api.cache = self.cache
 
             if self.thumbnailarea is not None:
-                # Update API reference in the thumbnailarea
-                self.thumbnailarea.update_data(self.api)
+                #TODO: Investigate usability
+                self.thumbnailarea.clear()
+                self.thumbnailarea.api_data = self.api
 
             self.api.cache = self.cache
-            # Preferences gives us a QStringList, so convert
-            self.api.blacklist = list(self.preferences.tag_blacklist)
+
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)
             self.pool_download_action.setEnabled(True)
 
-    def fetch(self, ok):
+    def get_posts(self, ok):
 
         "Fetches the actual data from the connected Danbooru board."
 
@@ -229,21 +234,21 @@ class MainWindow(KXmlGuiWindow):
                                          parent=self)
 
         if dialog.exec_():
-            # Clear only if we pressed OK
+
             self.clear()
             tags = dialog.tags()
             limit = dialog.limit()
+
             max_rating = dialog.max_rating()
 
             if not self.thumbnailarea:
                 self.setup_area()
-            else:
-                self.thumbnailarea.clear()
 
             self.thumbnailarea.post_limit = limit
-
+            blacklist= list(self.preferences.tag_blacklist)
             self.api.get_post_list(tags=tags, limit=limit,
-                                   rating=max_rating)
+                                   rating=max_rating,
+                                   blacklist=blacklist)
 
     def pool_download(self, ok):
 
@@ -293,14 +298,18 @@ class MainWindow(KXmlGuiWindow):
             return
 
         for item in selected_items:
-            file_url = KUrl(item)
+
+            file_url = item.url_label.url()
+            tags = item.data.tags
 
             # Make a local copy to append paths as addPath works in-place
             destination = KUrl(directory)
             file_name = file_url.fileName()
             destination.addPath(file_name)
+
             job = KIO.file_copy(KUrl(item), destination, -1)
-            job.result.connect(self.job_slot_result)
+            job.setProperty("tags", QVariant(tags))
+            job.result.connect(self.batch_download_slot)
 
     def setup_area(self):
 
@@ -347,15 +356,19 @@ class MainWindow(KXmlGuiWindow):
 
     def clean_cache(self):
 
-        "Purges the thumbnail cache."
+        "Purge the thumbnail cache."
 
         self.cache.discard()
         self.statusBar().showMessage(i18n("Thumbnail cache cleared."))
 
-    def job_slot_result(self, job):
+    def batch_download_slot(self, job):
+
+        """Slot called when doing batch download, for each file retrieved."""
 
         if job.error():
             job.ui().showErrorMessage()
         else:
-            tags = danbooru2nepomuk.tag_danbooru_item(job.destUrl().path(),
-                                                      tags)
+            if self.preferences.nepomuk_enabled:
+                tags = job.property("tags").toPyObject()
+                danbooru2nepomuk.tag_danbooru_item(job.destUrl().path(),
+                                                   tags)
