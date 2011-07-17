@@ -108,17 +108,7 @@ class DanbooruPostWidget(QtGui.QWidget):
 
 class DanbooruPostView(QtGui.QTableWidget):
 
-    """Class used to show the thumbnails retrieved from a Danbooru board. It is
-    a subclass of QTableWidget, with some modifications. The number of columns
-    can be set, and it follows the preferences set in the main application.
-
-    This class provides two custom signals:
-
-        - thumbnailDownloaded, used to notify other parts of the code when a
-        thumbnail is going to be displayed.
-        - downloadCompleted,used to notify that all the thumbnails have been
-        downloaded
-    """
+    """A class to show the thumbnails retrieved from a Danbooru board."""
 
     # Signals
 
@@ -170,12 +160,13 @@ class DanbooruPostView(QtGui.QTableWidget):
         column = self.currentColumn()
 
         widget = self.cellWidget(row, column)
-        pixmap = widget.label.pixmap()
+        pixmap = widget.data.pixmap
+        tags = widget.data.tags
 
         dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
                                            preferences=self.__preferences,
+                                           tags=tags
                                            parent=self)
-        dialog.fetchTags.connect(self.reemit_fetch_tags)
 
         if not dialog.exec_():
             return
