@@ -52,12 +52,18 @@ class MainWindow(KXmlGuiWindow):
         "Initialize a new main window."
 
         super(MainWindow,  self).__init__(*args)
-        #KXmlGuiWindow.__init__(self)
         self.cache = KPixmapCache("danbooru")
         self.preferences = preferences.Preferences()
+        self.api = None
+        self.__ratings = None
+        self.__step = 0
+
+        self.url_list = self.preferences.boards_list
+        self.max_retrieve = self.preferences.thumbnail_no
 
         self.welcome = QLabel()
         pix = QPixmap(KStandardDirs.locate("appdata","logo.png"))
+
         self.welcome.setPixmap(pix)
         self.welcome.setAlignment(Qt.AlignCenter)
         self.setCentralWidget(self.welcome)
@@ -72,21 +78,7 @@ class MainWindow(KXmlGuiWindow):
         self.statusbar.addPermanentWidget(self.progress)
         self.progress.hide()
 
-        # Various instance bits needed
-        self.api = None
-        self.__ratings = None
-        self.__step = 0
-
-        self.read_config()
         self.setup_actions()
-
-    def read_config(self):
-
-        """Reads the configuration from the instance variable of the preferences,
-        and sets some parameters."""
-
-        self.url_list = self.preferences.boards_list
-        self.max_retrieve = self.preferences.thumbnail_no
 
     def setup_tooltips(self):
 
@@ -135,29 +127,29 @@ class MainWindow(KXmlGuiWindow):
         self.create_actions()
         self.setup_tooltips()
 
+        action_collection = self.actionCollection()
+
         # Addition to the action collection
-        self.actionCollection().addAction("connect", self.connect_action)
-        self.actionCollection().addAction("fetch", self.fetch_action)
-        self.actionCollection().addAction("clean", self.clean_action)
-        self.actionCollection().addAction("batchDownload",
-                                          self.batch_download_action)
-        self.actionCollection().addAction("poolDownload",
+        action_collection.addAction("connect", self.connect_action)
+        action_collection.addAction("fetch", self.fetch_action)
+        action_collection.addAction("clean", self.clean_action)
+        action_collection.addAction("batchDownload",
+                                    self.batch_download_action)
+        action_collection.addAction("poolDownload",
                                           self.pool_download_action)
-        KStandardAction.quit (self.close, self.actionCollection())
+
+        KStandardAction.quit (self.close, action_collection)
         KStandardAction.preferences(self.show_preferences,
-                                    self.actionCollection())
+                                    action_collection)
 
         # Connect signals
         self.connect_action.triggered.connect(self.connect_danbooru)
-        # We call the "dummy" function perform_fetch instead of fetch directly
-        # because otherwise we may get the triggered (bool) parameter sent
-        # to the fetch function, causing problems
-        self.fetch_action.triggered.connect(self.perform_fetch)
+        self.fetch_action.triggered.connect(self.fetch)
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
         self.pool_download_action.triggered.connect(self.pool_download)
         # Show tooltips in the status bar as well
-        self.actionCollection().actionHovered.connect(self.action_tooltip)
+        action_collection.actionHovered.connect(self.action_tooltip)
 
         setupGUI_args = [
             QSize(500, 400), self.StandardWindowOption(
@@ -167,6 +159,7 @@ class MainWindow(KXmlGuiWindow):
         #Check first in standard locations for danbooruui.rc
 
         rc_file = KStandardDirs.locate("appdata", "danbooruui.rc")
+
         if rc_file.isEmpty():
             # Not found, check elsewhere
             setupGUI_args.append(os.path.join(sys.path [0],
@@ -179,8 +172,8 @@ class MainWindow(KXmlGuiWindow):
         # Remove handbook menu entry: the call needs to be put later than
         # setupGUI or the action won't exist, leading to no effect
 
-        self.actionCollection().removeAction(
-            self.actionCollection().action("help_contents"))
+        action_collection.removeAction(
+            action_collection.action("help_contents"))
 
     def action_tooltip(self, action):
 
@@ -210,7 +203,7 @@ class MainWindow(KXmlGuiWindow):
         if dialog.exec_():
             self.api = None
             self.api = dialog.danbooru_api()
-            self.api.poolDataReady.connect(self.pool_select)
+            self.api.cache = self.cache
 
             if self.thumbnailarea is not None:
                 # Update API reference in the thumbnailarea
@@ -241,11 +234,7 @@ class MainWindow(KXmlGuiWindow):
             KMessageBox.error(self, i18n(message),
                               i18n("Error retrieving posts"))
 
-    def perform_fetch(self,  ok):
-
-        self.fetch()
-
-    def fetch(self, tags=""):
+    def fetch(self, ok):
 
         "Fetches the actual data from the connected Danbooru board."
 
@@ -254,7 +243,6 @@ class MainWindow(KXmlGuiWindow):
 
         dialog = fetchdialog.FetchDialog(self.max_retrieve,
                                          preferences=self.preferences,
-                                         tags=tags,
                                          parent=self)
 
         if dialog.exec_():
@@ -262,13 +250,15 @@ class MainWindow(KXmlGuiWindow):
             self.clear()
             tags = dialog.tags()
             limit = dialog.limit()
-            self.api.selected_ratings = dialog.max_rating()
+            max_rating = dialog.max_rating()
 
             if not self.thumbnailarea:
                 self.setup_area()
-            self.retrieve(tags, limit)
-        else:
-            return
+            else:
+                self.thumbnailarea.clear()
+
+            self.api.get_post_list(tags=tags, limit=limit,
+                                   rating=max_rating)
 
     def pool_download(self, ok):
 
@@ -311,7 +301,8 @@ class MainWindow(KXmlGuiWindow):
 
         start_url = KUrl("kfiledialog:///danbooru")
         caption = i18n("Select a directory to save the images to")
-        directory = KFileDialog.getExistingDirectoryUrl(start_url, self, caption)
+        directory = KFileDialog.getExistingDirectoryUrl(start_url, self,
+                                                        caption)
 
         if directory.isEmpty():
             return
@@ -330,14 +321,13 @@ class MainWindow(KXmlGuiWindow):
 
         "Sets up the central widget to display thumbnails."
 
-        self.thumbnailarea = thumbnailarea.ThumbnailArea(self.api,
-                                                         self.preferences,
-                                                         self)
+        self.thumbnailarea = thumbnailarea.DanbooruTabWidget(self.api,
+            self.preferences, self)
 
         self.setCentralWidget(self.thumbnailarea)
-        self.thumbnailarea.fetchTags.connect(self.fetch)
-        self.thumbnailarea.thumbnailRetrieved.connect(self.update_progress)
-        self.thumbnailarea.downloadDone.connect(self.download_finished)
+
+        self.api.postRetrieved.connect(self.update_progress)
+        self.api.postDownloadFinished.connect(self.download_finished)
 
     def download_finished(self):
 
@@ -382,6 +372,5 @@ class MainWindow(KXmlGuiWindow):
         if job.error():
             job.ui().showErrorMessage()
         else:
-            tags = danbooru2nepomuk.extract_tags(job.srcUrl().fileName(),
-                    blacklist=self.preferences.tag_blacklist)
-            danbooru2nepomuk.tag_file(job.destUrl().path(), tags)
+            tags = danbooru2nepomuk.tag_danbooru_item(job.destUrl().path(),
+                                                      tags)
