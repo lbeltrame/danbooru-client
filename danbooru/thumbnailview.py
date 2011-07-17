@@ -50,7 +50,7 @@ class DanbooruPostWidget(QtGui.QWidget):
 
         label_text = self.label_text()
 
-        self.url_label.setUrl(self.data.preview_url)
+        self.url_label.setUrl(self.data.file_url)
         self.url_label.setPixmap(self.data.pixmap)
 
         full_url = kdecore.KUrl(self.data.file_url).fileName()
@@ -122,6 +122,7 @@ class DanbooruPostView(QtGui.QTableWidget):
         self.__column_index = 0
         self.__row_index = 0
         self.__preferences = preferences
+        self.__locked = False
 
         self.api_data = api_data
         self.__items = list()
@@ -141,14 +142,17 @@ class DanbooruPostView(QtGui.QTableWidget):
         self.itemClicked.connect(self.retrieve_url)
         self.api_data.postRetrieved.connect(self.create_post)
         self.api_data.postDownloadFinished.connect(enable_)
-        self.api_data.postDownloadFinished.connect(
-            self.api_data.postRetrieved.disconnect)
+        self.api_data.postDownloadFinished.connect(self.stop_download)
 
     def __len__(self):
 
         "Returns the number of URLs stored."
 
         return len(self.__items)
+
+    def stop_download(self):
+
+        self.__locked = True
 
     def retrieve_url(self, item):
 
@@ -165,7 +169,7 @@ class DanbooruPostView(QtGui.QTableWidget):
 
         dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
                                            preferences=self.__preferences,
-                                           tags=tags
+                                           tags=tags,
                                            parent=self)
 
         if not dialog.exec_():
@@ -190,6 +194,9 @@ class DanbooruPostView(QtGui.QTableWidget):
         retrieved API data. Once we reach the last item, the dataDownloaded
         signal is disconnected, because otherwise even data sent to other
         thumbnailviews (multi-page setting) would be displayed."""
+
+        if self.__locked:
+            return
 
         item = DanbooruPostWidget(data)
         self.__items.append(item)
