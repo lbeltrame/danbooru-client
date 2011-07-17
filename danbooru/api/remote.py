@@ -214,8 +214,6 @@ class DanbooruService(QtCore.QObject):
         request_url = utils.danbooru_request_url(self.url, POST_URL,
                                                  parameters)
 
-        request_url = kdecore.KUrl(request_url)
-
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
 
@@ -236,7 +234,6 @@ class DanbooruService(QtCore.QObject):
         parameters = dict(name=pattern, limit=limit)
 
         request_url = utils.danbooru_request_url(self.url, TAG_URL, parameters)
-        request_url = kdecore.KUrl(request_url)
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
@@ -256,7 +253,6 @@ class DanbooruService(QtCore.QObject):
             parameters = None
 
         request_url = utils.danbooru_request_url(self.url, POOL_URL, parameters)
-        request_url = kdecore.KUrl(request_url)
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
