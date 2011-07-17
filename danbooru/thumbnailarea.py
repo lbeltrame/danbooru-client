@@ -126,6 +126,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
 
         index = self.thumbnailTabWidget.addTab(view, page_name)
         self.thumbnailTabWidget.setCurrentIndex(index)
+        self.__current_index = index + 1
 
     def clear(self):
 
@@ -159,7 +160,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
 
         self.nextPageButton.setDisabled(True)
         self.new_page()
-        current_page = self.thumbnailTabWidget.currentIndex() + 1
+        current_page = self.__current_index + 1
 
         self.api_data.get_post_list(limit=self.preferences.thumbnail_no,
                                     tags=self.api_data.current_tags,
