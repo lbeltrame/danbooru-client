@@ -28,7 +28,7 @@ from PyQt4.QtGui import QWidget, QPixmap
 from PyKDE4.kdecore import KUrl, KGlobal, KComponentData
 from PyKDE4.kdeui import KDialog, KNotification, KIcon
 
-import api
+import api.remote as remote
 from  ui.ui_connectdialog import Ui_connectForm
 
 
@@ -98,15 +98,16 @@ class ConnectDialog(KDialog):
         login = self.connect_widget.username()
         password = self.connect_widget.password()
 
-        login = None if login.isEmpty() else login
+        username = None if login.isEmpty() else login
         password = None if password.isEmpty() else password
 
         if url.isEmpty():
             return
 
-        self.__danbooru = api.Danbooru(unicode(url), login=login,
-                                       password=password)
-        self.__danbooru.checkCompleted.connect(self._response)
+        self.__danbooru = remote.DanbooruService(unicode(url), username,
+                                              password=password)
+
+        KDialog.accept(self)
 
     def danbooru_api(self):
 
