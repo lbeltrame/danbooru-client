@@ -156,7 +156,8 @@ class PreferencesDialog(KConfigDialog):
                                               i18n("Tagging"))
 
         self.general_page_item.setIcon(KIcon("table"))
-        self.danbooru_page_item.setIcon(KIcon("preferences-web-browser-shortcuts"))
+        self.danbooru_page_item.setIcon(
+            KIcon("preferences-web-browser-shortcuts"))
         self.nepomuk_page_item.setIcon(KIcon("nepomuk"))
 
 
