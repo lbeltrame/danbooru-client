@@ -36,7 +36,9 @@ def tag_danbooru_item(filename, tags, blacklist=None):
 
     """Tag a file using a specific :class:`DanbooruItem` tags."""
 
-    if not Nepomuk.ResourceManager.initialized():
+    resource_manager = Nepomuk.ResourceManager.instance()
+
+    if not resource_manager.initialized():
         # Nepomuk not running - bail out
         return
 
