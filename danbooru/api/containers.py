@@ -70,6 +70,13 @@ class DanbooruPost(object):
 
         return ratings[self.__data.attrib["rating"]]
 
+    @property
+    def tags(self):
+
+        """The tags for the image."""
+
+        return self.__data.attrib["tags"].split(" ")
+
 
 class DanbooruTag(object):
 
