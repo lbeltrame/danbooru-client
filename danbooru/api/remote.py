@@ -226,6 +226,13 @@ class DanbooruService(QtCore.QObject):
 
     def get_tag_list(self, page=None, limit=10, pattern=""):
 
+        """Get a list of tags.
+
+        :param page: The page containing tags
+        :param limit: The number of tags to retrieve
+        :param pattern: The patter onf tags to retrieve
+        """
+
         parameters = dict(name=pattern, limit=limit)
 
         request_url = utils.danbooru_request_url(self.url, TAG_URL, parameters)
@@ -255,6 +262,3 @@ class DanbooruService(QtCore.QObject):
                             KIO.HideProgressInfo)
 
         job.result.connect(self.__slot_download_pool)
-
-    def get_image(self, image_url):
-        pass
