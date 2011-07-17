@@ -44,6 +44,6 @@ def danbooru_request_url(board_url, api_url, parameters=None):
             # By adding a plus to tags, we already encoded them
             danbooru_url.addEncodedQueryItem(key, value)
 
-        danbooru_url.addQueryItem(key, value)
+        danbooru_url.addQueryItem(key, unicode(value))
 
     return danbooru_url
