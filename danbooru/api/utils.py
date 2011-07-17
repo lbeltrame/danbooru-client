@@ -17,9 +17,7 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import urllib
-import urlparse
-
+import PyKDE4.kdecore as kdecore
 
 def danbooru_request_url(board_url, api_url, parameters=None):
 
@@ -37,15 +35,15 @@ def danbooru_request_url(board_url, api_url, parameters=None):
 
     """
 
-    if parameters:
-        url_parameters = urllib.urlencode(parameters)
-        # Danbooru doesn't want HTML-encoded pluses
-        url_parameters = urllib.unquote(url_parameters)
-        url_parameters = "?" + url_parameters
+    danbooru_url = kdecore.KUrl(board_url)
+    danbooru_url.addPath(api_url)
 
-    request_url = urlparse.urljoin(board_url, api_url)
+    for key, value in parameters.iteritems():
 
-    if parameters:
-        request_url = urlparse.urljoin(request_url, url_parameters)
+        if key == "tags":
+            # By adding a plus to tags, we already encoded them
+            danbooru_url.addEncodedQueryItem(key, value)
 
-    return request_url
+        danbooru_url.addQueryItem(key, value)
+
+    return danbooru_url
