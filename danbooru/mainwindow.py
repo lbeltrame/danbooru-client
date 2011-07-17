@@ -114,7 +114,7 @@ class MainWindow(KXmlGuiWindow):
                                  connect_default | connect_active)
 
         # No sense in enabling fetch and batch at start
-        if not self.api:
+        if self.api is None:
             self.fetch_action.setEnabled(False)
             self.batch_download_action.setEnabled(False)
             self.pool_download_action.setEnabled(False)
@@ -217,23 +217,6 @@ class MainWindow(KXmlGuiWindow):
             self.fetch_action.setEnabled(True)
             self.pool_download_action.setEnabled(True)
 
-    def retrieve(self, tags, limit):
-
-        "Retrieves posts from the currently connected Danbooru board."
-
-        try:
-            self.api.get_tag_list(limit=20, pattern=tags[0])
-            self.api.get_post_list(limit=limit, tags=tags)
-        except ValueError, error:
-            first_line = "Could not download information from the specified board."
-            second_line = "This means connection problems, or that the board"
-            third_line = "has a broken API."
-            error_line = "Returned error: %s" % error
-            message = '\n'.join((first_line, second_line, third_line,
-                                 error_line))
-            KMessageBox.error(self, i18n(message),
-                              i18n("Error retrieving posts"))
-
     def fetch(self, ok):
 
         "Fetches the actual data from the connected Danbooru board."
@@ -256,6 +239,8 @@ class MainWindow(KXmlGuiWindow):
                 self.setup_area()
             else:
                 self.thumbnailarea.clear()
+
+            self.thumbnailarea.post_limit = limit
 
             self.api.get_post_list(tags=tags, limit=limit,
                                    rating=max_rating)
