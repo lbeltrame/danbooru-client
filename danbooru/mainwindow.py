@@ -283,7 +283,7 @@ class MainWindow(KXmlGuiWindow):
 
     def batch_download(self, ok):
 
-        "Slot called for batch downloading of selected images."
+        "Download images in batch."
 
         selected_items = self.thumbnailarea.selected_images()
 
@@ -337,7 +337,7 @@ class MainWindow(KXmlGuiWindow):
 
     def update_progress(self):
 
-        "Updates the progress bar."
+        "Update the progress bar."
 
         if not self.progress.isVisible():
             self.progress.show()
@@ -347,7 +347,7 @@ class MainWindow(KXmlGuiWindow):
 
     def clear(self):
 
-        "Clears the central widget."
+        "Clear the central widget."
 
         if self.thumbnailarea is None:
             return
@@ -364,7 +364,12 @@ class MainWindow(KXmlGuiWindow):
 
     def batch_download_slot(self, job):
 
-        """Slot called when doing batch download, for each file retrieved."""
+        """Slot called when doing batch download, for each file retrieved.
+
+        If Nepomuk tagging is enabled, each file is tagged using the item's
+        respective tags.
+
+        """
 
         if job.error():
             job.ui().showErrorMessage()
