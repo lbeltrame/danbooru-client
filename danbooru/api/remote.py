@@ -34,6 +34,8 @@ TAG_URL = "tag/index.xml"
 POOL_URL = "pool/index.xml"
 ARTIST_URL = "pool/index.xml"
 POOL_DATA_URL = "pool/show.xml"
+RELATED_TAG_URL = "tag/related.xml"
+
 MAX_RATINGS = dict(Safe=("Safe"), Questionable=("Safe", "Questionable"),
                    Explicit=("Safe", "Questionable", "Explicit"))
 
@@ -102,6 +104,54 @@ class DanbooruService(QtCore.QObject):
         if not self.__data:
             self.postDownloadFinished.emit()
             return
+
+    def __slot_process_tag_list(self, job):
+
+        """Slot called from :meth:`get_tag_list` and by related tag processing
+        functions."""
+
+        if job.error():
+            return
+
+        job_data = job.data()
+        print job_data.data()
+
+        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        decoded_data = parsed_data.getiterator("tag")
+        blacklisted_tags = job.property("blacklisted_tags").toPyObject()
+
+        for element in decoded_data:
+
+            tag = containers.DanbooruTag(element)
+
+            if blacklisted_tags is not None and tag.name in blacklisted_tags:
+                continue
+
+            self.tagRetrieved.emit(tag)
+
+    def __slot_process_related_tag_list(self, job):
+
+        """Slot called from :meth:`get_related_tags`.
+
+        For some reason Danbooru related tags lack information when compared
+        to "normally retrieved" tags, so the tags obtained are re-queried to
+        fetch all the information.
+
+        """
+
+        if job.error():
+            return
+
+        job_data = job.data()
+
+        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        decoded_data = parsed_data.getiterator("tag")
+        blacklisted_tags = job.property("blacklisted_tags").toPyObject()
+
+        for element in decoded_data:
+            tag_name = element.attrib["name"]
+            self.get_tag_list(limit=1, name=tag_name,
+                              blacklist=blacklisted_tags)
 
     def __slot_download_pool(self, job):
         pass
@@ -194,7 +244,7 @@ class DanbooruService(QtCore.QObject):
         :param limit: The maximum number of items to retrieve (up to 100)
         :param rating: The maximum allowed rating for items, between "Safe",
                        "Questionable", and "Explicit".
-        :param blacklist: A blacklist of tags
+        :param blacklist: A blacklist of tags used to exclude posts
 
         """
 
@@ -224,16 +274,55 @@ class DanbooruService(QtCore.QObject):
 
         job.result.connect(self.__slot_process_post_list)
 
-    def get_tag_list(self, page=None, limit=10, pattern=""):
+    def get_related_tags(self, tags=None, tag_type=None, blacklist=None):
+
+        """Get tags that are related to a user-supplied list.
+
+        :param tags: The tags to check for relation
+        :param tag_type: Either :const:`None`, or a specific tag type
+                         picked from ``general``, ``artist``, ``copyright``,
+                         or ``character``
+        :param blacklist: A blacklist of tags to be excluded from posts
+
+        """
+
+        if tags is None:
+            return
+
+        tags = "+".join(tags)
+
+        parameters = dict(tags=tags)
+
+        if tag_type is not None:
+
+            parameters["type"] = tag_type
+
+        request_url = utils.danbooru_request_url(self.url, RELATED_TAG_URL,
+                                                 parameters, self.username,
+                                                 self.password)
+
+        job = KIO.storedGet(request_url, KIO.NoReload,
+                            KIO.HideProgressInfo)
+
+        job.setProperty("tag_blacklist", QtCore.QVariant(blacklist))
+        job.result.connect(self.__slot_process_related_tag_list)
+
+
+    def get_tag_list(self, limit=10, name="", blacklist=None):
 
         """Get a list of tags.
 
-        :param page: The page containing tags
+        If *name* is supplied, a list of tags including the exact name of the
+        tag is fetched from Danbooru, otherwise the most recent tags are
+        retrieved.
+
         :param limit: The number of tags to retrieve
-        :param pattern: The patter onf tags to retrieve
+        :param name: The name of the tag to retrieve, or an empty string
+        :param blacklist: if not :const:`None`, a list of tags to exclude from
+                          searches.
         """
 
-        parameters = dict(name=pattern, limit=limit)
+        parameters = dict(name=name, limit=limit)
 
         request_url = utils.danbooru_request_url(self.url, TAG_URL, parameters,
                                                  self.username, self.password)
@@ -241,7 +330,9 @@ class DanbooruService(QtCore.QObject):
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
 
-        job.result.connect(self.process_tag_list)
+        job.setProperty("tag_blacklist", QtCore.QVariant(blacklist))
+
+        job.result.connect(self.__slot_process_tag_list)
 
     def get_pool_list(self, page=None):
 
