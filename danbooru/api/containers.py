@@ -82,8 +82,8 @@ class DanbooruTag(object):
 
     """A class representing a Danbooru tag."""
 
-    _TYPES = {0: "General", 1: "artist", 3: "copyright",
-              4: "character"}
+    _TYPES = {0: "General", 1: "Artist", 3: "Copyright",
+              4: "Character"}
 
     def __init__(self, data):
 
@@ -99,10 +99,14 @@ class DanbooruTag(object):
     @property
     def type(self):
 
-        """The type of the tag, among "General", "artist",
+        """The type of the tag, among "general", "artist",
         "copyright" and "character"."""
 
-        tag_type = int(self._data.attrib["type"])
+        tag_type = int(self.__data.attrib["type"])
+
+        if tag_type not in self._TYPES:
+            return unicode("Unknown (%s)" % tag_type)
+
         return self._TYPES[tag_type]
 
 
