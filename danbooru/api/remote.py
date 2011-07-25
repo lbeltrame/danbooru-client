@@ -114,7 +114,6 @@ class DanbooruService(QtCore.QObject):
             return
 
         job_data = job.data()
-        print job_data.data()
 
         parsed_data = ElementTree.XML(unicode(job_data.data()))
         decoded_data = parsed_data.getiterator("tag")
@@ -153,8 +152,21 @@ class DanbooruService(QtCore.QObject):
             self.get_tag_list(limit=1, name=tag_name,
                               blacklist=blacklisted_tags)
 
-    def __slot_download_pool(self, job):
-        pass
+    def __slot_process_pool_list(self, job):
+
+        """Slot called from :meth:`get_pool_list"""
+
+        if job.error():
+            return
+
+        job_data = job.data()
+
+        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        decoded_data = parsed_data.getiterator("pool")
+
+        for element in parsed_data:
+            pool = containers.DanbooruPool(element)
+            self.poolRetrieved.emit(pool)
 
     def __slot_download_thumbnail(self, job):
 
@@ -221,6 +233,14 @@ class DanbooruService(QtCore.QObject):
         job.result.connect(self.__slot_download_thumbnail)
 
     def get_pool(self, pool_id, page=None):
+
+        """Download all the posts associated with a specific pool.
+
+        :param pool_id: The pool ID to retrieve posts from
+        :param page: The page of the pool
+
+        """
+
         pass
 
     def get_post_list(self, page=None, tags=None, limit=100, rating="Safe",
@@ -347,9 +367,9 @@ class DanbooruService(QtCore.QObject):
             parameters = None
 
         request_url = utils.danbooru_request_url(self.url, POOL_URL, parameters,
-                                                 self.username, self.passwordrd)
+                                                 self.username, self.password)
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
 
-        job.result.connect(self.__slot_download_pool)
+        job.result.connect(self.__slot_process_pool_list)

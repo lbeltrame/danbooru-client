@@ -111,4 +111,25 @@ class DanbooruTag(object):
 
 
 class DanbooruPool(object):
-    pass
+
+    """A class representing a Danbooru pool."""
+
+    def __init__(self, data):
+
+        self.__data = data
+
+    def __getattr__(self, value):
+
+        if value not in self.__data.attrib:
+            return None
+        else:
+            return self.__data.attrib[value]
+
+    @property
+    def description(self):
+
+        description = self.__data.getchildren()[0]
+        description = unicode(description.text, "utf-8")
+
+        return description
+
