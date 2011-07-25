@@ -224,7 +224,7 @@ class MainWindow(KXmlGuiWindow):
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)
-            self.pool_download_action.setEnabled(True)
+            #self.pool_download_action.setEnabled(True)
 
     def get_posts(self, ok):
 
