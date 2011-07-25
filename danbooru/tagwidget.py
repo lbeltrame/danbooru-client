@@ -17,30 +17,21 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 
 import PyKDE4.kdecore as kdecore
-import PyKDE4.kdeui as kdeui
 
-from ui import ui_tagwidget
 
-class DanbooruTagWidget(QtGui.QWidget, ui_tagwidget.Ui_TagWidget):
+class DanbooruTagWidget(QtGui.QListWidget):
 
     """A tag widget for Danbooru Tags"""
 
-    def __init__(self, api_data, preferences, parent=None):
+    def __init__(self, blacklist, parent=None):
 
         super(DanbooruTagWidget, self).__init__(parent)
-        self.setupUi(self)
 
-        self.api_data = api_data
-        self.blacklist = preferences.tag_blacklist
-        self.rating = preferences.max_allowed_rating
         self.tag_list = list()
-        self.limit = preferences.thumbnail_no
-
-        self.tagListWidget.itemDoubleClicked.connect(self.fetch_tagged_items)
+        self.blacklist = blacklist
 
     def add_tags(self, tag):
 
@@ -56,19 +47,9 @@ class DanbooruTagWidget(QtGui.QWidget, ui_tagwidget.Ui_TagWidget):
         item.setToolTip(kdecore.i18n("Type: %1\nNumber of items: %2", tag_type,
                                      tag.count))
 
-        self.tagListWidget.addItem(item)
-
-    def fetch_tagged_items(self, item):
-
-        tag_name = unicode(item.text())
-
-        self.api_data.get_post_list(page=1, tags=[tag_name],
-                                    blacklist=self.blacklist,
-                                    limit=self.limit,
-                                    rating=self.rating)
-        self.api_data.get_tag_list(name=tag_name, limit=10)
+        self.addItem(item)
 
     def clear(self):
 
-        self.tagListWidget.clear()
+        super(DanbooruTagWidget, self).clear()
         self.tag_list = list()

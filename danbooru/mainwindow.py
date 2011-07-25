@@ -273,11 +273,15 @@ class MainWindow(KXmlGuiWindow):
         tag_name = unicode(item.text())
         self.clear()
 
-        self.api_data.get_post_list(page=1, tags=[tag_name],
-                                    blacklist=self.blacklist,
-                                    limit=self.limit,
-                                    rating=self.rating)
-        self.api_data.get_tag_list(name=tag_name, limit=10)
+        blacklist = self.preferences.tag_blacklist
+        limit = self.preferences.thumbnail_no
+        rating = self.preferences.max_allowed_rating
+
+        self.api.get_post_list(page=1, tags=[tag_name],
+                                blacklist=blacklist,
+                                limit=limit,
+                                rating=rating)
+        self.api.get_related_tags(tags=[tag_name], blacklist=blacklist)
 
     def pool_download(self, ok):
 
@@ -351,8 +355,8 @@ class MainWindow(KXmlGuiWindow):
 
         # Set up tag widget
 
-        tag_widget = tagwidget.DanbooruTagWidget(self.api, self.preferences,
-                                                    self)
+        blacklist = self.preferences.tag_blacklist
+        tag_widget = tagwidget.DanbooruTagWidget(blacklist, self)
         self.tag_dock = QDockWidget("Similar tags", self)
         self.tag_dock.setObjectName("TagDock")
         self.tag_dock.setAllowedAreas(Qt.RightDockWidgetArea)
@@ -365,7 +369,7 @@ class MainWindow(KXmlGuiWindow):
         self.api.postRetrieved.connect(self.update_progress)
         self.api.postDownloadFinished.connect(self.download_finished)
         self.api.tagRetrieved.connect(self.tag_dock.widget().add_tags)
-        self.tag_dock.widget().tagListWidget.itemDoubleClicked.connect(
+        self.tag_dock.widget().itemDoubleClicked.connect(
             self.fetch_tagged_items)
 
     def download_finished(self):
@@ -397,6 +401,7 @@ class MainWindow(KXmlGuiWindow):
             return
 
         self.thumbnailarea.clear()
+        self.tag_dock.widget().clear()
         self.batch_download_action.setEnabled(False)
 
     def clean_cache(self):
