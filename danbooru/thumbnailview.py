@@ -135,13 +135,13 @@ class DanbooruPostView(QtGui.QTableWidget):
         self.horizontalHeader().setResizeMode(resize_mode)
         self.verticalHeader().setResizeMode(resize_mode)
         self.setShowGrid(False)
-        self.setDisabled(True)
+        #self.setDisabled(True)
 
         enable_ = partial(self.setDisabled, False)
 
         self.itemClicked.connect(self.retrieve_url)
         self.api_data.postRetrieved.connect(self.create_post)
-        self.api_data.postDownloadFinished.connect(enable_)
+        #self.api_data.postDownloadFinished.connect(enable_)
         self.api_data.postDownloadFinished.connect(self.stop_download)
 
     def __len__(self):
