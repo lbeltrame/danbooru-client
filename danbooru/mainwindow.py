@@ -30,7 +30,7 @@ import os
 
 from PyQt4.QtCore import Qt, QSize, QVariant
 from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
-                         QKeySequence)
+                         QKeySequence, QDockWidget)
 from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
 from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
                           KStandardAction, KIcon, KConfigDialog)
@@ -38,6 +38,7 @@ from PyKDE4.kio import KFileDialog, KIO
 
 import preferences
 import thumbnailarea
+import tagwidget
 import fetchdialog
 import connectdialog
 import pooldialog
@@ -64,6 +65,7 @@ class MainWindow(KXmlGuiWindow):
         self.statusbar = self.statusBar()
         self.progress = QProgressBar()
         self.thumbnailarea = None
+        self.tag_dock = None
         self.progress.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         # FIXME: Hackish, but how to make it small otherwise?
@@ -242,14 +244,40 @@ class MainWindow(KXmlGuiWindow):
             limit = dialog.limit
             max_rating = dialog.max_rating
 
-            if not self.thumbnailarea:
+            if self.thumbnailarea is None:
                 self.setup_area()
+
+            if self.tag_dock is not None:
+                self.tag_dock.widget().clear()
 
             self.thumbnailarea.post_limit = limit
             blacklist= list(self.preferences.tag_blacklist)
             self.api.get_post_list(tags=tags, limit=limit,
                                    rating=max_rating,
                                    blacklist=blacklist)
+
+            tags = [item for item in tags if item]
+
+            if not tags:
+                # No related tags, fetch the most recent 20
+                tags = ""
+                self.api.get_tag_list(name=tags,blacklist=blacklist,
+                                      limit=20)
+            else:
+                self.api.get_related_tags(tags=tags, blacklist=blacklist)
+
+    def fetch_tagged_items(self, item):
+
+        """Fetch items found in the tag list widget."""
+
+        tag_name = unicode(item.text())
+        self.clear()
+
+        self.api_data.get_post_list(page=1, tags=[tag_name],
+                                    blacklist=self.blacklist,
+                                    limit=self.limit,
+                                    rating=self.rating)
+        self.api_data.get_tag_list(name=tag_name, limit=10)
 
     def pool_download(self, ok):
 
@@ -314,15 +342,31 @@ class MainWindow(KXmlGuiWindow):
 
     def setup_area(self):
 
-        "Sets up the central widget to display thumbnails."
+        "Set up the central widget to display thumbnails."
 
         self.thumbnailarea = thumbnailarea.DanbooruTabWidget(self.api,
             self.preferences, self)
 
         self.setCentralWidget(self.thumbnailarea)
 
+        # Set up tag widget
+
+        tag_widget = tagwidget.DanbooruTagWidget(self.api, self.preferences,
+                                                    self)
+        self.tag_dock = QDockWidget("Similar tags", self)
+        self.tag_dock.setObjectName("TagDock")
+        self.tag_dock.setAllowedAreas(Qt.RightDockWidgetArea)
+        self.tag_dock.setWidget(tag_widget)
+        self.tag_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.tag_dock)
+
+        # Container signal-slot connections
+
         self.api.postRetrieved.connect(self.update_progress)
         self.api.postDownloadFinished.connect(self.download_finished)
+        self.api.tagRetrieved.connect(self.tag_dock.widget().add_tags)
+        self.tag_dock.widget().tagListWidget.itemDoubleClicked.connect(
+            self.fetch_tagged_items)
 
     def download_finished(self):
 
