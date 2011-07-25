@@ -337,10 +337,11 @@ class MainWindow(KXmlGuiWindow):
 
             # Make a local copy to append paths as addPath works in-place
             destination = KUrl(directory)
-            file_name = file_url.fileName()
+
+            file_name = KUrl(file_url).fileName()
             destination.addPath(file_name)
 
-            job = KIO.file_copy(KUrl(item), destination, -1)
+            job = KIO.file_copy(KUrl(file_url), destination, -1)
             job.setProperty("tags", QVariant(tags))
             job.result.connect(self.batch_download_slot)
 
