@@ -53,7 +53,7 @@ class Preferences(KConfigSkeleton):
         self.setCurrentGroup("General")
 
         self._danbooru_boards_list = QStringList()
-        predefined_urls = QStringList(["http://moe.imouto.org",
+        predefined_urls = QStringList(["http://oreno.imouto.org",
                                  "http://konachan.com",
                                  "http://konachan.net"])
         self._danbooru_boards = self.addItemStringList("danbooruUrls",
