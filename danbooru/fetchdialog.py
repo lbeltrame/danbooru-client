@@ -139,5 +139,5 @@ class FetchDialog(KDialog):
         self.__tags =  [re.sub("\s","_", item) for item in self.__tags]
 
         self.__limit = self.fetchwidget.postSpinBox.value()
-        self.__rating = self.fetchwidget.selected_rating()
+        self.__rating = unicode(self.fetchwidget.selected_rating)
         KDialog.accept(self)
