@@ -229,7 +229,7 @@ class DanbooruService(QtCore.QObject):
         job.setProperty("danbooru_item", QtCore.QVariant(danbooru_item))
 
         # Schedule: we don't want to overload servers
-        KIO.Scheduler.scheduleJob(job)
+        KIO.Scheduler.setJobPriority(job, 1)
         job.result.connect(self.__slot_download_thumbnail)
 
     def get_pool(self, pool_id, page=None):
