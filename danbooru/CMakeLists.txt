@@ -3,17 +3,18 @@ include (KDE4Defaults)
 set(DANBOORU_FILES 
   	__init__.py
 	actiondialog.py
-	api.py
-      	connectdialog.py
+    connectdialog.py
    	danbooru_client.py
 	danbooru2nepomuk.py
-      	fetchdialog.py
-      	hashes.py
-    	mainwindow.py
+    fetchdialog.py
+    mainwindow.py
 	pooldialog.py
-      	preferences.py
+    poolwidget.py
+    preferences.py
+    tagwidget.py
 	thumbnailarea.py
-      	thumbnailview.py
+    thumbnailview.py
+
 )
 
 foreach ( _PYFILE ${DANBOORU_FILES} )
@@ -30,5 +31,5 @@ INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -DTARGET=${PYTHON_SITE_PA
 
 INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -DTARGET=${PYTHON_SITE_PACKAGES_DIR}/danbooru/danbooru2nepomuk.py -DLINK_NAME=${BIN_INSTALL_DIR}/danbooru2nepomuk -P ${current_module_dir}/create_exe_symlink.cmake)" )
 
-
-add_subdirectory( ui )
+add_subdirectory(ui)
+add_subdirectory(api)
