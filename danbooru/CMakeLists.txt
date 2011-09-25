@@ -8,7 +8,6 @@ set(DANBOORU_FILES
 	danbooru2nepomuk.py
     fetchdialog.py
     mainwindow.py
-	pooldialog.py
     poolwidget.py
     preferences.py
     tagwidget.py
