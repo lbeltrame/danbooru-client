@@ -68,6 +68,7 @@ class MainWindow(KXmlGuiWindow):
         self.progress = QProgressBar()
         self.thumbnailarea = None
         self.tag_dock = None
+        self.pool_dock = None
 
         self.progress.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
@@ -217,9 +218,13 @@ class MainWindow(KXmlGuiWindow):
             self.api = dialog.danbooru_connection
             self.api.cache = self.cache
 
+            if self.pool_dock is not None:
+                self.pool_dock.hide()
+                self.pool_dock.widget().clear()
+                self.pool_toggle_action.setChecked(False)
+
             if self.thumbnailarea is not None:
                 #TODO: Investigate usability
-                self.pool_dock.hide()
                 self.clear(clear_pool=True)
                 self.thumbnailarea.clear()
                 self.thumbnailarea.api_data = self.api
