@@ -1,4 +1,273 @@
+2011-09-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ChangeLog: OOps, wrong file
+
+  * danbooru/ChangeLog: Update ChangeLog
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * danbooru/mainwindow.py, danbooru/thumbnailarea.py: Minor changes
+
+  * danbooru/ui/ui_pooldock.py, danbooru/ui_src/pooldock.ui: Update pool dock
+  UI
+
+  * danbooru/poolwidget.py: Add description to pools
+
+  * danbooru/mainwindow.py: Ensure that the pool is cleared even at program
+  start
+
+  * danbooru/mainwindow.py: Support pool downloads in the main interface
+
+  * danbooru/ui/ui_poolwidget.py: Do the same for the compiled Python file
+
+  * danbooru/ui_src/poolwidget.ui: Get rid of the old UI file
+
+  * danbooru/api/containers.py: Work around issues with pool descriptions
+
+  * danbooru/api/utils.py: Handle cases where there are no parameters
+
+  * danbooru/api/remote.py: Add support for fetching pool images
+
+  * danbooru/ui_src/pooldock.ui: UI source for the pool dock
+
+  * danbooru/ui/ui_pooldock.py: UI file for the pool dock
+
+  * danbooru/poolwidget.py: Add a new pool widget to be used inline.
+
+2011-07-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/CMakeLists.txt, danbooru/ChangeLog, danbooru/api/CMakeLists.txt:
+  Final bits before a new release
+
+2011-07-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * danbooru/mainwindow.py: Disable pool download for now
+
+  * danbooru/api/remote.py: Less deprecation
+
+  * danbooru/mainwindow.py: Fix batch download
+
+  * danbooru/hashes.py: Unneeded for now
+
+  * danbooru/poolwidget.py: Stub for a pool widget
+
+  * danbooru/mainwindow.py, danbooru/tagwidget.py: Clean up tag widget and
+  related usage, and make double-click on tags fetch related items
+
+  * danbooru/mainwindow.py: No more ugly widgets! Now we have a proper tag
+  widget
+
+  * danbooru/thumbnailview.py: Remove (for now) the disabled state when
+  downloading, because sometimes postDownloadFinished isn't fired and that
+  makes the widget unusable
+
+  * danbooru/tagwidget.py: Move signal handling out of the widget
+
+  * danbooru/preferences.py: Use oreno.imouto.org rather than moe.imouto
+
+  * danbooru/fetchdialog.py: Move from  functions to properties
+
+  * danbooru/api/containers.py, danbooru/api/remote.py: Initial support for
+  pools (lists only, fetching not yet in)
+
+2011-07-24  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api/remote.py: Re-add support for tags and add related tags
+  support. Compared to the old system, this one should do the right thing.
+
+  * danbooru/api/containers.py: Update container data, in particular tags
+
+2011-07-17  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/mainwindow.py: Change a few docstrings
+
+  * danbooru/connectdialog.py, danbooru/fetchdialog.py, danbooru/mainwindow.py:
+  Further refactoring: use properties instead of function calls
+
+  * danbooru/mainwindow.py: More refactoring, trying to improve
+  maintainability. It's still a monster, though.
+
+  * danbooru/api/remote.py, danbooru/api/utils.py: Support for username and
+  passwords. Sooner or later I'll put KWallet support in...
+
+  * danbooru/preferences.py: Just cosmetic changes
+
+  * danbooru/mainwindow.py: Remove dead code
+
+  * danbooru/thumbnailarea.py: Create new pages on instantiation, and remember
+  the limit between searches
+
+  * danbooru/thumbnailview.py: Remove disconnects: as the instance of the
+  remote API is shared, it would repeatedly cause TypeErrors. Instead, "lock"
+  the thumbnail widget so that any further connections are discarded.
+
+  * danbooru/mainwindow.py: First attempt at sorting the mess in this file.
+  Tags aren't back yet.
+
+  * danbooru/danbooru2nepomuk.py: Use the Resource Manager properly
+
+  * danbooru/connectdialog.py: Adapt to the changes in the remote API
+
+  * danbooru/actiondialog.py: Use KMessageWidget for errors
+
+  * danbooru/api/utils.py: Encode values as Unicode strings
+
+  * danbooru/api/containers.py: Add support for the tags
+
+  * danbooru/api/remote.py: Remove redundancy
+
+  * danbooru/api/utils.py: Use KUrl instead of urllib/urlparse
+
+  * danbooru/actiondialog.py: Simplify the action dialog:  - remove the tag
+  clicking (was it ever used?) - use static functions for file requesters - use
+  KMessageWidget to report errors - mark more strings as translatable - use
+  tags instead of recalculating them through a regexp (fragile)
+
+  * danbooru/danbooru2nepomuk.py: Simplify danbooru2nepomuk and get rid of all
+  the cruft accumulated in the previous versions
+
+  * danbooru/thumbnailarea.py: Add current indices
+
+  * danbooru/thumbnailview.py: Add tags to action dialog: what's the point of
+  re-extracting them if we have them?
+
+  * danbooru/ui/ui_thumbnailarea.py: Remove tag widget. This is better done in
+  a dock widget of the main window.
+
+  * danbooru/api/remote.py: Update documentation
+
+2011-07-16  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui_src/thumbnailarea.ui: I have to do this or I won't be able to
+  revert
+
+2011-07-10  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/ui_src/thumbnailarea.ui: Get rid of the tag widget, which will be
+  separate
+
+  * danbooru/thumbnailarea.py: Refactoring of the thumbnail area, removing a
+  lot of duplicated signals and causes of errors
+
+  * danbooru/thumbnailview.py: Massive refactoring and cleanup of the
+  thumbnailview
+
+  * danbooru/api/remote.py: More refactoring in the Danbooru API
+
+  * danbooru/api/containers.py: Fix tag types and add a (stub) class for pools
+
+2011-07-02  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api.py: Remove this, as it's obsolete
+
+2011-06-23  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api.py, danbooru/api/containers.py, danbooru/api/remote.py,
+  danbooru/thumbnailview.py: Improve the API and hopefully simplify the code a
+  bit
+
+2011-06-22  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/test/CMakeLists.txt, danbooru/test/pool/index.xml,
+  danbooru/test/pool/show.xml, danbooru/test/post/index.json,
+  danbooru/test/post/index.xml, danbooru/test/test_api.py: Remove the test
+  directory. It never worked reliably and it was a massive hack to begin with.
+
+  * danbooru/api/containers.py, danbooru/api/remote.py, danbooru/api/utils.py:
+  API updates, and implementation of a Danbooru Tag wrapper
+
+2011-06-19  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api/__init__.py, danbooru/api/containers.py,
+  danbooru/api/remote.py, danbooru/api/utils.py: New API basics
+
+2011-01-05  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api.py, danbooru/thumbnailarea.py: Port to ElementTree - better
+  API than minidom
+
+  * danbooru/api.py, danbooru/mainwindow.py: Finish porting to the new
+  signal/slot API
+
+2010-09-20  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/actiondialog.py: More ugly C++ like syntax goes away
+
+  * danbooru/mainwindow.py: Port to the new signal API
+
+  * danbooru/danbooru2nepomuk.py: Make tagging work properly
+
+  * danbooru/api.py: Port to the new signals and slots API
+
+2010-05-09  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * danbooru/thumbnailarea.py: Fix a couple of AttributeErrors
+
+  * danbooru/actiondialog.py, danbooru/ui/ui_actiondialog.py,
+  danbooru/ui_src/actiondialog.ui: Reworked action dialog occupying less space,
+  using a hyperlink instead of the full link
+
+2010-04-18  Luca Beltrame <einar@heavensinferno.net>
+
+  * po/danbooru_client.pot: Update catalog
+
+  * danbooru/danbooru_client.py: Cosmetics
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * danbooru/ui_src/Ui_thumbnailarea.py, danbooru/ui_src/action.patch,
+  danbooru/ui_src/area.patch: Stray files, begone!
+
+  * danbooru/actiondialog.py, danbooru/fetchdialog.py, danbooru/mainwindow.py,
+  danbooru/thumbnailarea.py, danbooru/thumbnailview.py,
+  danbooru/ui/ui_actiondialog.py, danbooru/ui/ui_thumbnailarea.py,
+  danbooru/ui_src/Ui_thumbnailarea.py, danbooru/ui_src/action.patch,
+  danbooru/ui_src/actiondialog.ui, danbooru/ui_src/actiondialog_new.ui,
+  danbooru/ui_src/area.patch, danbooru/ui_src/thumbnailarea.ui: Support for
+  similar tags and a reworked action dialog. Based on a patch by Yuen Hoe Lim.
+
+  * danbooru/api.py: Remove dead code
+
+2010-03-15  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api.py: Initial support for tagsi, based off a patch by Yuen Hoe
+  Lim.
+
+  * danbooru/api.py, danbooru/connectdialog.py, danbooru/danbooru_client.py:
+  Proper error handling, using a bool
+
+2010-02-18  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/danbooru_client.py: Whoops, fix version
+
+  * danbooru/preferences.py: Unneded
+
+  * danbooru/mainwindow.py: Adjust to thumbnailview changes
+
+  * danbooru/thumbnailview.py: Fix a possible crash when a disconnection would
+  occur when data was still being downloaded. I wonder why this worked in
+  4.3...
+
+  * danbooru/thumbnailarea.py: Rename signals to avoid confusion with the ones
+  in the thumbnailview. Also, factor out slots in separate functions to improve
+  readability.
+
+  * danbooru/fetchdialog.py: Support also colons (:) in tags, to work around
+  pool download problems in certain boards (like moe.imouto)
+
+  * danbooru/connectdialog.py: Unneeded
+
+  * danbooru/connectdialog.py: Adjust connect dialog for async checking
+
+  * danbooru/api.py: Implement asynchronous host checking
+
 2010-01-06  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: Update ChangeLog
 
   * po/danbooru_client.pot: Updated strings
 
