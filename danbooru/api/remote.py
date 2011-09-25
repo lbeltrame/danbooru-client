@@ -186,7 +186,9 @@ class DanbooruService(QtCore.QObject):
         danbooru_item.pixmap = img
 
         self.postRetrieved.emit(danbooru_item)
-        self.__data.remove(danbooru_item)
+
+        if danbooru_item in self.__data:
+            self.__data.remove(danbooru_item)
 
         if not self.__data:
             self.__data = None
@@ -241,7 +243,19 @@ class DanbooruService(QtCore.QObject):
 
         """
 
-        pass
+        parameters = dict(id=pool_id)
+
+        if page is not None:
+            parameters["page"] = page
+
+        request_url = utils.danbooru_request_url(self.url, POOL_DATA_URL,
+                                                 parameters, self.username,
+                                                 self.password)
+        job = KIO.storedGet(request_url, KIO.NoReload,
+                            KIO.HideProgressInfo)
+
+        # We get a list of posts, which we can handle normally
+        job.result.connect(self.__slot_process_post_list)
 
     def get_post_list(self, page=None, tags=None, limit=100, rating="Safe",
                       blacklist=None):
