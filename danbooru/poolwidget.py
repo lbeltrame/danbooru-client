@@ -38,11 +38,6 @@ class DanbooruPoolWidget(ui_pooldock.Ui_PoolWidget, QtGui.QWidget):
         self._api_data = api_data
         self._current_row = 0
 
-        self.poolTable.verticalHeader().hide()
-        self.poolTable.setColumnCount(3)
-        #self.poolTable.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        #self.poolTable.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-
         self._api_data.poolRetrieved.connect(self.add_row)
         self.fetchButton.clicked.connect(self.fetch_pools)
         self.poolTable.itemDoubleClicked.connect(self.get_pool)
@@ -59,18 +54,23 @@ class DanbooruPoolWidget(ui_pooldock.Ui_PoolWidget, QtGui.QWidget):
         pool_id = QtGui.QTableWidgetItem(pool_item.id)
         pool_name = QtGui.QTableWidgetItem(pool_item.name)
         pool_posts = QtGui.QTableWidgetItem(pool_item.post_count)
+        pool_description = QtGui.QTableWidgetItem(pool_item.description)
 
-        pool_id.setToolTip(pool_item.description)
-        pool_name.setToolTip(pool_item.description)
-        pool_posts.setToolTip(pool_item.description)
+        pool_id.setToolTip(kdecore.i18n("Double click to download"))
+        pool_name.setToolTip(kdecore.i18n("Double click to download"))
+        pool_posts.setToolTip(kdecore.i18n("Double click to download"))
+        pool_description.setToolTip(kdecore.i18n("Double click to download"))
 
         pool_id.setData(QtCore.Qt.UserRole, QtCore.QVariant(pool_item.id))
         pool_name.setData(QtCore.Qt.UserRole, QtCore.QVariant(pool_item.id))
         pool_posts.setData(QtCore.Qt.UserRole, QtCore.QVariant(pool_item.id))
+        pool_description.setData(QtCore.Qt.UserRole,
+                                 QtCore.QVariant(pool_item.id))
 
         self.poolTable.setItem(current_row, 0, pool_id)
         self.poolTable.setItem(current_row, 1, pool_name)
         self.poolTable.setItem(current_row, 2, pool_posts)
+        self.poolTable.setItem(current_row, 3, pool_description)
         self.poolTable.resizeColumnsToContents()
 
         self.poolTable.sortItems(0)
