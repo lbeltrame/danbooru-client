@@ -33,7 +33,8 @@ from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
                          QKeySequence, QDockWidget)
 from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
 from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
-                          KStandardAction, KIcon, KConfigDialog)
+                          KStandardAction, KIcon, KConfigDialog,
+                          KToggleAction)
 from PyKDE4.kio import KFileDialog, KIO
 
 import preferences
@@ -42,6 +43,7 @@ import tagwidget
 import fetchdialog
 import connectdialog
 import pooldialog
+import poolwidget
 import danbooru2nepomuk
 
 class MainWindow(KXmlGuiWindow):
@@ -66,6 +68,7 @@ class MainWindow(KXmlGuiWindow):
         self.progress = QProgressBar()
         self.thumbnailarea = None
         self.tag_dock = None
+
         self.progress.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         # FIXME: Hackish, but how to make it small otherwise?
@@ -109,7 +112,7 @@ class MainWindow(KXmlGuiWindow):
                                self)
         self.batch_download_action = KAction(KIcon("download"),
                                              i18n("Batch download"), self)
-        self.pool_download_action = KAction(KIcon("image-x-generic"),
+        self.pool_toggle_action = KToggleAction(KIcon("image-x-generic"),
                                             i18n("Pools"), self)
 
         # Shortcuts
@@ -123,7 +126,7 @@ class MainWindow(KXmlGuiWindow):
 
         self.fetch_action.setEnabled(False)
         self.batch_download_action.setEnabled(False)
-        self.pool_download_action.setEnabled(False)
+        self.pool_toggle_action.setEnabled(False)
 
     def setup_action_collection(self):
 
@@ -138,7 +141,7 @@ class MainWindow(KXmlGuiWindow):
         action_collection.addAction("batchDownload",
                                     self.batch_download_action)
         action_collection.addAction("poolDownload",
-                                          self.pool_download_action)
+                                          self.pool_toggle_action)
 
         KStandardAction.quit (self.close, action_collection)
         KStandardAction.preferences(self.show_preferences,
@@ -161,7 +164,7 @@ class MainWindow(KXmlGuiWindow):
         self.fetch_action.triggered.connect(self.get_posts)
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
-        self.pool_download_action.triggered.connect(self.pool_download)
+        self.pool_toggle_action.toggled.connect(self.pool_toggle)
 
         window_options = self.StandardWindowOption(self.ToolBar| self.Keys |
                                                    self.Create | self.Save |
@@ -216,6 +219,8 @@ class MainWindow(KXmlGuiWindow):
 
             if self.thumbnailarea is not None:
                 #TODO: Investigate usability
+                self.pool_dock.hide()
+                self.clear(clear_pool=True)
                 self.thumbnailarea.clear()
                 self.thumbnailarea.api_data = self.api
 
@@ -224,7 +229,21 @@ class MainWindow(KXmlGuiWindow):
             self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
                                          3000)
             self.fetch_action.setEnabled(True)
-            #self.pool_download_action.setEnabled(True)
+
+            # Set up pool widget
+
+            pool_widget = poolwidget.DanbooruPoolWidget(self.api)
+            self.pool_dock = QDockWidget("Pools", self)
+            self.pool_dock.setObjectName("PoolDock")
+            self.pool_dock.setAllowedAreas(Qt.BottomDockWidgetArea)
+            self.pool_dock.setWidget(pool_widget)
+            self.pool_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+            self.addDockWidget(Qt.BottomDockWidgetArea, self.pool_dock)
+            self.pool_dock.widget().poolDownloadRequested.connect(
+                self.pool_prepare)
+            self.pool_dock.hide()
+
+            self.pool_toggle_action.setEnabled(True)
 
     def get_posts(self, ok):
 
@@ -283,35 +302,28 @@ class MainWindow(KXmlGuiWindow):
                                 rating=rating)
         self.api.get_related_tags(tags=[tag_name], blacklist=blacklist)
 
-    def pool_download(self, ok):
+    def pool_toggle(self, checked):
 
         "Calls the download of all available pools."
 
         if not self.api:
             return
 
-        self.api.get_pool_list()
+        if not checked:
+            self.pool_dock.hide()
+        else:
+            self.pool_dock.show()
 
-    def pool_select(self):
+    def pool_prepare(self, pool_id):
 
-        """Slot called when the pool data have been downloaded. It constructs
-        the pool dialog and then starts the download of the images."""
+        """Prepare the central area for pool image loading."""
 
-        if not self.api.pool_data:
-            return
+        if self.thumbnailarea is None:
+            self.setup_area()
+        else:
+            self.clear(clear_pool=False)
 
-        dialog = pooldialog.PoolDialog(self.api.pool_data, self)
-
-        if dialog.exec_():
-
-            selected_pool_id = dialog.selected_id()
-
-            if not self.thumbnailarea:
-                self.setup_area()
-            else:
-                self.thumbnailarea.clear()
-
-            self.api.get_pool_id(pool_id=selected_pool_id)
+        self.api.get_pool(pool_id)
 
     def batch_download(self, ok):
 
@@ -394,7 +406,7 @@ class MainWindow(KXmlGuiWindow):
         self.__step += 1
         self.progress.setValue(self.__step)
 
-    def clear(self):
+    def clear(self, clear_pool=True):
 
         "Clear the central widget."
 
@@ -403,6 +415,8 @@ class MainWindow(KXmlGuiWindow):
 
         self.thumbnailarea.clear()
         self.tag_dock.widget().clear()
+        if clear_pool:
+            self.pool_dock.widget().clear()
         self.batch_download_action.setEnabled(False)
 
     def clean_cache(self):
