@@ -1,3 +1,40 @@
+2011-09-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * danbooru/mainwindow.py, danbooru/thumbnailarea.py: Minor changes
+
+  * danbooru/ui/ui_pooldock.py, danbooru/ui_src/pooldock.ui: Update pool dock
+  UI
+
+  * danbooru/poolwidget.py: Add description to pools
+
+  * danbooru/mainwindow.py: Ensure that the pool is cleared even at program
+  start
+
+  * danbooru/mainwindow.py: Support pool downloads in the main interface
+
+  * danbooru/ui/ui_poolwidget.py: Do the same for the compiled Python file
+
+  * danbooru/ui_src/poolwidget.ui: Get rid of the old UI file
+
+  * danbooru/api/containers.py: Work around issues with pool descriptions
+
+  * danbooru/api/utils.py: Handle cases where there are no parameters
+
+  * danbooru/api/remote.py: Add support for fetching pool images
+
+  * danbooru/ui_src/pooldock.ui: UI source for the pool dock
+
+  * danbooru/ui/ui_pooldock.py: UI file for the pool dock
+
+  * danbooru/poolwidget.py: Add a new pool widget to be used inline.
+
+2011-07-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/CMakeLists.txt, danbooru/ChangeLog, danbooru/api/CMakeLists.txt:
+  Final bits before a new release
+
 2011-07-25  Luca Beltrame <einar@heavensinferno.net>
 
   * danbooru/danbooru_client.py: Bump version
