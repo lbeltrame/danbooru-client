@@ -129,7 +129,14 @@ class DanbooruPool(object):
     def description(self):
 
         description = self.__data.getchildren()[0]
-        description = unicode(description.text, "utf-8")
+
+        if description.text is None:
+            return "No description"
+
+        try:
+            description = description.text
+        except TypeError:
+            return "Error fetching description"
 
         return description
 
