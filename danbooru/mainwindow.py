@@ -309,7 +309,7 @@ class MainWindow(KXmlGuiWindow):
 
     def pool_toggle(self, checked):
 
-        "Calls the download of all available pools."
+        "Toggle the presence/absence of the pool dock."
 
         if not self.api:
             return

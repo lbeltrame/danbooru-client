@@ -72,7 +72,6 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
 
         self.new_page()
 
-
     def __iter__(self):
 
         "Yields every stored page in the thumbnail area."
