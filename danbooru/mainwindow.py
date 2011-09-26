@@ -42,7 +42,6 @@ import thumbnailarea
 import tagwidget
 import fetchdialog
 import connectdialog
-import pooldialog
 import poolwidget
 import danbooru2nepomuk
 
