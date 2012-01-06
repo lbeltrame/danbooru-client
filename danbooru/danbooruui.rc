@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
-<gui name="KAction" version="1.2">
+<gui name="KAction" version="3">
   <ToolBar name="mainToolBar" >
     <text>Main Toolbar</text>
       <Action name="connect" />
       <Action name="fetch" />
       <Action name="batchDownload" />
       <Action name="poolDownload" />
+      <Action name="tagDisplay" />
       <ActionList name="dynamicActionlist" />
   </ToolBar>
   <MenuBar>

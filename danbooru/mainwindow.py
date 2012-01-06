@@ -34,7 +34,7 @@ from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
 from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
 from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
                           KStandardAction, KIcon, KConfigDialog,
-                          KToggleAction)
+                          KToggleAction, KDualAction, KStandardShortcut)
 from PyKDE4.kio import KFileDialog, KIO
 
 import preferences
@@ -114,15 +114,18 @@ class MainWindow(KXmlGuiWindow):
                                              i18n("Batch download"), self)
         self.pool_toggle_action = KToggleAction(KIcon("image-x-generic"),
                                             i18n("Pools"), self)
+        self.tag_display_action = KDualAction(i18n("Show tags"),
+                                              i18n("Hide tags"),
+                                              self)
+        self.tag_display_action.setIconForStates(KIcon("image-x-generic"))
+        self.tag_display_action.setEnabled(False)
 
         # Shortcuts
         connect_default = KAction.ShortcutTypes(KAction.DefaultShortcut)
         connect_active = KAction.ShortcutTypes(KAction.ActiveShortcut)
 
-        self.connect_action.setShortcut(QKeySequence.Open,
-                                   connect_default | connect_active)
-        self.fetch_action.setShortcut(QKeySequence.Find,
-                                 connect_default | connect_active)
+        self.connect_action.setShortcut(KStandardShortcut.open())
+        self.fetch_action.setShortcut(KStandardShortcut.find())
 
         self.fetch_action.setEnabled(False)
         self.batch_download_action.setEnabled(False)
@@ -138,10 +141,9 @@ class MainWindow(KXmlGuiWindow):
         action_collection.addAction("connect", self.connect_action)
         action_collection.addAction("fetch", self.fetch_action)
         action_collection.addAction("clean", self.clean_action)
-        action_collection.addAction("batchDownload",
-                                    self.batch_download_action)
-        action_collection.addAction("poolDownload",
-                                          self.pool_toggle_action)
+        action_collection.addAction("batchDownload", self.batch_download_action)
+        action_collection.addAction("poolDownload", self.pool_toggle_action)
+        action_collection.addAction("tagDisplay", self.tag_display_action)
 
         KStandardAction.quit (self.close, action_collection)
         KStandardAction.preferences(self.show_preferences,
@@ -165,6 +167,7 @@ class MainWindow(KXmlGuiWindow):
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
         self.pool_toggle_action.toggled.connect(self.pool_toggle)
+        self.tag_display_action.activeChangedByUser.connect(self.tag_display)
 
         window_options = self.StandardWindowOption(self.ToolBar| self.Keys |
                                                    self.Create | self.Save |
@@ -374,6 +377,8 @@ class MainWindow(KXmlGuiWindow):
 
         blacklist = self.preferences.tag_blacklist
         tag_widget = tagwidget.DanbooruTagWidget(blacklist, self)
+        self.tag_display_action.setActive(True)
+        self.tag_display_action.setEnabled(True)
         self.tag_dock = QDockWidget("Similar tags", self)
         self.tag_dock.setObjectName("TagDock")
         self.tag_dock.setAllowedAreas(Qt.RightDockWidgetArea)
@@ -446,3 +451,14 @@ class MainWindow(KXmlGuiWindow):
                 tags = job.property("tags").toPyObject()
                 danbooru2nepomuk.tag_danbooru_item(job.destUrl().path(),
                                                    tags)
+
+    def tag_display(self, state):
+
+        if self.tag_dock is None:
+            self.tag_display_action.setActive(False)
+            return
+
+        if state:
+            self.tag_dock.show()
+        else:
+            self.tag_dock.hide()
