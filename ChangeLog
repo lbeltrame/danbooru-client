@@ -1,4 +1,22 @@
+2012-01-06  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/danbooru_client.py: Bump version
+
+  * danbooru/danbooruui.rc, danbooru/mainwindow.py: Add support for showing /
+  hiding the tag pane
+
+2011-09-26  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/mainwindow.py: Fix missing import
+
 2011-09-25  Luca Beltrame <einar@heavensinferno.net>
+
+  * Messsages.sh, danbooru/CMakeLists.txt, danbooru/ui/CMakeLists.txt,
+  po/danbooru_client.pot: Fix build system and improve Messages.sh
+
+  * TODO: Update TODO
+
+  * ChangeLog: Update ChangeLog (for real)
 
   * danbooru/ChangeLog: OOps, wrong file
 
