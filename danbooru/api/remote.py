@@ -50,6 +50,7 @@ class DanbooruService(QtCore.QObject):
     postDownloadFinished = QtCore.pyqtSignal()
     tagRetrieved = QtCore.pyqtSignal(containers.DanbooruTag)
     poolRetrieved = QtCore.pyqtSignal(containers.DanbooruPool)
+    downloadError = QtCore.pyqtSignal(str)
 
     def __init__(self, board_url, username=None, password=None, cache=None,
                  parent=None):
@@ -74,7 +75,12 @@ class DanbooruService(QtCore.QObject):
         job_data = job.data()
         self.__data = set()
 
-        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        try:
+            parsed_data = ElementTree.XML(unicode(job_data.data()))
+        except ElementTree.ParseError:
+            self.downloadError.emit("Error retrieving posts")
+            return
+
         decoded_data = parsed_data.getiterator("post")
 
         allowed_rating = job.property("ratings").toPyObject()
@@ -115,7 +121,12 @@ class DanbooruService(QtCore.QObject):
 
         job_data = job.data()
 
-        parsed_data = ElementTree.XML(unicode(job_data.data()))
+        try:
+            parsed_data = ElementTree.XML(unicode(job_data.data()))
+        except ElementTree.ParseError:
+            self.downloadError.emit("Error retrieving posts")
+            return
+
         decoded_data = parsed_data.getiterator("tag")
         blacklisted_tags = job.property("blacklisted_tags").toPyObject()
 
