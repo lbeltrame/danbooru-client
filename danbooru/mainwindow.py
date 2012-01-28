@@ -464,6 +464,8 @@ class MainWindow(KXmlGuiWindow):
 
     def tag_display(self, state):
 
+        """Display or hide the tag dock."""
+
         if self.tag_dock is None:
             self.tag_display_action.setActive(False)
             return
