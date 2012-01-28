@@ -1,4 +1,19 @@
+2012-01-28  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/mainwindow.py: Internal documentation
+
+  * danbooru/mainwindow.py: Ensure connections are set up even when changing
+  board URL - fixes the issue where connecting to another board would not
+  display tags or progress
+
+2012-01-21  Luca Beltrame <einar@heavensinferno.net>
+
+  * danbooru/api/remote.py: Add support for connection errors when parsing goes
+  awry
+
 2012-01-06  Luca Beltrame <einar@heavensinferno.net>
+
+  * ChangeLog: Update ChangeLog
 
   * danbooru/danbooru_client.py: I need to check when I bump versions!
 
