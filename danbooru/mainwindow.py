@@ -196,6 +196,19 @@ class MainWindow(KXmlGuiWindow):
         if action.isEnabled():
             self.statusBar().showMessage(action.toolTip(), 2000)
 
+    def setup_connections(self):
+
+        """Set up connections for post and tag retrieval."""
+
+        if self.api is None:
+            return
+
+        self.api.postRetrieved.connect(self.update_progress)
+        self.api.postDownloadFinished.connect(self.download_finished)
+        self.api.tagRetrieved.connect(self.tag_dock.widget().add_tags)
+        self.tag_dock.widget().itemDoubleClicked.connect(
+            self.fetch_tagged_items)
+
     def show_preferences(self):
 
         "Show the preferences dialog."
@@ -230,6 +243,7 @@ class MainWindow(KXmlGuiWindow):
                 self.clear(clear_pool=True)
                 self.thumbnailarea.clear()
                 self.thumbnailarea.api_data = self.api
+                self.setup_connections()
 
             self.api.cache = self.cache
 
@@ -388,11 +402,7 @@ class MainWindow(KXmlGuiWindow):
 
         # Container signal-slot connections
 
-        self.api.postRetrieved.connect(self.update_progress)
-        self.api.postDownloadFinished.connect(self.download_finished)
-        self.api.tagRetrieved.connect(self.tag_dock.widget().add_tags)
-        self.tag_dock.widget().itemDoubleClicked.connect(
-            self.fetch_tagged_items)
+        self.setup_connections()
 
     def download_finished(self):
 
