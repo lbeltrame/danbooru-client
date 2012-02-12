@@ -26,13 +26,13 @@ import re
 import PyQt4.QtCore as QtCore
 
 from PyKDE4.nepomuk import Nepomuk
-from PyKDE4.kdecore import KUrl
+from PyKDE4.kdecore import KUrl, i18n
 
 # Regexp to filter out the board name and post ID from the filename
 BOARD_REGEX = re.compile("(.*[0-9]+)\s(.*)(.jpe?g|.gif|.png|.tif)")
 
 
-def tag_danbooru_item(filename, tags, blacklist=None):
+def tag_danbooru_item(filename, tags, blacklist=None, board_url=None):
 
     """Tag a file using a specific :class:`DanbooruItem` tags."""
 
@@ -53,6 +53,15 @@ def tag_danbooru_item(filename, tags, blacklist=None):
         nepomuk_tag = Nepomuk.Tag(tag)
         nepomuk_tag.setLabel(tag)
         resource.addTag(nepomuk_tag)
+
+    print "Board URL is", board_url
+
+    if board_url is not None:
+        website_resource = Nepomuk.Resource(board_url)
+        website_resource.addType(Nepomuk.Vocabulary.NFO.Website())
+        resource.setDescription(
+                    i18n("Retrieved from %1").arg(board_url.prettyUrl()))
+        resource.addIsRelated(website_resource)
 
 
 def mass_tag_items(filenames, danbooru_items, blacklist):

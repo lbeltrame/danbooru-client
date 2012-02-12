@@ -68,7 +68,7 @@ class ActionDialog(kdeui.KDialog):
     fetchTags = QtCore.pyqtSignal(QtCore.QString)
 
     def __init__(self, url, pixmap=None, tags=None, preferences=None,
-                 parent=None):
+                 parent=None, board_url=None):
 
         super(ActionDialog, self).__init__(parent)
 
@@ -77,6 +77,7 @@ class ActionDialog(kdeui.KDialog):
         self.preferences = preferences
         self.tagging = preferences.nepomuk_enabled
         self.blacklist = preferences.tag_blacklist
+        self.board_url = board_url
 
         self.actionwidget = ActionWidget(self.url, pixmap, self)
         self.setMainWidget(self.actionwidget)
@@ -168,4 +169,7 @@ class ActionDialog(kdeui.KDialog):
         download_name = job.destUrl().toLocalFile()
 
         if self.tagging:
-            danbooru2nepomuk.tag_danbooru_item(download_name, self.tags)
+            # Get the URL of the board for Nepomuk tagging
+            board_name = kdecore.KUrl(self.board_url)
+            danbooru2nepomuk.tag_danbooru_item(download_name, self.tags,
+                                               self.blacklist, board_name)

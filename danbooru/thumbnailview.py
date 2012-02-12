@@ -170,6 +170,7 @@ class DanbooruPostView(QtGui.QTableWidget):
         dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
                                            preferences=self.__preferences,
                                            tags=tags,
+                                           board_url=self.api_data.url,
                                            parent=self)
 
         if not dialog.exec_():
