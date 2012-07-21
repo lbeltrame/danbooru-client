@@ -75,8 +75,12 @@ class DanbooruService(QtCore.QObject):
         job_data = job.data()
         self.__data = set()
 
+        current_data =job_data.data()
+        current_data = unicode(current_data, encoding="utf-8").encode(
+            "utf-8")
+
         try:
-            parsed_data = ElementTree.XML(unicode(job_data.data()))
+            parsed_data = ElementTree.XML(current_data)
         except ElementTree.ParseError:
             self.downloadError.emit("Error retrieving posts")
             return
