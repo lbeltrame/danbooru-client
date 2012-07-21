@@ -24,7 +24,7 @@ implementation of said API coupled with a graphical user interface."""
 
 import sys
 
-from PyKDE4.kdecore import KAboutData, ki18n, KCmdLineArgs
+from PyKDE4.kdecore import KAboutData, ki18n, KCmdLineArgs, KComponentData
 from PyKDE4.kdeui import KApplication
 
 import mainwindow
@@ -47,8 +47,10 @@ def main():
     about_data = KAboutData(app_name, catalog, program_name, version,
                             description, license, copyright, text, home_page,
                             bug_email)
-
     about_data.setProgramIconName("internet-web-browser")
+
+    component_data = KComponentData(about_data)
+    component_data.setAboutData(about_data)
 
     KCmdLineArgs.init(sys.argv, about_data)
     app = KApplication()
