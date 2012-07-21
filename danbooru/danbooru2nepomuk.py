@@ -54,11 +54,11 @@ def tag_danbooru_item(filename, tags, blacklist=None, board_url=None):
         nepomuk_tag.setLabel(tag)
         resource.addTag(nepomuk_tag)
 
-    print "Board URL is", board_url
 
     if board_url is not None:
         website_resource = Nepomuk.Resource(board_url)
         website_resource.addType(Nepomuk.Vocabulary.NFO.Website())
+        website_resource.setLabel(board_url.prettyUrl())
         resource.setDescription(
                     i18n("Retrieved from %1").arg(board_url.prettyUrl()))
         resource.addIsRelated(website_resource)
