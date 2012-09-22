@@ -24,8 +24,10 @@ import PyQt4.QtGui as QtGui
 
 import PyKDE4.kdecore as kdecore
 import PyKDE4.kdeui as kdeui
+import PyKDE4.kio as kio
 
 import actiondialog
+from danboorupostwidget import DanbooruPostWidget
 
 _TRANSLATED_RATINGS = dict(
     Safe=kdecore.i18nc("Image for all audiences", "Safe"),
@@ -35,75 +37,114 @@ _TRANSLATED_RATINGS = dict(
     )
 
 
-class DanbooruPostWidget(QtGui.QWidget):
+#class DanbooruPostWidget(QtGui.QWidget):
 
-    """Widget that displays a DanbooruPost."""
+    #"""Widget that displays a DanbooruPost."""
 
-    def __init__(self, danbooru_post, parent=None):
+    #def __init__(self, danbooru_post, parent=None):
 
-        super(DanbooruPostWidget, self).__init__(parent)
+        #super(DanbooruPostWidget, self).__init__(parent)
 
-        self.data = danbooru_post
+        #self.data = danbooru_post
 
-        self.url_label = kdeui.KUrlLabel()
-        self.__text_label = QtGui.QLabel()
+        #self.url_label = kdeui.KUrlLabel()
+        #self.__text_label = QtGui.QLabel()
+        #self.url_to_file = self.data.file_url
 
-        label_text = self.label_text()
+        #label_text = self.label_text()
 
-        self.url_label.setUrl(self.data.file_url)
-        self.url_label.setPixmap(self.data.pixmap)
+        #self.url_label.setUrl(self.data.file_url)
+        #self.url_label.setPixmap(self.data.pixmap)
 
-        full_url = kdecore.KUrl(self.data.file_url).fileName()
-        self.url_label.setUseTips(True)
-        self.url_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.url_label.setTipText(full_url)
+        #full_url = kdecore.KUrl(self.data.file_url).fileName()
+        #self.url_label.setUseTips(True)
+        #self.url_label.setAlignment(QtCore.Qt.AlignCenter)
+        #self.url_label.setTipText(full_url)
 
-        self.layout = QtGui.QVBoxLayout(self)
-        self.layout.addStretch()
-        self.layout.addWidget(self.url_label)
+        #self.layout = QtGui.QVBoxLayout(self)
+        #self.layout.addStretch()
+        #self.layout.addWidget(self.url_label)
 
-        if label_text is not None:
-            self.__text_label.setText(label_text)
-            self.layout.addWidget(self.__text_label)
+        #if label_text is not None:
+            #self.__text_label.setText(label_text)
+            #self.layout.addWidget(self.__text_label)
 
-        self.checkbox = QtGui.QCheckBox()
-        self.checkbox.setChecked(False)
-        self.checkbox.setText(kdecore.i18n("Select"))
+        #self.checkbox = QtGui.QCheckBox()
+        #self.checkbox.setChecked(False)
+        #self.checkbox.setText(kdecore.i18n("Select"))
 
-        # Remove the accelerator, we don't want it
-        kdeui.KAcceleratorManager.setNoAccel(self.checkbox)
+        ## Remove the accelerator, we don't want it
+        #kdeui.KAcceleratorManager.setNoAccel(self.checkbox)
 
-        self.checkbox.setSizePolicy(QtGui.QSizePolicy.Fixed,
-                                    QtGui.QSizePolicy.Fixed)
-        self.layout.addWidget(self.checkbox)
+        #self.checkbox.setSizePolicy(QtGui.QSizePolicy.Fixed,
+                                    #QtGui.QSizePolicy.Fixed)
+        #self.layout.addWidget(self.checkbox)
 
-        # FIXME: Hack to make sure there's enough space around the image,
-        # so that things to do not look as cramped
+        ## FIXME: Hack to make sure there's enough space around the image,
+        ## so that things to do not look as cramped
 
-        self.layout.setSpacing(6)
+        #self.layout.setSpacing(6)
 
-    def label_text(self):
+        #self.setup_actions()
 
-        "Format the text of the item for display."
+        ##self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
-        height = self.data.height
-        width = self.data.width
-        file_size = int(self.data.file_size)
-        rating = _TRANSLATED_RATINGS[self.data.rating]
+    #def setup_actions(self):
 
-        # Properly format the strings according to the locale
+        #self.menu = kdeui.KMenu(self)
+        #self.sub_menu = kdeui.KMenu(self.menu)
+        #self.sub_menu.setTitle("Tags")
+        #self.menu.setTitle("Actions")
+        #self.action_collection = kdeui.KActionCollection(self)
 
-        sizestr = kdecore.ki18np("1 pixel", "%1 pixels")
-        image_size = kdecore.i18n("Size: %1 x %2",
-                                  sizestr.subs(width).toString(),
-                                  sizestr.subs(height).toString())
-        file_size = kdecore.i18n("File size: %1",
-                kdecore.KGlobal.locale().formatByteSize(file_size))
-        rating = kdecore.i18n("Rating: %1", rating)
+        #self.download_action = self.action_collection.addAction(
+            #"download-image")
+        #self.view_action = self.action_collection.addAction(
+            #"view-image")
+        #self.browser_action = self.action_collection.addAction(
+            #"open-browser")
 
-        text = image_size + "\n" + file_size + "\n" + rating
 
-        return text
+        #self.download_action.setText("Download")
+        #self.view_action.setText("View image")
+        #self.browser_action.setText("Open in browser")
+
+        #self.menu.addAction(self.view_action)
+        #self.menu.addAction(self.download_action)
+        #self.menu.addAction(self.browser_action)
+
+        #self.menu.addMenu(self.sub_menu)
+
+
+
+    #def contextMenuEvent(self, event):
+        #self.menu.exec_(event.globalPos())
+        #pass
+
+
+
+    #def label_text(self):
+
+        #"Format the text of the item for display."
+
+        #height = self.data.height
+        #width = self.data.width
+        #file_size = int(self.data.file_size)
+        #rating = _TRANSLATED_RATINGS[self.data.rating]
+
+        ## Properly format the strings according to the locale
+
+        #sizestr = kdecore.ki18np("1 pixel", "%1 pixels")
+        #image_size = kdecore.i18n("Size: %1 x %2",
+                                  #sizestr.subs(width).toString(),
+                                  #sizestr.subs(height).toString())
+        #file_size = kdecore.i18n("File size: %1",
+                #kdecore.KGlobal.locale().formatByteSize(file_size))
+        #rating = kdecore.i18n("Rating: %1", rating)
+
+        #text = image_size + "\n" + file_size + "\n" + rating
+
+        #return text
 
 
 class DanbooruPostView(QtGui.QTableWidget):
@@ -121,7 +162,7 @@ class DanbooruPostView(QtGui.QTableWidget):
         self.__max_columns = preferences.column_no
         self.__column_index = 0
         self.__row_index = 0
-        self.__preferences = preferences
+        self.preferences = preferences
         self.__locked = False
 
         self.api_data = api_data
@@ -150,6 +191,8 @@ class DanbooruPostView(QtGui.QTableWidget):
 
         return len(self.__items)
 
+
+
     def stop_download(self):
 
         self.__locked = True
@@ -164,11 +207,15 @@ class DanbooruPostView(QtGui.QTableWidget):
         column = self.currentColumn()
 
         widget = self.cellWidget(row, column)
+
+        if widget is None:
+            return
+
         pixmap = widget.data.pixmap
         tags = widget.data.tags
 
         dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
-                                           preferences=self.__preferences,
+                                           preferences=self.preferences,
                                            tags=tags,
                                            board_url=self.api_data.url,
                                            parent=self)
@@ -200,6 +247,7 @@ class DanbooruPostView(QtGui.QTableWidget):
             return
 
         item = DanbooruPostWidget(data)
+
         self.__items.append(item)
 
         if self.rowCount() == 0:
@@ -216,7 +264,7 @@ class DanbooruPostView(QtGui.QTableWidget):
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
 
-        item.url_label.leftClickedUrl.connect(self.retrieve_url)
+        item.url_label.leftClickedUrl.connect(item.view)
 
     def selected_images(self):
 
