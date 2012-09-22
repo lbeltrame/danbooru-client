@@ -23,6 +23,8 @@ Author: Luca Beltrame
 Description: Main window module of the Danbooru client application
 '''
 
+# TODO: Move connection dialog to a widget inside centralWidget
+
 from __future__ import division
 
 import sys
@@ -42,6 +44,7 @@ import thumbnailarea
 import tagwidget
 import fetchdialog
 import connectdialog
+import connectwidget
 import poolwidget
 import danbooru2nepomuk
 
@@ -57,6 +60,7 @@ class MainWindow(KXmlGuiWindow):
         self.cache = KPixmapCache("danbooru")
         self.preferences = preferences.Preferences()
         self.api = None
+        self.connect_widget = None
         self.__ratings = None
         self.__step = 0
 
@@ -226,45 +230,64 @@ class MainWindow(KXmlGuiWindow):
 
         "Connect to a Danbooru board."
 
-        dialog = connectdialog.ConnectDialog(self.url_list, self)
+        if self.connect_widget is None:
+            self.connect_widget = connectwidget.ConnectWidget(self.url_list,
+                                                              self)
+            self.connect_widget.connectionEstablished.connect(
+                self.handle_connection)
+            self.connect_widget.rejected.connect(self.restore)
 
-        if dialog.exec_():
-            self.api = None
-            self.api = dialog.danbooru_connection
-            self.api.cache = self.cache
+            self.statusbar.addPermanentWidget(self.connect_widget, 100)
+        else:
+            self.statusbar.addPermanentWidget(self.connect_widget, 100)
+            self.connect_widget.show()
 
-            if self.pool_dock is not None:
-                self.pool_dock.hide()
-                self.pool_dock.widget().clear()
-                self.pool_toggle_action.setChecked(False)
+    def restore(self):
 
-            if self.thumbnailarea is not None:
-                #TODO: Investigate usability
-                self.clear(clear_pool=True)
-                self.thumbnailarea.clear()
-                self.thumbnailarea.api_data = self.api
-                self.setup_connections()
+        self.statusbar.removeWidget(self.connect_widget)
 
-            self.api.cache = self.cache
+    def handle_connection(self, connection):
 
-            self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
-                                         3000)
-            self.fetch_action.setEnabled(True)
+        self.api = None
+        self.api = connection
+        self.api.cache = self.cache
 
-            # Set up pool widget
+        self.thumbnailarea = None
+        self.pool_dock = None
+        self.statusbar.removeWidget(self.connect_widget)
 
-            pool_widget = poolwidget.DanbooruPoolWidget(self.api)
-            self.pool_dock = QDockWidget("Pools", self)
-            self.pool_dock.setObjectName("PoolDock")
-            self.pool_dock.setAllowedAreas(Qt.BottomDockWidgetArea)
-            self.pool_dock.setWidget(pool_widget)
-            self.pool_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
-            self.addDockWidget(Qt.BottomDockWidgetArea, self.pool_dock)
-            self.pool_dock.widget().poolDownloadRequested.connect(
-                self.pool_prepare)
+        if self.pool_dock is not None:
             self.pool_dock.hide()
+            self.pool_dock.widget().clear()
+            self.pool_toggle_action.setChecked(False)
 
-            self.pool_toggle_action.setEnabled(True)
+        if self.thumbnailarea is not None:
+            #TODO: Investigate usability
+            self.clear(clear_pool=True)
+            self.thumbnailarea.clear()
+            self.thumbnailarea.api_data = self.api
+            self.setup_connections()
+
+        self.api.cache = self.cache
+
+        self.statusBar().showMessage(i18n("Connected to %s" % self.api.url),
+                                     3000)
+        self.fetch_action.setEnabled(True)
+
+        # Set up pool widget
+
+        pool_widget = poolwidget.DanbooruPoolWidget(self.api)
+        self.pool_dock = QDockWidget("Pools", self)
+        self.pool_dock.setObjectName("PoolDock")
+        self.pool_dock.setAllowedAreas(Qt.BottomDockWidgetArea)
+        self.pool_dock.setWidget(pool_widget)
+        self.pool_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.pool_dock)
+        self.pool_dock.widget().poolDownloadRequested.connect(
+            self.pool_prepare)
+        self.pool_dock.hide()
+
+        self.pool_toggle_action.setEnabled(True)
 
     def get_posts(self, ok):
 
