@@ -33,6 +33,8 @@ from PyKDE4.kdeui import KAcceleratorManager,  KMessageBox
 
 import thumbnailview
 from ui.ui_thumbnailarea import Ui_ThumbnailArea
+from fetchwidget import FetchWidget
+from connectwidget import ConnectWidget
 
 
 class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
@@ -61,6 +63,31 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.__current_index = 0
         self.post_limit = post_limit
 
+        # Generate and set the two widgets
+
+        self.fetchwidget = FetchWidget(
+            limit=preferences.thumbnail_no,
+            default_rating=preferences.max_allowed_rating,
+            parent=self.parent()
+        )
+
+        self.connectwidget = ConnectWidget(preferences.boards_list, self)
+
+        # Ugly hacks to have the widgets in proper positions
+
+        self.gridLayout.removeWidget(self.thumbnailTabWidget)
+        self.gridLayout.removeItem(self.spacerItem)
+        self.gridLayout.removeWidget(self.nextPageButton)
+
+        self.gridLayout.addWidget(self.fetchwidget, 0, 0, 1, -1)
+        self.gridLayout.addWidget(self.thumbnailTabWidget, 1, 0, 1, 2)
+        self.gridLayout.addItem(self.spacerItem, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.nextPageButton, 3, 1, 1, 1)
+        self.gridLayout.addWidget(self.connectwidget, 4, 0, 1, -1)
+
+        self.connectwidget.hide()
+        self.fetchwidget.hide()
+
         KAcceleratorManager.setNoAccel(self.thumbnailTabWidget)
         self.nextPageButton.setDisabled(True)
 
@@ -69,6 +96,8 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.api_data.postDownloadFinished.connect(button_toggle)
         self.api_data.postDownloadFinished.connect(self.__check)
         self.nextPageButton.clicked.connect(self.update_search_results)
+
+
 
         self.new_page()
 

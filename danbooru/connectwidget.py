@@ -89,6 +89,7 @@ class ConnectWidget(QtGui.QWidget, Ui_connectForm):
         self._connection = remote.DanbooruService(unicode(url), username,
                                                   password=password)
         self.connectionEstablished.emit(self._connection)
+        self.hide()
 
 
 

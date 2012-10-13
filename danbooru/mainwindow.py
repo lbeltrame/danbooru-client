@@ -32,7 +32,7 @@ import os
 
 from PyQt4.QtCore import Qt, QSize, QVariant
 from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
-                         QKeySequence, QDockWidget)
+                         QKeySequence, QDockWidget, QWidget, QVBoxLayout)
 from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
 from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
                           KStandardAction, KIcon, KConfigDialog,
@@ -43,7 +43,7 @@ import preferences
 import thumbnailarea
 import tagwidget
 import fetchdialog
-import connectdialog
+import fetchwidget
 import connectwidget
 import poolwidget
 import danbooru2nepomuk
@@ -61,6 +61,7 @@ class MainWindow(KXmlGuiWindow):
         self.preferences = preferences.Preferences()
         self.api = None
         self.connect_widget = None
+        self.fetch_widget = None
         self.__ratings = None
         self.__step = 0
 
@@ -83,6 +84,7 @@ class MainWindow(KXmlGuiWindow):
         self.setup_welcome_widget()
         self.setup_actions()
 
+
     def setup_welcome_widget(self):
 
         """Load the welcome widget at startup."""
@@ -92,7 +94,20 @@ class MainWindow(KXmlGuiWindow):
 
         welcome.setPixmap(pix)
         welcome.setAlignment(Qt.AlignCenter)
-        self.setCentralWidget(welcome)
+
+        widget = QWidget()
+
+        layout = QVBoxLayout(widget)
+        fetch =connectwidget.ConnectWidget(self.preferences.boards_list, self)
+        layout.addWidget(welcome)
+        layout.addWidget(fetch)
+        fetch.hide()
+        fetch.connectionEstablished.connect(self.handle_connection)
+
+        widget.setLayout(layout)
+        widget.fetch = fetch
+
+        self.setCentralWidget(widget)
 
     def setup_tooltips(self):
 
@@ -230,17 +245,23 @@ class MainWindow(KXmlGuiWindow):
 
         "Connect to a Danbooru board."
 
-        if self.connect_widget is None:
-            self.connect_widget = connectwidget.ConnectWidget(self.url_list,
-                                                              self)
-            self.connect_widget.connectionEstablished.connect(
-                self.handle_connection)
-            self.connect_widget.rejected.connect(self.restore)
-
-            self.statusbar.addPermanentWidget(self.connect_widget, 100)
+        if self.thumbnailarea is None:
+            self.centralWidget().fetch.show()
         else:
-            self.statusbar.addPermanentWidget(self.connect_widget, 100)
-            self.connect_widget.show()
+            self.thumbnailarea.connectwidget.show()
+
+
+        #if self.connect_widget is None:
+            #self.connect_widget = connectwidget.ConnectWidget(self.url_list,
+                                                              #self)
+            #self.connect_widget.connectionEstablished.connect(
+                #self.handle_connection)
+            #self.connect_widget.rejected.connect(self.restore)
+
+            #self.statusbar.addPermanentWidget(self.connect_widget, 100)
+        #else:
+            #self.statusbar.addPermanentWidget(self.connect_widget, 100)
+            #self.connect_widget.show()
 
     def restore(self):
 
@@ -251,10 +272,6 @@ class MainWindow(KXmlGuiWindow):
         self.api = None
         self.api = connection
         self.api.cache = self.cache
-
-        self.thumbnailarea = None
-        self.pool_dock = None
-        self.statusbar.removeWidget(self.connect_widget)
 
         if self.pool_dock is not None:
             self.pool_dock.hide()
@@ -267,6 +284,10 @@ class MainWindow(KXmlGuiWindow):
             self.thumbnailarea.clear()
             self.thumbnailarea.api_data = self.api
             self.setup_connections()
+
+        else:
+            self.centralWidget().fetch.connectionEstablished.disconnect()
+            self.setup_area()
 
         self.api.cache = self.cache
 
@@ -296,38 +317,41 @@ class MainWindow(KXmlGuiWindow):
         if not self.api:
             return
 
-        dialog = fetchdialog.FetchDialog(self.max_retrieve,
-                                         preferences=self.preferences,
-                                         parent=self)
+        self.thumbnailarea.fetchwidget.show()
 
-        if dialog.exec_():
 
-            self.clear()
-            tags = dialog.tags
-            limit = dialog.limit
-            max_rating = dialog.max_rating
 
-            if self.thumbnailarea is None:
-                self.setup_area()
+    def handle_fetching(self, tags, max_rating, limit):
 
-            if self.tag_dock is not None:
-                self.tag_dock.widget().clear()
+        """Slot connected to the dataSent signal of the fetch widget.
 
-            self.thumbnailarea.post_limit = limit
-            blacklist= list(self.preferences.tag_blacklist)
-            self.api.get_post_list(tags=tags, limit=limit,
-                                   rating=max_rating,
-                                   blacklist=blacklist)
+        The widgets are set up if they don't exist, and the API is queried
+        to do the actual downloading of tags and
 
-            tags = [item for item in tags if item]
+        """
 
-            if not tags:
-                # No related tags, fetch the most recent 20
-                tags = ""
-                self.api.get_tag_list(name=tags,blacklist=blacklist,
-                                      limit=20)
-            else:
-                self.api.get_related_tags(tags=tags, blacklist=blacklist)
+        self.clear()
+
+        self.thumbnailarea.fetchwidget.hide()
+
+        if self.tag_dock is not None:
+            self.tag_dock.widget().clear()
+
+        self.thumbnailarea.post_limit = limit
+        blacklist= list(self.preferences.tag_blacklist)
+        self.api.get_post_list(tags=tags, limit=limit,
+                               rating=max_rating,
+                               blacklist=blacklist)
+
+        tags = [item for item in tags if item]
+
+        if not tags:
+            # No related tags, fetch the most recent 20
+            tags = ""
+            self.api.get_tag_list(name=tags,blacklist=blacklist,
+                                  limit=20)
+        else:
+            self.api.get_related_tags(tags=tags, blacklist=blacklist)
 
     def fetch_tagged_items(self, item):
 
@@ -409,6 +433,17 @@ class MainWindow(KXmlGuiWindow):
             self.preferences, self)
 
         self.setCentralWidget(self.thumbnailarea)
+
+        self.thumbnailarea.connectwidget.connectionEstablished.connect(
+                    self.handle_connection, type=Qt.UniqueConnection)
+        self.thumbnailarea.connectwidget.rejected.connect(
+            self.thumbnailarea.connectwidget.hide, type=Qt.UniqueConnection)
+
+
+        self.thumbnailarea.fetchwidget.dataSent.connect(
+            self.handle_fetching, type=Qt.UniqueConnection)
+        self.thumbnailarea.fetchwidget.rejected.connect(
+            self.thumbnailarea.fetchwidget.hide, type=Qt.UniqueConnection)
 
         # Set up tag widget
 
