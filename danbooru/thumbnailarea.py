@@ -76,12 +76,13 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         # Ugly hacks to have the widgets in proper positions
 
         self.gridLayout.removeWidget(self.thumbnailTabWidget)
-        self.gridLayout.removeItem(self.spacerItem)
+        spacer = self.gridLayout.itemAtPosition(1,0)
+        self.gridLayout.removeItem(spacer)
         self.gridLayout.removeWidget(self.nextPageButton)
 
         self.gridLayout.addWidget(self.fetchwidget, 0, 0, 1, -1)
         self.gridLayout.addWidget(self.thumbnailTabWidget, 1, 0, 1, 2)
-        self.gridLayout.addItem(self.spacerItem, 2, 0, 1, 1)
+        self.gridLayout.addItem(spacer, 2, 0, 1, 1)
         self.gridLayout.addWidget(self.nextPageButton, 3, 1, 1, 1)
         self.gridLayout.addWidget(self.connectwidget, 4, 0, 1, -1)
 

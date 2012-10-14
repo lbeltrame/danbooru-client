@@ -23,8 +23,6 @@ Author: Luca Beltrame
 Description: Main window module of the Danbooru client application
 '''
 
-# TODO: Move connection dialog to a widget inside centralWidget
-
 from __future__ import division
 
 import sys
@@ -32,7 +30,8 @@ import os
 
 from PyQt4.QtCore import Qt, QSize, QVariant
 from PyQt4.QtGui import (QLabel, QPixmap, QProgressBar, QSizePolicy,
-                         QKeySequence, QDockWidget, QWidget, QVBoxLayout)
+                         QKeySequence, QDockWidget, QWidget, QVBoxLayout,
+                         QSpacerItem)
 from PyKDE4.kdecore import KStandardDirs, KUrl, i18n
 from PyKDE4.kdeui import (KXmlGuiWindow, KPixmapCache, KAction,
                           KStandardAction, KIcon, KConfigDialog,
@@ -60,8 +59,6 @@ class MainWindow(KXmlGuiWindow):
         self.cache = KPixmapCache("danbooru")
         self.preferences = preferences.Preferences()
         self.api = None
-        self.connect_widget = None
-        self.fetch_widget = None
         self.__ratings = None
         self.__step = 0
 
@@ -84,6 +81,19 @@ class MainWindow(KXmlGuiWindow):
         self.setup_welcome_widget()
         self.setup_actions()
 
+        # Widget for the first connection
+
+        self.first_fetch_widget = connectwidget.ConnectWidget(
+            self.preferences.boards_list, self)
+
+        self.statusbar.addPermanentWidget(self.first_fetch_widget, 300)
+
+        self.first_fetch_widget.connectionEstablished.connect(
+            self.handle_connection)
+        self.first_fetch_widget.rejected.connect(
+            self.first_fetch_widget.hide)
+
+        self.first_fetch_widget.hide()
 
     def setup_welcome_widget(self):
 
@@ -95,19 +105,7 @@ class MainWindow(KXmlGuiWindow):
         welcome.setPixmap(pix)
         welcome.setAlignment(Qt.AlignCenter)
 
-        widget = QWidget()
-
-        layout = QVBoxLayout(widget)
-        fetch =connectwidget.ConnectWidget(self.preferences.boards_list, self)
-        layout.addWidget(welcome)
-        layout.addWidget(fetch)
-        fetch.hide()
-        fetch.connectionEstablished.connect(self.handle_connection)
-
-        widget.setLayout(layout)
-        widget.fetch = fetch
-
-        self.setCentralWidget(widget)
+        self.setCentralWidget(welcome)
 
     def setup_tooltips(self):
 
@@ -246,22 +244,10 @@ class MainWindow(KXmlGuiWindow):
         "Connect to a Danbooru board."
 
         if self.thumbnailarea is None:
-            self.centralWidget().fetch.show()
+            self.first_fetch_widget.show()
         else:
             self.thumbnailarea.connectwidget.show()
 
-
-        #if self.connect_widget is None:
-            #self.connect_widget = connectwidget.ConnectWidget(self.url_list,
-                                                              #self)
-            #self.connect_widget.connectionEstablished.connect(
-                #self.handle_connection)
-            #self.connect_widget.rejected.connect(self.restore)
-
-            #self.statusbar.addPermanentWidget(self.connect_widget, 100)
-        #else:
-            #self.statusbar.addPermanentWidget(self.connect_widget, 100)
-            #self.connect_widget.show()
 
     def restore(self):
 
@@ -286,7 +272,9 @@ class MainWindow(KXmlGuiWindow):
             self.setup_connections()
 
         else:
-            self.centralWidget().fetch.connectionEstablished.disconnect()
+            self.first_fetch_widget.connectionEstablished.disconnect()
+            self.first_fetch_widget.rejected.disconnect()
+            self.statusbar.removeWidget(self.first_fetch_widget)
             self.setup_area()
 
         self.api.cache = self.cache
