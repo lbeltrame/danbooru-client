@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FetchDialog</class>
+ <widget class="QWidget" name="FetchDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>662</width>
+    <height>31</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="KPushButton" name="closeButton">
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="ratingLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Maximum rating: </string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="KComboBox" name="ratingComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <item>
+      <property name="text">
+       <string>Safe</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Questionable</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Explicit</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="postLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Posts to retrieve:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="KIntSpinBox" name="postSpinBox">
+     <property name="toolTip">
+      <string>Number of posts to retrieve (max 100)</string>
+     </property>
+     <property name="whatsThis">
+      <string>The number of posts to retrieve. Notice that Danbooru limits the maximum number of posts to 100.</string>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="tagLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Tags:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="KLineEdit" name="tagLineEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Tags to include in search (optional)</string>
+     </property>
+     <property name="whatsThis">
+      <string>Input here the tags that should be used when looking for posts. Separate them with commas, without spaces.</string>
+     </property>
+     <property name="clickMessage">
+      <string>Tags, comma separated</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="KPushButton" name="downloadButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Download</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KPushButton</class>
+   <extends>QPushButton</extends>
+   <header>kpushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KIntSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>knuminput.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
