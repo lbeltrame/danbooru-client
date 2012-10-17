@@ -1,25 +1,26 @@
 include (KDE4Defaults)
 
 set(DANBOORU_FILES 
-  	__init__.py
-	actiondialog.py
-    connectdialog.py
-   	danbooru_client.py
-	danbooru2nepomuk.py
-    fetchdialog.py
+    __init__.py
+    actiondialog.py
+    connectwidget.py
+    danbooru_client.py
+    danboorupostwidget.py
+    danbooru2nepomuk.py
+    fetchwidget.py
     mainwindow.py
     poolwidget.py
     preferences.py
     tagwidget.py
-	thumbnailarea.py
+    thumbnailarea.py
     thumbnailview.py
 
 )
 
 foreach ( _PYFILE ${DANBOORU_FILES} )
-	# Glob gets absolute file paths!
-	GET_FILENAME_COMPONENT(_filename ${_PYFILE} NAME)
-	python_install ( ${_filename}  ${PYTHON_SITE_PACKAGES_DIR}/danbooru)
+    # Glob gets absolute file paths!
+    GET_FILENAME_COMPONENT(_filename ${_PYFILE} NAME)
+    python_install ( ${_filename}  ${PYTHON_SITE_PACKAGES_DIR}/danbooru)
 endforeach ( _PYFILE )
 
 install ( FILES danbooruui.rc DESTINATION ${DATA_INSTALL_DIR}/danbooru_client)
