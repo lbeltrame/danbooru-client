@@ -19,10 +19,12 @@
 
 __all__ = ["DanbooruService"]
 
+import numpy as np
 from xml.etree import ElementTree
 
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
+import PyQt4.QtXml as QtXml
 import PyKDE4.kdecore as kdecore
 from PyKDE4.kio import KIO
 
@@ -51,6 +53,7 @@ class DanbooruService(QtCore.QObject):
     tagRetrieved = QtCore.pyqtSignal(containers.DanbooruTag)
     poolRetrieved = QtCore.pyqtSignal(containers.DanbooruPool)
     downloadError = QtCore.pyqtSignal(str)
+    allTags = QtCore.pyqtSignal(list)
 
     def __init__(self, board_url, username=None, password=None, cache=None,
                  parent=None):
@@ -190,6 +193,7 @@ class DanbooruService(QtCore.QObject):
         img = QtGui.QPixmap()
 
         if job.error():
+            print "Got an error"
             return
 
         img.loadFromData(job.data())
@@ -209,12 +213,53 @@ class DanbooruService(QtCore.QObject):
             self.__data = None
             self.postDownloadFinished.emit()
 
+    def __slot_download_all_tags(self, job):
+
+        if job.error():
+            return
+
+        doc = QtXml.QDomDocument()
+        doc.setContent(job.data())
+
+        root = doc.documentElement()
+        node = root.firstChild()
+
+        elements = root.elementsByTagName("tag").length()
+        container = np.zeros(elements, dtype="object")
+        count = 0
+
+        while not node.isNull():
+            contents = node.toElement().attribute("name")
+            contents = unicode(contents).encode("utf-8")
+            container[count] = contents
+            count += 1
+            node = node.nextSibling()
+
+        self.allTags.emit(container.tolist())
+
+
     @property
     def current_tags(self):
 
         """The tags from the last search. Used to update results."""
 
         return self._current_tags
+
+    def all_tags(self):
+
+        """All the current tags."""
+
+        parameters = dict(limit=0, order="name")
+        flags = KIO.JobFlags(KIO.HideProgressInfo)
+
+        request_url = utils.danbooru_request_url(self.url, TAG_URL,
+                                                 parameters, self.username,
+                                                 self.password)
+
+        job = KIO.storedGet(request_url, KIO.Reload, flags)
+        job.result.connect(self.__slot_download_all_tags)
+
+
 
     def download_thumbnail(self, danbooru_item):
 
