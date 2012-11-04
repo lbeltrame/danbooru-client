@@ -19,8 +19,7 @@
 
 __all__ = ["DanbooruService"]
 
-import numpy as np
-from xml.etree import ElementTree
+from collections import deque
 
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
@@ -41,6 +40,7 @@ RELATED_TAG_URL = "tag/related.xml"
 MAX_RATINGS = dict(Safe=("Safe"), Questionable=("Safe", "Questionable"),
                    Explicit=("Safe", "Questionable", "Explicit"))
 
+QXmlStreamReader = QtCore.QXmlStreamReader
 
 class DanbooruService(QtCore.QObject):
 
@@ -73,23 +73,14 @@ class DanbooruService(QtCore.QObject):
         """Slot called from :meth:`get_post_list`."""
 
         if job.error():
+            print job.errorString()
             return
 
         job_data = job.data()
-        self.__data = set()
 
-        current_data =job_data.data()
-        current_data = unicode(current_data, encoding="utf-8").encode(
-            "utf-8")
-
-        try:
-            parsed_data = ElementTree.XML(current_data)
-        except ElementTree.ParseError:
-            self.downloadError.emit("Error retrieving posts")
-            return
-
-        decoded_data = parsed_data.getiterator("post")
-
+        stream = QXmlStreamReader()
+        stream.addData(job_data)
+        blacklisted_tags = job.property("blacklisted_tags").toPyObject()
         allowed_rating = job.property("ratings").toPyObject()
 
         if allowed_rating is not None:
@@ -97,22 +88,33 @@ class DanbooruService(QtCore.QObject):
         else:
             allowed_ratings = None
 
-        blacklisted_tags = job.property("blacklisted_tags").toPyObject()
+        self.__data = set()
 
-        for item in decoded_data:
-            item = containers.DanbooruPost(item)
+        while not stream.atEnd() and not stream.hasError():
 
-            if blacklisted_tags is not None and blacklisted_tags:
-                if any((tag in blacklisted_tags for tag in item.tags)):
-                    continue
+            token = stream.readNext()
 
-            # Same for ratings
-            if (allowed_ratings is not None
-                and item.rating not in allowed_ratings):
+            if token == QXmlStreamReader.StartDocument:
                 continue
 
-            self.__data.add(item)
-            self.download_thumbnail(item)
+            if (token == QXmlStreamReader.StartElement and
+                stream.name() != "posts"):
+
+                attributes = stream.attributes()
+                item = containers.DanbooruPost(attributes)
+
+                if blacklisted_tags is not None and blacklisted_tags:
+                    if any((tag in blacklisted_tags for tag in item.tags)):
+                        continue
+
+                # Same for ratings
+                if (allowed_ratings is not None
+                    and item.rating not in allowed_ratings):
+
+                    continue
+
+                self.__data.add(item)
+                self.download_thumbnail(item)
 
         if not self.__data:
             self.postDownloadFinished.emit()
@@ -128,23 +130,28 @@ class DanbooruService(QtCore.QObject):
 
         job_data = job.data()
 
-        try:
-            parsed_data = ElementTree.XML(unicode(job_data.data()))
-        except ElementTree.ParseError:
-            self.downloadError.emit("Error retrieving posts")
-            return
-
-        decoded_data = parsed_data.getiterator("tag")
+        stream = QXmlStreamReader()
+        stream.addData(job_data)
         blacklisted_tags = job.property("blacklisted_tags").toPyObject()
 
-        for element in decoded_data:
+        while not stream.atEnd() and not stream.hasError():
 
-            tag = containers.DanbooruTag(element)
+             token = stream.readNext()
 
-            if blacklisted_tags is not None and tag.name in blacklisted_tags:
+             if token == QXmlStreamReader.StartDocument:
                 continue
 
-            self.tagRetrieved.emit(tag)
+             if (token == QXmlStreamReader.StartElement and
+                 stream.name() != "tags"):
+
+                    attributes = stream.attributes()
+                    tag = containers.DanbooruTag(attributes)
+
+                    if (blacklisted_tags is not None and
+                        tag.name in blacklisted_tags):
+                        continue
+
+                    self.tagRetrieved.emit(tag)
 
     def __slot_process_related_tag_list(self, job):
 
@@ -161,14 +168,24 @@ class DanbooruService(QtCore.QObject):
 
         job_data = job.data()
 
-        parsed_data = ElementTree.XML(unicode(job_data.data()))
-        decoded_data = parsed_data.getiterator("tag")
+        stream = QXmlStreamReader()
+        stream.addData(job_data)
         blacklisted_tags = job.property("blacklisted_tags").toPyObject()
 
-        for element in decoded_data:
-            tag_name = element.attrib["name"]
-            self.get_tag_list(limit=1, name=tag_name,
-                              blacklist=blacklisted_tags)
+        while not stream.atEnd() and not stream.hasError():
+
+            token = stream.readNext()
+
+            if token == QXmlStreamReader.StartDocument:
+                continue
+
+            if (token == QXmlStreamReader.StartElement):
+
+                name = stream.attributes().value("name").toString()
+                if not name.isEmpty():
+                    self.get_tag_list(limit=1, name=unicode(name),
+                                      blacklist=blacklisted_tags)
+
 
     def __slot_process_pool_list(self, job):
 
@@ -177,14 +194,18 @@ class DanbooruService(QtCore.QObject):
         if job.error():
             return
 
-        job_data = job.data()
+        stream = QXmlStreamReader()
+        stream.addData(job.data())
 
-        parsed_data = ElementTree.XML(unicode(job_data.data()))
-        decoded_data = parsed_data.getiterator("pool")
+        while not stream.atEnd() and not stream.hasError():
 
-        for element in parsed_data:
-            pool = containers.DanbooruPool(element)
-            self.poolRetrieved.emit(pool)
+            token = stream.readNext()
+
+            if token == QXmlStreamReader.StartDocument:
+                continue
+            if (token == QXmlStreamReader.StartElement and stream.name() == "pool"):
+                pool = containers.DanbooruPool(stream.attributes())
+                self.poolRetrieved.emit(pool)
 
     def __slot_download_thumbnail(self, job):
 
@@ -193,7 +214,6 @@ class DanbooruService(QtCore.QObject):
         img = QtGui.QPixmap()
 
         if job.error():
-            print "Got an error"
             return
 
         img.loadFromData(job.data())
@@ -218,24 +238,27 @@ class DanbooruService(QtCore.QObject):
         if job.error():
             return
 
-        doc = QtXml.QDomDocument()
-        doc.setContent(job.data())
+        stream = QXmlStreamReader()
+        stream.addData(job.data())
+        container = deque()
 
-        root = doc.documentElement()
-        node = root.firstChild()
+        while not stream.atEnd() and not stream.hasError():
 
-        elements = root.elementsByTagName("tag").length()
-        container = np.zeros(elements, dtype="object")
-        count = 0
+            token = stream.readNext()
 
-        while not node.isNull():
-            contents = node.toElement().attribute("name")
-            contents = unicode(contents).encode("utf-8")
-            container[count] = contents
-            count += 1
-            node = node.nextSibling()
+            if token == QXmlStreamReader.StartDocument:
+                continue
 
-        self.allTags.emit(container.tolist())
+            if (token == QXmlStreamReader.StartElement
+                and stream.name() == "tag"):
+
+                name = stream.attributes().value("name").toString()
+
+                if not name.isEmpty():
+                    name = unicode(name)
+                    container.append(name)
+
+        self.allTags.emit(container)
 
 
     @property
@@ -428,7 +451,7 @@ class DanbooruService(QtCore.QObject):
 
         job.result.connect(self.__slot_process_tag_list)
 
-    def get_pool_list(self, page=None):
+    def get_pool_list(self, page=None, rating="Safe"):
 
         """Get a list of available pools.
 
@@ -445,5 +468,6 @@ class DanbooruService(QtCore.QObject):
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
+        job.setProperty("ratings", QtCore.QVariant(rating))
 
         job.result.connect(self.__slot_process_pool_list)

@@ -36,10 +36,12 @@ class DanbooruPost(object):
 
     def __getattr__(self, value):
 
-        if value not in self.__data.attrib:
+        result = self.__data.value(value).toString()
+
+        if result.isEmpty():
             return None
         else:
-            return self.__data.attrib[value]
+            return unicode(result)
 
     @property
     def pixmap(self):
@@ -67,15 +69,24 @@ class DanbooruPost(object):
         """
 
         ratings = dict(s="Safe", q="Questionable", e="Explicit")
+        rating = unicode(self.__data.value("rating").toString())
 
-        return ratings[self.__data.attrib["rating"]]
+        rating = ratings.get(rating)
+
+        if rating is None:
+            return "Safe"
+
+        return rating
+
 
     @property
     def tags(self):
 
         """The tags for the image."""
 
-        return self.__data.attrib["tags"].split(" ")
+        tags = unicode(self.__data.value("tags").toString())
+
+        return tags.split(" ")
 
 
 class DanbooruTag(object):
@@ -91,10 +102,12 @@ class DanbooruTag(object):
 
     def __getattr__(self, value):
 
-        if value not in self.__data.attrib:
+        result = self.__data.value(value).toString()
+
+        if result.isEmpty():
             return None
         else:
-            return self.__data.attrib[value]
+            return unicode(result)
 
     @property
     def type(self):
@@ -120,23 +133,19 @@ class DanbooruPool(object):
 
     def __getattr__(self, value):
 
-        if value not in self.__data.attrib:
+        result = self.__data.value(value).toString()
+
+        if result.isEmpty():
             return None
         else:
-            return self.__data.attrib[value]
+            return unicode(result)
 
     @property
     def description(self):
 
-        description = self.__data.getchildren()[0]
+        description = result = self.__data.value("description").toString()
 
-        if description.text is None:
-            return "No description"
+        if description.isEmpty():
+            return "N/A"
 
-        try:
-            description = description.text
-        except TypeError:
-            return "Error fetching description"
-
-        return description
-
+        return unicode(description)
