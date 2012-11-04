@@ -41,7 +41,6 @@ from PyKDE4.kio import KFileDialog, KIO
 import preferences
 import thumbnailarea
 import tagwidget
-import fetchdialog
 import fetchwidget
 import connectwidget
 import poolwidget
