@@ -451,7 +451,7 @@ class DanbooruService(QtCore.QObject):
 
         job.result.connect(self.__slot_process_tag_list)
 
-    def get_pool_list(self, page=None, rating="Safe"):
+    def get_pool_list(self, page=None, rating="Safe", blacklist=None):
 
         """Get a list of available pools.
 
@@ -469,5 +469,6 @@ class DanbooruService(QtCore.QObject):
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
         job.setProperty("ratings", QtCore.QVariant(rating))
+        job.setProperty("blacklisted_tags", QtCore.QVariant(blacklist))
 
         job.result.connect(self.__slot_process_pool_list)
