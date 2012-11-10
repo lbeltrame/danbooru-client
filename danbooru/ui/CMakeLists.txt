@@ -1,11 +1,10 @@
 include (KDE4Defaults)
 
 set (UI_FILES
-    __init__.py 
+    __init__.py
     ui_connectwidget.py
     ui_fetchwidget.py
     ui_nepomukpage.py
-    ui_actiondialog.py
     ui_danboorupage.py
     ui_generalpage.py
     ui_thumbnailarea.py
