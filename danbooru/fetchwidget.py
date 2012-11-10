@@ -70,4 +70,11 @@ class FetchWidget(QWidget, Ui_FetchDialog):
                            NAME_MAPPING[self.ratingComboBox.currentIndex()],
                            self.limit)
 
+    def update_values(self):
+
+       """Update values after a configuration change."""
+
+       self.postSpinBox.setValue(self.limit)
+       self.ratingComboBox.setCurrentIndex(INDICES[self.rating])
+
 

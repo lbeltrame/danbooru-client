@@ -98,8 +98,6 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.api_data.postDownloadFinished.connect(self.__check)
         self.nextPageButton.clicked.connect(self.update_search_results)
 
-
-
         self.new_page()
 
     def __iter__(self):

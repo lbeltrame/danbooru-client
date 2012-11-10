@@ -94,6 +94,30 @@ class MainWindow(KXmlGuiWindow):
 
         self.first_fetch_widget.hide()
 
+    def reload_config(self):
+
+        """Reload configuration after a change"""
+
+        urls = self.preferences.boards_list
+
+        if self.first_fetch_widget is not None:
+            self.first_fetch_widget.setup_urls(urls)
+
+        if self.thumbnailarea is not None:
+
+            max_thumbnail = self.preferences.thumbnail_no
+            max_rating = self.preferences.max_allowed_rating
+
+            self.thumbnailarea.fetchwidget.limit = max_thumbnail
+            self.thumbnailarea.fetchwidget.rating = max_rating
+            self.thumbnailarea.fetchwidget.update_values()
+
+            self.thumbnailarea.connectwidget.setup_urls(urls)
+
+        self.url_list = self.preferences.boards_list
+        self.max_retrieve = self.preferences.thumbnail_no
+
+
     def setup_welcome_widget(self):
 
         """Load the welcome widget at startup."""
@@ -235,8 +259,7 @@ class MainWindow(KXmlGuiWindow):
             dialog = preferences.PreferencesDialog(self, "Preferences dialog",
                                                    self.preferences)
             dialog.show()
-            #FIXME: Needed?
-            dialog.settingsChanged.connect(self.read_config)
+            dialog.settingsChanged.connect(self.reload_config)
 
     def connect(self, ok):
 

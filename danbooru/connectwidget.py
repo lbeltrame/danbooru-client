@@ -45,10 +45,7 @@ class ConnectWidget(QtGui.QWidget, Ui_connectForm):
 
         self._connection = None
 
-        if urls is not None:
-            for index, item in enumerate(urls):
-                self.danbooruUrlComboBox.insertUrl(index,
-                    kdecore.KUrl(item))
+        self.setup_urls(urls)
 
         self.buttonBox.accepted.connect(self.accept)
         self.closeButton.clicked.connect(self.rejected.emit)
@@ -90,6 +87,15 @@ class ConnectWidget(QtGui.QWidget, Ui_connectForm):
                                                   password=password)
         self.connectionEstablished.emit(self._connection)
         self.hide()
+
+    def setup_urls(self, urls):
+
+        self.danbooruUrlComboBox.clear()
+
+        if urls is not None:
+            for index, item in enumerate(urls):
+                self.danbooruUrlComboBox.insertUrl(index,
+                    kdecore.KUrl(item))
 
 
 
