@@ -378,7 +378,8 @@ class MainWindow(KXmlGuiWindow):
         else:
             self.clear(clear_pool=False)
 
-        self.api.get_pool(pool_id)
+        self.api.get_pool(pool_id, blacklist=self.preferences.tag_blacklist,
+                          rating=self.preferences.max_allowed_rating)
 
     def batch_download(self, ok):
 

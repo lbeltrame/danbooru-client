@@ -83,6 +83,7 @@ class DanbooruService(QtCore.QObject):
 
         stream = QXmlStreamReader()
         stream.addData(job_data)
+
         blacklisted_tags = job.property("blacklisted_tags").toPyObject()
         allowed_rating = job.property("ratings").toPyObject()
 
@@ -101,7 +102,12 @@ class DanbooruService(QtCore.QObject):
                 continue
 
             if (token == QXmlStreamReader.StartElement and
-                stream.name() != "posts"):
+                stream.name() != "posts" and stream.name() != "pool"):
+
+                # Skip description tags
+
+                if stream.name() == "description":
+                    continue
 
                 attributes = stream.attributes()
                 item = containers.DanbooruPost(attributes)
@@ -320,7 +326,7 @@ class DanbooruService(QtCore.QObject):
         KIO.Scheduler.setJobPriority(job, 1)
         job.result.connect(self.__slot_download_thumbnail)
 
-    def get_pool(self, pool_id, page=None):
+    def get_pool(self, pool_id, page=None, rating="Safe", blacklist=None):
 
         """Download all the posts associated with a specific pool.
 
@@ -339,6 +345,9 @@ class DanbooruService(QtCore.QObject):
                                                  self.password)
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
+
+        job.setProperty("ratings", QtCore.QVariant(rating))
+        job.setProperty("blacklisted_tags", QtCore.QVariant(blacklist))
 
         # We get a list of posts, which we can handle normally
         job.result.connect(self.__slot_process_post_list)
@@ -454,7 +463,7 @@ class DanbooruService(QtCore.QObject):
 
         job.result.connect(self.__slot_process_tag_list)
 
-    def get_pool_list(self, page=None, rating="Safe", blacklist=None):
+    def get_pool_list(self, page=None):
 
         """Get a list of available pools.
 
@@ -471,7 +480,6 @@ class DanbooruService(QtCore.QObject):
 
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
-        job.setProperty("ratings", QtCore.QVariant(rating))
-        job.setProperty("blacklisted_tags", QtCore.QVariant(blacklist))
+
 
         job.result.connect(self.__slot_process_pool_list)
