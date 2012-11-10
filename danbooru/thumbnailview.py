@@ -26,7 +26,6 @@ import PyKDE4.kdecore as kdecore
 import PyKDE4.kdeui as kdeui
 import PyKDE4.kio as kio
 
-import actiondialog
 from danboorupostwidget import DanbooruPostWidget
 
 _TRANSLATED_RATINGS = dict(
