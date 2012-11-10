@@ -27,6 +27,9 @@ import PyQt4.QtXml as QtXml
 import PyKDE4.kdecore as kdecore
 from PyKDE4.kio import KIO
 
+import sip
+sip.setapi('QString', 1)
+
 import containers
 import utils
 

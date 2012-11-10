@@ -23,6 +23,9 @@ Author: Luca Beltrame
 Description: Preferences module for the Danbooru client.
 '''
 
+import sip
+sip.setapi('QStringList', 1)
+
 from PyQt4.QtCore import QStringList, QSize, QRegExp
 from PyQt4.QtGui import QWidget, QRegExpValidator
 from PyKDE4.kdeui import KConfigSkeleton, KConfigDialog, KIcon, KDialog
