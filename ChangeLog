@@ -1,3 +1,23 @@
+2012-11-10  Luca Beltrame <lbeltrame@kde.org>
+
+  * danbooru/connectwidget.py, danbooru/fetchwidget.py, danbooru/mainwindow.py,
+  danbooru/thumbnailarea.py: Properly update the widgets in case of
+  configuration changes (this had been lost when moving to embedded widgets)
+
+  * danbooru/api/remote.py, danbooru/mainwindow.py: Properly add support for
+  blacklists in pools
+
+  * danbooru/api/remote.py, danbooru/preferences.py: Python3 compatibility by
+  using API v1
+
+2012-11-04  Luca Beltrame <lbeltrame@kde.org>
+
+  * danbooru/api/containers.py, danbooru/api/remote.py: Port API to
+  QXmlStreamReader.  The reason for this is mainly to handle Unicode, since
+  with ElementTree Japanese descriptions would make the program thrown an
+  excepion. QXmlStreamReader attributes are QStrings, which handle Unicode by
+  default, so it's much less work.
+
 2012-10-20  Luca Beltrame <lbeltrame@kde.org>
 
   * danbooru/connectdialog.py, danbooru/fetchdialog.py: No nore needed
