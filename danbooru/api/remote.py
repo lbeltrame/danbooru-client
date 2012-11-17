@@ -55,7 +55,7 @@ class DanbooruService(QtCore.QObject):
     postDownloadFinished = QtCore.pyqtSignal()
     tagRetrieved = QtCore.pyqtSignal(containers.DanbooruTag)
     poolRetrieved = QtCore.pyqtSignal(containers.DanbooruPool)
-    downloadError = QtCore.pyqtSignal(str)
+    downloadError = QtCore.pyqtSignal(unicode)
     allTags = QtCore.pyqtSignal(list)
 
     def __init__(self, board_url, username=None, password=None, cache=None,
@@ -76,7 +76,7 @@ class DanbooruService(QtCore.QObject):
         """Slot called from :meth:`get_post_list`."""
 
         if job.error():
-            print job.errorString()
+            self.downloadError.emit(unicode(job.errorString()))
             return
 
         job_data = job.data()
@@ -135,6 +135,7 @@ class DanbooruService(QtCore.QObject):
         functions."""
 
         if job.error():
+            self.downloadError.emit(unicode(job.errorString()))
             return
 
         job_data = job.data()
@@ -173,6 +174,7 @@ class DanbooruService(QtCore.QObject):
         """
 
         if job.error():
+            self.downloadError.emit(unicode(job.errorString()))
             return
 
         job_data = job.data()
@@ -201,6 +203,7 @@ class DanbooruService(QtCore.QObject):
         """Slot called from :meth:`get_pool_list"""
 
         if job.error():
+            self.downloadError.emit(unicode(job.errorString()))
             return
 
         stream = QXmlStreamReader()
@@ -223,6 +226,7 @@ class DanbooruService(QtCore.QObject):
         img = QtGui.QPixmap()
 
         if job.error():
+            self.downloadError.emit(unicode(job.errorString()))
             return
 
         img.loadFromData(job.data())
@@ -244,7 +248,10 @@ class DanbooruService(QtCore.QObject):
 
     def __slot_download_all_tags(self, job):
 
+        """Slot called from :meth:`all_tags`."""
+
         if job.error():
+            self.downloadError.emit(unicode(job.errorString()))
             return
 
         stream = QXmlStreamReader()
@@ -279,7 +286,7 @@ class DanbooruService(QtCore.QObject):
 
     def all_tags(self):
 
-        """All the current tags."""
+        """Fetch all the current tags."""
 
         parameters = dict(limit=0, order="name")
         flags = KIO.JobFlags(KIO.HideProgressInfo)
