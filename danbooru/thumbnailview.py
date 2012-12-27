@@ -23,18 +23,8 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 
 import PyKDE4.kdecore as kdecore
-import PyKDE4.kdeui as kdeui
-import PyKDE4.kio as kio
 
 from danboorupostwidget import DanbooruPostWidget
-
-_TRANSLATED_RATINGS = dict(
-    Safe=kdecore.i18nc("Image for all audiences", "Safe"),
-    Questionable=kdecore.i18nc("Image with suggestive themes", "Questionable"),
-                          Explicit=kdecore.i18nc("Image with explicit content",
-                              "Explicit")
-    )
-
 
 
 class DanbooruPostView(QtGui.QTableWidget):
@@ -70,7 +60,6 @@ class DanbooruPostView(QtGui.QTableWidget):
 
         enable_ = partial(self.setDisabled, False)
 
-        self.itemClicked.connect(self.retrieve_url)
         self.api_data.postRetrieved.connect(self.create_post)
         #self.api_data.postDownloadFinished.connect(enable_)
         self.api_data.postDownloadFinished.connect(self.stop_download)
@@ -86,32 +75,6 @@ class DanbooruPostView(QtGui.QTableWidget):
 
         self.__locked = True
 
-    def retrieve_url(self, item):
-
-        """Function that performs actions on the currently clicked thumbnail
-        (called from the itemClicked signal). It pops up a (modal) dialog
-        asking for actions to perform."""
-
-        row = self.currentRow()
-        column = self.currentColumn()
-
-        widget = self.cellWidget(row, column)
-
-        if widget is None:
-            return
-
-        pixmap = widget.data.pixmap
-        tags = widget.data.tags
-
-        dialog = actiondialog.ActionDialog(item, pixmap=pixmap,
-                                           preferences=self.preferences,
-                                           tags=tags,
-                                           board_url=self.api_data.url,
-                                           parent=self)
-
-        if not dialog.exec_():
-            return
-
     def items(self):
 
         """Generator function that yields each ThumbnailViewItem stored in the
@@ -124,13 +87,9 @@ class DanbooruPostView(QtGui.QTableWidget):
 
     def create_post(self, data):
 
-        """Function that processes thumbnails and creates ThumbnailViewItems
-        that wil be later inserted into the table widget. It is actually a slot
-        called by dataDownloaded, from which it gets the URL and the pixmap.
-        Said URL is used to retrieve then the full DanbooruItem from the
-        retrieved API data. Once we reach the last item, the dataDownloaded
-        signal is disconnected, because otherwise even data sent to other
-        thumbnailviews (multi-page setting) would be displayed."""
+        """Process thumnnails and create DanbooruPostWidgets.
+
+        This  is actually a slot called by postRetrieved."""
 
         if self.__locked:
             return
@@ -157,8 +116,13 @@ class DanbooruPostView(QtGui.QTableWidget):
 
     def selected_images(self):
 
-        """Returns a list of the items that have been checked. Used for batch
-        downloading."""
+        """The list of the items that have been checked.
+
+         Used for batch downloading.
+
+         :return: A list of the selected items.
+
+         """
 
         if not self.__items:
             return
@@ -167,3 +131,5 @@ class DanbooruPostView(QtGui.QTableWidget):
                           if item.checkbox.isChecked()]
 
         return selected_items
+    
+
