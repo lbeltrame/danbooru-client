@@ -207,7 +207,7 @@ class MainWindow(KXmlGuiWindow):
         self.clean_action.triggered.connect(self.clean_cache)
         self.batch_download_action.triggered.connect(self.batch_download)
         self.pool_toggle_action.toggled.connect(self.pool_toggle)
-        self.tag_display_action.activeChangedByUser.connect(self.tag_display)
+        self.tag_display_action.activeChanged.connect(self.tag_display)
 
         window_options = self.StandardWindowOption(self.ToolBar| self.Keys |
                                                    self.Create | self.Save |
@@ -450,7 +450,6 @@ class MainWindow(KXmlGuiWindow):
         self.thumbnailarea.connectwidget.rejected.connect(
             self.thumbnailarea.connectwidget.hide, type=Qt.UniqueConnection)
 
-
         self.thumbnailarea.fetchwidget.dataSent.connect(
             self.handle_fetching, type=Qt.UniqueConnection)
         self.thumbnailarea.fetchwidget.rejected.connect(
@@ -468,6 +467,7 @@ class MainWindow(KXmlGuiWindow):
         self.tag_dock.setWidget(tag_widget)
         self.tag_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self.addDockWidget(Qt.RightDockWidgetArea, self.tag_dock)
+        self.tag_dock.hide()
 
         # Container signal-slot connections
 
