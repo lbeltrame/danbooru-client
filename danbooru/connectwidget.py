@@ -111,7 +111,9 @@ class ConnectWidget(QtGui.QWidget, Ui_connectForm):
             username = None
             password = None
 
-        if self._wallet_available:
+        if (self._wallet_available and username is not None and
+            password is not None):
+
             if not self._wallet.hasEntry(self.url):
                 data_map = dict(username=self.username, password=self.password)
                 self._wallet.writeMap(self.url, data_map)
