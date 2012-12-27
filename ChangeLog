@@ -1,4 +1,23 @@
+2012-12-27  Luca Beltrame <lbeltrame@kde.org>
+
+  * danbooru/ui/ui_connectwidget.py, danbooru/ui_src/connectwidget.ui: New look
+  for the connect widget, on a single line
+
+  * danbooru/api/remote.py, danbooru/danbooru_client.py,
+  danbooru/fetchwidget.py, danbooru/preferences.py: Fixes for Python 3
+  compatibility
+
 2012-11-10  Luca Beltrame <lbeltrame@kde.org>
+
+  * danbooru/actiondialog.py, danbooru/thumbnailview.py,
+  danbooru/ui/ui_actiondialog.py: These files are no longer needed nor
+  installed
+
+  * CMakeLists.txt, danbooru/CMakeLists.txt, danbooru/ui/CMakeLists.txt: Build
+  system fixes, print out what's needed and don't use find_package(XX REQUIRED)
+
+  * danbooru/ui/ui_connectdialog.py, danbooru/ui/ui_fetchdialog.py: No more
+  needed
 
   * danbooru/connectwidget.py, danbooru/fetchwidget.py, danbooru/mainwindow.py,
   danbooru/thumbnailarea.py: Properly update the widgets in case of
@@ -108,10 +127,11 @@
 
 2011-06-22  Luca Beltrame <einar@heavensinferno.net>
 
-  * danbooru/test/CMakeLists.txt, danbooru/test/pool/index.xml,
-  danbooru/test/pool/show.xml, danbooru/test/post/index.json,
-  danbooru/test/post/index.xml, danbooru/test/test_api.py: Remove the test
-  directory. It never worked reliably and it was a massive hack to begin with.
+  * danbooru/test/CMakeLists.txt, danbooru/test/__init__.py,
+  danbooru/test/pool/index.xml, danbooru/test/pool/show.xml,
+  danbooru/test/post/index.json, danbooru/test/post/index.xml,
+  danbooru/test/test_api.py: Remove the test directory. It never worked
+  reliably and it was a massive hack to begin with.
 
   * danbooru/api/containers.py, danbooru/api/remote.py, danbooru/api/utils.py:
   API updates, and implementation of a Danbooru Tag wrapper
@@ -192,8 +212,8 @@
 
 2009-12-31  Luca Beltrame <einar@heavensinferno.net>
 
-  * danbooru/test/post/index.json, danbooru/test_api.py: New files required for
-  unit testing
+  * danbooru/test/__init__.py, danbooru/test/post/index.json,
+  danbooru/test_api.py: New files required for unit testing
 
   * danbooru/ui/ui_nepomukpage.py, danbooru/ui_src/nepomukpage.ui: Adjusted the
   preferences page
@@ -251,8 +271,8 @@
   po/lokalize-scripts/scripts.rc: Missing stuff, plus starts of (perhaps)
   translation
 
-  * CMakeLists.txt, danbooru/danbooruui.rc, danbooru/ui/CMakeLists.txt,
-  danbooruui.rc: Final moves for cmake
+  * CMakeLists.txt, danbooru/__init__.py, danbooru/danbooruui.rc,
+  danbooru/ui/CMakeLists.txt, danbooruui.rc: Final moves for cmake
 
 2009-10-24  Luca Beltrame <einar@heavensinferno.net>
 
@@ -261,22 +281,21 @@
   danbooru/danbooru_client.py, danbooru/fetchdialog.py, danbooru/hashes.py,
   danbooru/img/logo.png, danbooru/img/logo_resized.png, danbooru/mainwindow.py,
   danbooru/preferences.py, danbooru/test_api.py, danbooru/thumbnailview.py,
-  danbooru/ui/ui_actiondialog.py, danbooru/ui/ui_connectdialog.py,
-  danbooru/ui/ui_danboorupage.py, danbooru/ui/ui_fetchdialog.py,
-  danbooru/ui/ui_generalpage.py, danbooru/ui/ui_nepomukpage.py,
-  danbooru/ui_src/actiondialog.ui, danbooru/ui_src/connectdialog.ui,
-  danbooru/ui_src/danboorupage.ui, danbooru/ui_src/fetchdialog.ui,
-  danbooru/ui_src/generalpage.ui, danbooru/ui_src/generalpage_new.ui,
-  danbooru/ui_src/nepomukpage.ui, danbooru2nepomuk.py, danbooru_client.py,
-  fetchdialog.py, hashes.py, img/logo.png, img/logo_resized.png, mainwindow.py,
-  preferences.py, test_api.py, thumbnailview.py, ui/ui_actiondialog.py,
+  danbooru/ui/__init__.py, danbooru/ui/ui_actiondialog.py,
+  danbooru/ui/ui_connectdialog.py, danbooru/ui/ui_danboorupage.py,
+  danbooru/ui/ui_fetchdialog.py, danbooru/ui/ui_generalpage.py,
+  danbooru/ui/ui_nepomukpage.py, danbooru/ui_src/actiondialog.ui,
+  danbooru/ui_src/connectdialog.ui, danbooru/ui_src/danboorupage.ui,
+  danbooru/ui_src/fetchdialog.ui, danbooru/ui_src/generalpage.ui,
+  danbooru/ui_src/generalpage_new.ui, danbooru/ui_src/nepomukpage.ui,
+  danbooru2nepomuk.py, danbooru_client.py, fetchdialog.py, hashes.py,
+  img/logo.png, img/logo_resized.png, mainwindow.py, preferences.py,
+  test_api.py, thumbnailview.py, ui/__init__.py, ui/ui_actiondialog.py,
   ui/ui_connectdialog.py, ui/ui_danboorupage.py, ui/ui_fetchdialog.py,
   ui/ui_generalpage.py, ui/ui_nepomukpage.py, ui_src/actiondialog.ui,
   ui_src/connectdialog.ui, ui_src/danboorupage.ui, ui_src/fetchdialog.ui,
   ui_src/generalpage.ui, ui_src/generalpage_new.ui, ui_src/nepomukpage.ui: Move
   stuff around
-
-  * : Forgot this file
 
   * TODO, actiondialog.py, connectdialog.py, fetchdialog.py, preferences.py,
   ui/ui_actiondialog.py, ui/ui_connectdialog.py, ui/ui_danboorupage.py,
