@@ -69,6 +69,7 @@ class MainWindow(KXmlGuiWindow):
         self.thumbnailarea = None
         self.tag_dock = None
         self.pool_dock = None
+        self.first_fetch_widget = None
 
         self.progress.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
@@ -79,20 +80,6 @@ class MainWindow(KXmlGuiWindow):
 
         self.setup_welcome_widget()
         self.setup_actions()
-
-        # Widget for the first connection
-
-        self.first_fetch_widget = connectwidget.ConnectWidget(
-            self.preferences.boards_list, self)
-
-        self.statusbar.addPermanentWidget(self.first_fetch_widget, 300)
-
-        self.first_fetch_widget.connectionEstablished.connect(
-            self.handle_connection)
-        self.first_fetch_widget.rejected.connect(
-            self.first_fetch_widget.hide)
-
-        self.first_fetch_widget.hide()
 
     def reload_config(self):
 
@@ -118,17 +105,40 @@ class MainWindow(KXmlGuiWindow):
         self.max_retrieve = self.preferences.thumbnail_no
 
 
+
+
     def setup_welcome_widget(self):
 
         """Load the welcome widget at startup."""
 
-        welcome = QLabel()
+        widget = QWidget()
+        layout = QVBoxLayout()
+
+        welcome = QLabel(parent=self)
         pix = QPixmap(KStandardDirs.locate("appdata","logo.png"))
 
         welcome.setPixmap(pix)
         welcome.setAlignment(Qt.AlignCenter)
 
-        self.setCentralWidget(welcome)
+        self.first_fetch_widget = connectwidget.ConnectWidget(
+        self.preferences.boards_list, self)
+
+        self.statusbar.addPermanentWidget(self.first_fetch_widget, 300)
+
+        self.first_fetch_widget.connectionEstablished.connect(
+            self.handle_connection)
+        self.first_fetch_widget.rejected.connect(
+            self.first_fetch_widget.hide)
+
+        self.first_fetch_widget.hide()
+
+        self.first_fetch_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+
+        layout.addWidget(self.first_fetch_widget)
+        layout.addWidget(welcome)
+        widget.setLayout(layout)
+
+        self.setCentralWidget(widget)
 
     def setup_tooltips(self):
 
