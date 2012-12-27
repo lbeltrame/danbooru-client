@@ -23,10 +23,13 @@ Author: Luca Beltrame
 Description: Preferences module for the Danbooru client.
 '''
 
-import sip
-sip.setapi('QStringList', 1)
+PY3 = False
 
-from PyQt4.QtCore import QStringList, QSize, QRegExp
+from PyQt4.QtCore import QSize, QRegExp
+try:
+    from PyQt4.QtCore import QStringList
+except ImportError:
+    PY3 = True
 from PyQt4.QtGui import QWidget, QRegExpValidator
 from PyKDE4.kdeui import KConfigSkeleton, KConfigDialog, KIcon, KDialog
 from PyKDE4.kdecore import i18n
@@ -55,13 +58,22 @@ class Preferences(KConfigSkeleton):
 
         self.setCurrentGroup("General")
 
-        self._danbooru_boards_list = QStringList()
-        predefined_urls = QStringList(["http://oreno.imouto.org",
-                                 "http://konachan.com",
-                                 "http://konachan.net"])
-        self._danbooru_boards = self.addItemStringList("danbooruUrls",
-                                                       self._danbooru_boards_list,
-                                                       predefined_urls)
+        if not PY3:
+            self._danbooru_boards_list = QStringList()
+            predefined_urls = QStringList(["http://oreno.imouto.org",
+                                     "http://konachan.com",
+                                     "http://konachan.net"])
+            self._danbooru_boards = self.addItemStringList("danbooruUrls",
+                                                           self._danbooru_boards_list,
+                                                           predefined_urls)
+        else:
+            self._danbooru_boards_list = list()
+            predefined_urls = ["http://oreno.imouto.org",
+                               "http://konachan.com",
+                               "http://konachan.net"]
+            self._danbooru_boards = self.addItemStringList("danbooruUrls",
+                                                           self._danbooru_boards_list,
+                                                           predefined_urls)
 
         self._max_retrieve = self.addItemInt("thumbnailMaxRetrieve", 100, 100)
 

@@ -21,6 +21,13 @@ __all__ = ["DanbooruService"]
 
 from collections import deque
 
+import sys
+
+# Python3 compatibility
+
+if sys.version_info.major > 2:
+    unicode = str
+
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 import PyQt4.QtXml as QtXml
@@ -30,8 +37,8 @@ from PyKDE4.kio import KIO
 import sip
 sip.setapi('QString', 1)
 
-import containers
-import utils
+from . import containers
+from . import utils
 
 POST_URL = "post/index.xml"
 TAG_URL = "tag/index.xml"
@@ -44,6 +51,7 @@ MAX_RATINGS = dict(Safe=("Safe"), Questionable=("Safe", "Questionable"),
                    Explicit=("Safe", "Questionable", "Explicit"))
 
 QXmlStreamReader = QtCore.QXmlStreamReader
+
 
 class DanbooruService(QtCore.QObject):
 

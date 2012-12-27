@@ -24,6 +24,9 @@ implementation of said API coupled with a graphical user interface."""
 
 import sys
 
+import sip
+sip.setapi("QString", 1)
+
 from PyKDE4.kdecore import KAboutData, ki18n, KCmdLineArgs, KComponentData
 from PyKDE4.kdeui import KApplication
 
@@ -41,7 +44,7 @@ def main():
     copyright = ki18n("(C) 2009 Luca Beltrame")
     text = ki18n("Danbooru Client is a program to"
                  " access Danbooru image boards.")
-    home_page = "http://www.dennogumi.org"
+    home_page = u"http://www.dennogumi.org"
     bug_email = "einar@heavensinferno.net"
 
     about_data = KAboutData(app_name, catalog, program_name, version,

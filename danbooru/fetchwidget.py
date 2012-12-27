@@ -17,6 +17,12 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import sys
+
+# Python3 compatibility
+
+if sys.version_info.major > 2:
+    unicode = str
 
 from PyQt4.QtCore import QRegExp, pyqtSignal
 from PyQt4.QtGui import QWidget, QRegExpValidator
