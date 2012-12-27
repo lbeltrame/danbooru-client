@@ -26,10 +26,10 @@ ThumbnailViews using a tabbed interface.
 
 from functools import partial
 
-from PyQt4.QtCore import pyqtSignal, Qt,  QString
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QWidget, QLabel
 from PyKDE4.kdecore import i18n
-from PyKDE4.kdeui import KAcceleratorManager,  KMessageBox
+from PyKDE4.kdeui import KAcceleratorManager,  KMessageBox, KMessageWidget
 
 import thumbnailview
 from ui.ui_thumbnailarea import Ui_ThumbnailArea
@@ -72,6 +72,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         )
 
         self.connectwidget = ConnectWidget(preferences.boards_list, self)
+        self.messagewidget = KMessageWidget(self)
 
         # Ugly hacks to have the widgets in proper positions
 
@@ -80,14 +81,18 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.gridLayout.removeItem(spacer)
         self.gridLayout.removeWidget(self.nextPageButton)
 
-        self.gridLayout.addWidget(self.fetchwidget, 0, 0, 1, -1)
-        self.gridLayout.addWidget(self.thumbnailTabWidget, 1, 0, 1, 2)
-        self.gridLayout.addItem(spacer, 2, 0, 1, 1)
-        self.gridLayout.addWidget(self.nextPageButton, 3, 1, 1, 1)
-        self.gridLayout.addWidget(self.connectwidget, 4, 0, 1, -1)
+        self.gridLayout.addWidget(self.messagewidget, 0, 0, 1, -1)
+        self.gridLayout.addWidget(self.connectwidget, 1, 0, 1, -1)
+        self.gridLayout.addWidget(self.fetchwidget, 2, 0, 1, -1)
+        self.gridLayout.addWidget(self.thumbnailTabWidget, 3, 0, 1, 2)
+        self.gridLayout.addItem(spacer, 4, 0, 1, 1)
+        self.gridLayout.addWidget(self.nextPageButton, 5, 1, 1, 1)
 
         self.connectwidget.hide()
         self.fetchwidget.hide()
+        self.messagewidget.hide()
+
+        self.messagewidget.setMessageType(KMessageWidget.Error)
 
         KAcceleratorManager.setNoAccel(self.thumbnailTabWidget)
         self.nextPageButton.setDisabled(True)
@@ -97,6 +102,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         self.api_data.postDownloadFinished.connect(button_toggle)
         self.api_data.postDownloadFinished.connect(self.__check)
         self.nextPageButton.clicked.connect(self.update_search_results)
+        self.api_data.downloadError.connect(self.display_error)
 
         self.new_page()
 
@@ -199,3 +205,10 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
                                     page=current_page,
                                     blacklist=self.preferences.tag_blacklist,
                                     rating=self.preferences.max_allowed_rating)
+
+    def display_error(self, error_string):
+
+        """Display errors from the API."""
+
+        self.messagewidget.setText(error_string)
+        self.messagewidget.animatedShow()
