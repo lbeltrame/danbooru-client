@@ -37,13 +37,22 @@ class DanbooruPoolWidget(ui_pooldock.Ui_PoolWidget, QtGui.QWidget):
 
         self._api_data = api_data
         self._current_row = 0
+        self._page = 1
 
         self._api_data.poolRetrieved.connect(self.add_row)
+        self._api_data.poolDownloadFinished.connect(self.resize_columns)
         self.fetchButton.clicked.connect(self.fetch_pools)
         self.poolTable.itemDoubleClicked.connect(self.get_pool)
 
         self.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
                            QtGui.QSizePolicy.Fixed)
+
+        QtCore.QTimer.singleShot(2000, self.fetch_pools)
+
+    def resize_columns(self):
+
+        self.poolTable.resizeColumnsToContents()
+        self.poolTable.resizeColumnToContents(3)
 
     def add_row(self, pool_item):
 
@@ -71,9 +80,10 @@ class DanbooruPoolWidget(ui_pooldock.Ui_PoolWidget, QtGui.QWidget):
         self.poolTable.setItem(current_row, 1, pool_name)
         self.poolTable.setItem(current_row, 2, pool_posts)
         self.poolTable.setItem(current_row, 3, pool_description)
-        self.poolTable.resizeColumnsToContents()
 
-        self.poolTable.sortItems(0)
+        self.poolTable.sortItems(0, order=QtCore.Qt.DescendingOrder)
+        #self.poolTable.resizeColumnsToContents()
+        #self.poolTable.resizeColumnToContents(3)
 
     def clear(self):
 
@@ -86,10 +96,12 @@ class DanbooruPoolWidget(ui_pooldock.Ui_PoolWidget, QtGui.QWidget):
             self.poolTable.removeRow(row)
 
         self._current_row = 0
+        self._page = 1
 
     def fetch_pools(self):
 
-        self._api_data.get_pool_list()
+        self._api_data.get_pool_list(page=self._page)
+        self._page += 1
 
     def get_pool(self, table_item):
 

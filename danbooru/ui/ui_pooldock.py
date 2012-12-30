@@ -21,7 +21,7 @@ class Ui_PoolWidget(object):
         self.gridLayout = QtGui.QGridLayout(PoolWidget)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.fetchButton = KPushButton(PoolWidget)
-        self.fetchButton.setText(kdecore.i18n(_fromUtf8("Fetch pools")))
+        self.fetchButton.setText(kdecore.i18n(_fromUtf8("Fetch more pools")))
         self.fetchButton.setObjectName(_fromUtf8("fetchButton"))
         self.gridLayout.addWidget(self.fetchButton, 0, 0, 1, 1)
         spacerItem = QtGui.QSpacerItem(430, 22, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)

@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="KPushButton" name="fetchButton">
      <property name="text">
-      <string>Fetch pools</string>
+      <string>Fetch more pools</string>
      </property>
     </widget>
    </item>
