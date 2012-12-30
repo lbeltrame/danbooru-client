@@ -53,6 +53,9 @@ class ConnectWidget(QtGui.QWidget, Ui_connectForm):
         self.closeButton.setToolTip(kdecore.i18n("Close the dialog and"
         " discard changes"))
 
+        self.userLineEdit.setClearButtonShown(True)
+        self.passwdLineEdit.setClearButtonShown(True)
+
         self._connection = None
 
         winid = self.parent().winId()
