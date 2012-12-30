@@ -61,6 +61,7 @@ class DanbooruService(QtCore.QObject):
 
     postRetrieved = QtCore.pyqtSignal(containers.DanbooruPost)
     postDownloadFinished = QtCore.pyqtSignal()
+    poolDownloadFinished = QtCore.pyqtSignal()
     tagRetrieved = QtCore.pyqtSignal(containers.DanbooruTag)
     poolRetrieved = QtCore.pyqtSignal(containers.DanbooruPool)
     downloadError = QtCore.pyqtSignal(unicode)
@@ -227,6 +228,8 @@ class DanbooruService(QtCore.QObject):
                 pool = containers.DanbooruPool(stream.attributes())
                 self.poolRetrieved.emit(pool)
 
+        self.poolDownloadFinished.emit()
+
     def __slot_download_thumbnail(self, job):
 
         """Slot called from :meth:`download_thumbnail`."""
@@ -358,6 +361,7 @@ class DanbooruService(QtCore.QObject):
         request_url = utils.danbooru_request_url(self.url, POOL_DATA_URL,
                                                  parameters, self.username,
                                                  self.password)
+
         job = KIO.storedGet(request_url, KIO.NoReload,
                             KIO.HideProgressInfo)
 
