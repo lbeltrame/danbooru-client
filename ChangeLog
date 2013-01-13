@@ -1,3 +1,19 @@
+2013-01-13  Luca Beltrame <lbeltrame@kde.org>
+
+  * danbooru/connectwidget.py, danbooru/fetchwidget.py, danbooru/poolwidget.py,
+  danbooru/thumbnailarea.py: Load ui files dynamically rather than statically,
+  so that interfaces are usable both in Python2 and Python3
+
+  * danbooru/api/containers.py, danbooru/api/remote.py, danbooru/api/utils.py:
+  Fixes for Python 3 compatibility
+
+2012-12-30  Luca Beltrame <lbeltrame@kde.org>
+
+  * danbooru/poolwidget.py, danbooru/ui/ui_pooldock.py,
+  danbooru/ui_src/pooldock.ui: Support for multiple pool pages.  Once the pool
+  window is opened, the first batch is immediately downloaded, and the button
+  is used to retrieve more entries, ad libitum.
+
 2012-12-27  Luca Beltrame <lbeltrame@kde.org>
 
   * danbooru/ui/ui_connectwidget.py, danbooru/ui_src/connectwidget.ui: New look
