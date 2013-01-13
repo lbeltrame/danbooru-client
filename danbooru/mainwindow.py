@@ -459,7 +459,7 @@ class MainWindow(KXmlGuiWindow):
         "Set up the central widget to display thumbnails."
 
         self.thumbnailarea = thumbnailarea.DanbooruTabWidget(self.api,
-            self.preferences, self)
+            self.preferences, self.preferences.thumbnail_no, self)
 
         self.setCentralWidget(self.thumbnailarea)
 
