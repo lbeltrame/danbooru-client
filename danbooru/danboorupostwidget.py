@@ -18,6 +18,7 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from functools import partial
+import sys
 
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
@@ -35,6 +36,8 @@ _TRANSLATED_RATINGS = dict(
                               "Explicit")
     )
 
+if sys.version_info.major > 2:
+    unicode = str
 
 class DanbooruPostWidget(QtGui.QWidget):
 
