@@ -34,6 +34,7 @@ POOL_UI = os.path.join(PATH, "ui_src", "pooldock.ui")
 
 if sys.version_info.major > 2:
     xrange = range
+    unicode = str
 
 class DanbooruPoolWidget(QtGui.QWidget):
 
@@ -115,5 +116,5 @@ class DanbooruPoolWidget(QtGui.QWidget):
     def get_pool(self, table_item):
 
         pool_id =  table_item.data(QtCore.Qt.UserRole).toPyObject()
-        pool_id = int(pool_id)
+        pool_id = int(unicode(pool_id))
         self.poolDownloadRequested.emit(pool_id)
