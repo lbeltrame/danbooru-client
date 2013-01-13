@@ -25,9 +25,11 @@ ThumbnailViews using a tabbed interface.
 '''
 
 from functools import partial
+import os
 
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QWidget, QLabel
+from PyQt4.uic import loadUi
 from PyKDE4.kdecore import i18n
 from PyKDE4.kdeui import KAcceleratorManager,  KMessageBox, KMessageWidget
 
@@ -36,8 +38,10 @@ from ui.ui_thumbnailarea import Ui_ThumbnailArea
 from fetchwidget import FetchWidget
 from connectwidget import ConnectWidget
 
+PATH = os.path.dirname(__file__)
+WIDGET_UI = os.path.join(PATH, "ui_src", "thumbnailarea.ui")
 
-class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
+class DanbooruTabWidget(QWidget):
 
     """Class that provides an area where individual ThumbnailViews (from
     thumbnailview.py) can be placed in, using a tabbed interface. The class uses
@@ -54,7 +58,7 @@ class DanbooruTabWidget(QWidget, Ui_ThumbnailArea):
         KConfigXT instance."""
 
         super(DanbooruTabWidget, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(WIDGET_UI, self)
 
         self.preferences = preferences
         self.api_data = api_data

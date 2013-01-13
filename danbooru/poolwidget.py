@@ -17,23 +17,32 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import os
+import sys
+
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
+from PyQt4.uic import loadUi
 
 import PyKDE4.kdecore as kdecore
 import PyKDE4.kdeui as kdeui
 
 from ui import ui_pooldock
 
+PATH = os.path.dirname(__file__)
+POOL_UI = os.path.join(PATH, "ui_src", "pooldock.ui")
 
-class DanbooruPoolWidget(ui_pooldock.Ui_PoolWidget, QtGui.QWidget):
+if sys.version_info.major > 2:
+    xrange = range
+
+class DanbooruPoolWidget(QtGui.QWidget):
 
     poolDownloadRequested = QtCore.pyqtSignal(int)
 
     def __init__(self, api_data, parent=None):
 
         super(DanbooruPoolWidget, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(POOL_UI, self)
 
         self._api_data = api_data
         self._current_row = 0

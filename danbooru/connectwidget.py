@@ -17,10 +17,13 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import os
+import sys
 import hashlib
 
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
+from PyQt4.uic import loadUi
 
 import PyKDE4.kdecore as kdecore
 import PyKDE4.kdeui as kdeui
@@ -33,11 +36,17 @@ _SALTS = {"http://yande.re": "choujin-steiner--{}--",
           "http://konachan.net": "So-I-Heard-You-Like-Mupkids-?--{}--",
           "http://danbooru.donmai.us": "choujin-steiner--{}--"}
 
+dirname = os.path.dirname(__file__)
+
+UI_PATH = os.path.join(dirname, "ui_src", "connectwidget.ui")
 
 Wallet = kdeui.KWallet.Wallet
 KWallet = kdeui.KWallet
 
-class ConnectWidget(QtGui.QWidget, Ui_connectForm):
+if sys.version_info.major > 2:
+    unicode = str
+
+class ConnectWidget(QtGui.QWidget):
 
     "Widget used in the dialog for a Danbooru connection."
 
@@ -47,7 +56,10 @@ class ConnectWidget(QtGui.QWidget, Ui_connectForm):
     def __init__(self, urls=None, parent=None):
 
         super(ConnectWidget, self).__init__(parent)
-        self.setupUi(self)
+
+        loadUi(UI_PATH, self)
+
+        #self.setupUi(self)
         self.danbooruUrlComboBox.setFocus()
         self.closeButton.setIcon(kdeui.KIcon("dialog-close"))
         self.closeButton.setToolTip(kdecore.i18n("Close the dialog and"
@@ -123,7 +135,7 @@ class ConnectWidget(QtGui.QWidget, Ui_connectForm):
 
         if username is not None and password is not None:
             password = salt.format(password)
-            password = hashlib.sha1(password).hexdigest()
+            password = hashlib.sha1(password.encode("utf-8")).hexdigest()
 
         self._connection = remote.DanbooruService(unicode(url), username,
                                                   password=password)

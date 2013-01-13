@@ -17,6 +17,7 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import os
 import sys
 
 # Python3 compatibility
@@ -26,6 +27,7 @@ if sys.version_info.major > 2:
 
 from PyQt4.QtCore import QRegExp, pyqtSignal
 from PyQt4.QtGui import QWidget, QRegExpValidator
+from PyQt4.uic import loadUi
 from PyKDE4.kdeui import KDialog, KIcon
 from PyKDE4.kdecore import i18n
 
@@ -34,7 +36,10 @@ from ui.ui_fetchwidget import Ui_FetchDialog
 INDICES = {"Safe": 0, "Questionable": 1, "Explicit": 2}
 NAME_MAPPING = {0: "Safe", 1: "Questionable", 2: "Explicit"}
 
-class FetchWidget(QWidget, Ui_FetchDialog):
+PATH = os.path.dirname(__file__)
+FETCH_UI = os.path.join(PATH, "ui_src", "fetchwidget.ui")
+
+class FetchWidget(QWidget):
 
     dataSent = pyqtSignal(list, unicode, int)
     rejected = pyqtSignal()
@@ -42,7 +47,7 @@ class FetchWidget(QWidget, Ui_FetchDialog):
     def __init__(self, limit, default_rating=None, tags="", parent=None):
 
         super(FetchWidget, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(FETCH_UI, self)
 
         self.tags = tags
         self.rating = default_rating
