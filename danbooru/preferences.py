@@ -25,18 +25,27 @@ Description: Preferences module for the Danbooru client.
 
 PY3 = False
 
+import os
+
 from PyQt4.QtCore import QSize, QRegExp
 try:
     from PyQt4.QtCore import QStringList
 except ImportError:
     PY3 = True
 from PyQt4.QtGui import QWidget, QRegExpValidator
+from PyQt4.uic import loadUi
 from PyKDE4.kdeui import KConfigSkeleton, KConfigDialog, KIcon, KDialog
 from PyKDE4.kdecore import i18n
 
 from ui.ui_generalpage import Ui_GeneralPage
 from ui.ui_nepomukpage import Ui_NepomukPage
 from ui.ui_danboorupage import Ui_DanbooruPage
+
+PATH = os.path.dirname(__file__)
+
+GENERAL_UI = os.path.join(PATH, "ui_src", "generalpage.ui")
+NEPOMUK_UI = os.path.join(PATH, "ui_src", "nepomukpage.ui")
+DANBOORU_UI = os.path.join(PATH, "ui_src", "danboorupage.ui")
 
 
 class Preferences(KConfigSkeleton):
@@ -183,6 +192,8 @@ class GeneralPage(QWidget, Ui_GeneralPage):
     def __init__(self, parent=None, preferences=None):
 
         super(GeneralPage, self).__init__(parent)
+        #FIXME: Doesn't work
+        #loadUi(GENERAL_UI, self)
         self.setupUi(self)
 
         self.kcfg_thumbnailMaxRetrieve.setValue(preferences.thumbnail_no)
@@ -197,6 +208,8 @@ class NepomukPage(QWidget, Ui_NepomukPage):
     def __init__(self, parent=None, preferences=None):
 
         super(NepomukPage, self).__init__(parent)
+        #FIXME: Doesn't work
+        #loadUi(NEPOMUK_UI, self)
         self.setupUi(self)
 
         self.kcfg_nepomukEnabled.setChecked(preferences.nepomuk_enabled)
@@ -210,6 +223,8 @@ class DanbooruPage(QWidget, Ui_DanbooruPage):
     def __init__(self, parent=None, preferences=None):
 
         super(DanbooruPage, self).__init__(parent)
+        #FIXME: Doesn't work
+        #loadUi(DANBOORU_UI, self)
         self.setupUi(self)
 
         self.kcfg_danbooruUrls.insertStringList(preferences.boards_list)
