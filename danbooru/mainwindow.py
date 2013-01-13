@@ -156,7 +156,8 @@ class MainWindow(KXmlGuiWindow):
 
         self.connect_action = KAction(KIcon("document-open-remote"),
                                  i18n("Connect"), self)
-        self.fetch_action = KAction(KIcon("download"), i18n("Fetch"), self)
+        self.fetch_action = KAction(KIcon("download"), i18n("Download"),
+                                    self)
         self.clean_action = KAction(KIcon("trash-empty"),
                                i18n("Clear thumbnail cache"),
                                self)
@@ -322,13 +323,20 @@ class MainWindow(KXmlGuiWindow):
         self.pool_dock.setObjectName("PoolDock")
         self.pool_dock.setAllowedAreas(Qt.BottomDockWidgetArea)
         self.pool_dock.setWidget(pool_widget)
-        self.pool_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        #self.pool_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.pool_dock)
         self.pool_dock.widget().poolDownloadRequested.connect(
             self.pool_prepare)
         self.pool_dock.hide()
 
         self.pool_toggle_action.setEnabled(True)
+        self.clear() # Needed to show properly the stuff after connecting
+
+        self.api.get_post_list(tags="", limit=self.thumbnailarea.post_limit,
+                               rating=self.preferences.max_allowed_rating,
+                               blacklist=list(self.preferences.tag_blacklist))
+        self.api.get_tag_list(name="",blacklist=list(self.preferences.tag_blacklist),
+                              limit=20)
 
     def get_posts(self, ok):
 
@@ -475,7 +483,7 @@ class MainWindow(KXmlGuiWindow):
         self.tag_dock.setObjectName("TagDock")
         self.tag_dock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.tag_dock.setWidget(tag_widget)
-        self.tag_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        #self.tag_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self.addDockWidget(Qt.RightDockWidgetArea, self.tag_dock)
         self.tag_dock.hide()
 
