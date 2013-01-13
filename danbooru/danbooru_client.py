@@ -26,6 +26,7 @@ import sys
 
 import sip
 sip.setapi("QString", 1)
+sip.setapi("QVariant", 1)
 
 from PyKDE4.kdecore import KAboutData, ki18n, KCmdLineArgs, KComponentData
 from PyKDE4.kdeui import KApplication
