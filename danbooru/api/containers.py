@@ -20,6 +20,11 @@
 """This module contains classes which wrap Danbooru's XML
 API requests into proper objects."""
 
+import sys
+
+if sys.version_info.major > 2:
+    unicode = str
+
 class DanbooruPost(object):
 
     """A class representing a Danbooru post.

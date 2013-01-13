@@ -36,6 +36,7 @@ from PyKDE4.kio import KIO
 
 import sip
 sip.setapi('QString', 1)
+sip.setapi('QVariant', 1)
 
 from . import containers
 from . import utils

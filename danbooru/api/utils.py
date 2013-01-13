@@ -17,7 +17,12 @@
 #   Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import sys
+
 import PyKDE4.kdecore as kdecore
+
+if sys.version_info.major > 2:
+    unicode = str
 
 def danbooru_request_url(board_url, api_url, parameters=None, username=None,
                          password=None):
@@ -41,7 +46,12 @@ def danbooru_request_url(board_url, api_url, parameters=None, username=None,
 
     if parameters is not None:
 
-        for key, value in parameters.iteritems():
+        if sys.version_info.major > 2:
+            iterator = parameters.items()
+        else:
+            iterator = parameters.iteritems()
+
+        for key, value in iterator:
 
             if key == "tags":
                 # By adding a plus to tags, we already encoded them
