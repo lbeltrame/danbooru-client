@@ -94,6 +94,10 @@ class DanbooruPostView(QtGui.QTableWidget):
         if self.__locked:
             return
 
+        if data.file_url is None:
+            # Pass on invalid objects
+            return
+
         item = DanbooruPostWidget(data)
 
         self.__items.append(item)
@@ -131,5 +135,5 @@ class DanbooruPostView(QtGui.QTableWidget):
                           if item.checkbox.isChecked()]
 
         return selected_items
-    
+
 
