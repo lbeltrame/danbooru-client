@@ -3,10 +3,11 @@ set(PROGRAM_VERSION 1.0.2)
 set(CMAKE_BUILD_TYPE "Release")
 
 find_package(KDE4)
-find_package(PythonInterp)
+find_package(PythonLibrary)
 find_package(PyQt4)
 find_package(PyKDE4)
 include(PythonMacros)
+
 
 install ( FILES danbooru_client.desktop DESTINATION ${XDG_APPS_INSTALL_DIR} )
 
