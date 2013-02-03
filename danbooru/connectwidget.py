@@ -202,8 +202,3 @@ class ConnectWidget(QtGui.QWidget):
            self._wallet.createFolder(Wallet.PasswordFolder())
 
         self._adjust_wallet(self.danbooruUrlComboBox.currentText())
-
-
-
-
-
