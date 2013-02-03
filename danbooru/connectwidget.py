@@ -68,6 +68,11 @@ class ConnectWidget(QtGui.QWidget):
         self.userLineEdit.setClearButtonShown(True)
         self.passwdLineEdit.setClearButtonShown(True)
 
+        if self.anonCheckBox.isChecked():
+            self.userLineEdit.setEnabled(False)
+            self.passwdLineEdit.setEnabled(False)
+
+
         self._connection = None
 
         winid = self.parent().winId()
@@ -84,6 +89,7 @@ class ConnectWidget(QtGui.QWidget):
 
         self.danbooruUrlComboBox.currentIndexChanged[QtCore.QString].connect(
             self._adjust_wallet)
+        self.anonCheckBox.stateChanged.connect(self.toggle_lineedits)
 
 
     @property
@@ -97,12 +103,19 @@ class ConnectWidget(QtGui.QWidget):
         self.userLineEdit.setText(username)
 
     def _get_username(self):
-            return self.userLineEdit.text()
+
+        if not self.userLineEdit.isEnabled():
+            return
+
+        return self.userLineEdit.text()
 
     def _set_password(self, password):
         self.passwdLineEdit.setText(password)
 
     def _get_password(self):
+
+        if not self.passwdLineEdit.isEnabled():
+            return
         return self.passwdLineEdit.text()
 
     username = property(_get_username, _set_username)
@@ -117,8 +130,8 @@ class ConnectWidget(QtGui.QWidget):
         if url.isEmpty():
             return
 
-        username = None if login.isEmpty() else login
-        password = None if password.isEmpty() else password
+        username = None if login is None or login.isEmpty() else login
+        password = None if password is None or password.isEmpty() else password
 
         salt = _SALTS.get(unicode(url))
 
@@ -150,6 +163,16 @@ class ConnectWidget(QtGui.QWidget):
             for index, item in enumerate(urls):
                 self.danbooruUrlComboBox.insertUrl(index,
                     kdecore.KUrl(item))
+
+    def toggle_lineedits(self, state):
+
+        if state == QtCore.Qt.Unchecked:
+            self.userLineEdit.setEnabled(True)
+            self.passwdLineEdit.setEnabled(True)
+        elif state == QtCore.Qt.Checked:
+            self.userLineEdit.setEnabled(False)
+            self.passwdLineEdit.setEnabled(False)
+
 
     def _adjust_wallet(self, name):
 

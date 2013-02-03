@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>655</width>
-    <height>33</height>
+    <width>720</width>
+    <height>39</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -68,6 +68,16 @@
       <string>Danbooru password (optional)</string>
      </property>
      <property name="passwordMode">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="anonCheckBox">
+     <property name="text">
+      <string>Anonymous</string>
+     </property>
+     <property name="checked">
       <bool>true</bool>
      </property>
     </widget>
