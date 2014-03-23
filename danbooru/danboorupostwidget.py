@@ -27,7 +27,7 @@ import PyKDE4.kdecore as kdecore
 import PyKDE4.kdeui as kdeui
 import PyKDE4.kio as kio
 
-import danbooru2nepomuk
+# import danbooru2nepomuk
 
 _TRANSLATED_RATINGS = dict(
     Safe=kdecore.i18nc("Image for all audiences", "Safe"),
@@ -208,8 +208,8 @@ class DanbooruPostWidget(QtGui.QWidget):
         if tagging:
             # Get the URL of the board for Nepomuk tagging
             board_name = kdecore.KUrl(parent_widget.api_data.url)
-            danbooru2nepomuk.tag_danbooru_item(download_name, self.data.tags,
-                                               blacklist, board_name)
+            #danbooru2nepomuk.tag_danbooru_item(download_name, self.data.tags,
+            #                                   blacklist, board_name)
 
     def view(self):
 

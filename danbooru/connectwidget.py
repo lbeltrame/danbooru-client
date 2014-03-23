@@ -95,7 +95,7 @@ class ConnectWidget(QtGui.QWidget):
     @property
     def url(self):
 
-        "Returns the currently selected Danbooru URL."
+        "The currently selected Danbooru URL."
 
         return self.danbooruUrlComboBox.currentText()
 

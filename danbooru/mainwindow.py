@@ -44,7 +44,7 @@ import tagwidget
 import fetchwidget
 import connectwidget
 import poolwidget
-import danbooru2nepomuk
+#import danbooru2nepomuk
 
 class MainWindow(KXmlGuiWindow):
 
@@ -546,8 +546,8 @@ class MainWindow(KXmlGuiWindow):
         else:
             if self.preferences.nepomuk_enabled:
                 tags = job.property("tags").toPyObject()
-                danbooru2nepomuk.tag_danbooru_item(job.destUrl().path(),
-                                                   tags)
+                #danbooru2nepomuk.tag_danbooru_item(job.destUrl().path(),
+                #                                   tags)
 
     def tag_display(self, state):
 
